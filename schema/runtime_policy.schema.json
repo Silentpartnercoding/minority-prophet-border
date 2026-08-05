@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Minority Prophet Runtime Route Policy v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["policy_id", "policy_version", "policy_digest", "audience", "permitted_routes", "requires_human_approval", "override_permitted"],
+  "properties": {
+    "policy_id": {"type": "string", "minLength": 1},
+    "policy_version": {"type": "string", "minLength": 1},
+    "policy_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "audience": {"type": "string", "minLength": 1},
+    "permitted_routes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["action_type", "target"],
+        "properties": {
+          "action_type": {"type": "string", "minLength": 1},
+          "target": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "requires_human_approval": {"type": "boolean"},
+    "override_permitted": {"type": "boolean"}
+  }
+}

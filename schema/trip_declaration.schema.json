@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Minority Prophet Trip Declaration v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "request_id", "subject_id", "principal_id", "delegation_id", "manifest_digest", "purpose", "action", "created_at", "not_before", "expires_at", "nonce", "audience"],
+  "properties": {
+    "schema": {"const": "trip-declaration/v1"},
+    "request_id": {"type": "string", "minLength": 1},
+    "subject_id": {"type": "string", "minLength": 1},
+    "principal_id": {"type": "string", "minLength": 1},
+    "delegation_id": {"type": "string", "minLength": 1},
+    "manifest_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "purpose": {"type": "string", "minLength": 1},
+    "action": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "target", "payload_digest"],
+      "properties": {
+        "type": {"type": "string", "minLength": 1},
+        "target": {"type": "string", "minLength": 1},
+        "payload_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"}
+      }
+    },
+    "created_at": {"type": "string", "format": "date-time"},
+    "not_before": {"type": "string", "format": "date-time"},
+    "expires_at": {"type": "string", "format": "date-time"},
+    "nonce": {"type": "string", "minLength": 16},
+    "audience": {"type": "string", "minLength": 1}
+  }
+}

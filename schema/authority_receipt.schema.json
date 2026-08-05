@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Minority Prophet Neutral Authority Receipt v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["receipt_id", "request_id", "subject_id", "principal_id", "delegation_id", "action_digest", "status", "decision", "not_before", "expires_at", "issued_at", "key_id", "signature"],
+  "properties": {
+    "receipt_id": {"type": "string", "minLength": 1},
+    "request_id": {"type": "string", "minLength": 1},
+    "subject_id": {"type": "string", "minLength": 1},
+    "principal_id": {"type": "string", "minLength": 1},
+    "delegation_id": {"type": "string", "minLength": 1},
+    "action_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "status": {"enum": ["active", "expired", "revoked", "suspended"]},
+    "decision": {"enum": ["allow", "deny"]},
+    "not_before": {"type": "string", "format": "date-time"},
+    "expires_at": {"type": "string", "format": "date-time"},
+    "issued_at": {"type": "string", "format": "date-time"},
+    "key_id": {"type": "string", "minLength": 1},
+    "signature": {"type": "string", "minLength": 1}
+  }
+}

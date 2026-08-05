@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Minority Prophet Border Admission Receipt v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "admission_id", "request_id", "subject_id", "principal_id", "delegation_id", "action_digest", "declaration_digest", "authority_receipt_digest", "policy_digest", "control_event_digest", "control_mode", "decision", "issued_at", "expires_at", "nonce"],
+  "properties": {
+    "schema": {"const": "border-admission/v1"},
+    "admission_id": {"type": "string", "minLength": 1},
+    "request_id": {"type": "string", "minLength": 1},
+    "subject_id": {"type": "string", "minLength": 1},
+    "principal_id": {"type": "string", "minLength": 1},
+    "delegation_id": {"type": "string", "minLength": 1},
+    "action_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "declaration_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "authority_receipt_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "policy_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "control_event_digest": {"type": ["string", "null"], "pattern": "^sha256:[a-f0-9]{64}$"},
+    "control_mode": {"enum": ["autonomous", "human_approved", "human_overridden", "human_operated"]},
+    "decision": {"const": "admit"},
+    "issued_at": {"type": "string", "format": "date-time"},
+    "expires_at": {"type": "string", "format": "date-time"},
+    "nonce": {"type": "string", "minLength": 16}
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Minority Prophet Admission Stamp Bindings v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["admission_receipt_digest", "declaration_digest", "authority_receipt_digest", "policy_digest", "action_digest", "control_event_digest", "decision_point", "expires_at"],
+  "properties": {
+    "admission_receipt_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "declaration_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "authority_receipt_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "policy_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "action_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "control_event_digest": {"type": ["string", "null"], "pattern": "^sha256:[a-f0-9]{64}$"},
+    "decision_point": {"type": "string", "minLength": 1},
+    "expires_at": {"type": "string", "format": "date-time"}
+  }
+}

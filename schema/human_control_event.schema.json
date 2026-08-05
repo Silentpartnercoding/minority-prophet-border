@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Minority Prophet Human Control Event v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "event_id", "mode", "human_id", "role", "authority_ref", "subject_id", "request_id", "action_digest", "original_decision", "reason", "not_before", "expires_at", "nonce", "policy_version", "authentication_digest", "co_approvers", "signature"],
+  "properties": {
+    "schema": {"const": "human-control/v1"},
+    "event_id": {"type": "string", "minLength": 1},
+    "mode": {"enum": ["approval", "override", "manual_control"]},
+    "human_id": {"type": "string", "minLength": 1},
+    "role": {"type": "string", "minLength": 1},
+    "authority_ref": {"type": "string", "minLength": 1},
+    "subject_id": {"type": "string", "minLength": 1},
+    "request_id": {"type": "string", "minLength": 1},
+    "action_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "original_decision": {"enum": ["pending", "secondary", "block"]},
+    "reason": {"type": "string", "minLength": 1},
+    "not_before": {"type": "string", "format": "date-time"},
+    "expires_at": {"type": "string", "format": "date-time"},
+    "nonce": {"type": "string", "minLength": 16},
+    "policy_version": {"type": "string", "minLength": 1},
+    "authentication_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "co_approvers": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+    "signature": {"type": "string", "minLength": 1}
+  }
+}

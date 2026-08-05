@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Minority Prophet Border Entry Stamp v1 in-toto Statement",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["_type", "subject", "predicateType", "predicate"],
+  "properties": {
+    "_type": {"const": "https://in-toto.io/Statement/v1"},
+    "subject": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "digest"],
+        "properties": {
+          "name": {"type": "string", "minLength": 1},
+          "digest": {
+            "type": "object",
+            "minProperties": 1,
+            "additionalProperties": {"type": "string", "minLength": 1}
+          }
+        }
+      }
+    },
+    "predicateType": {"const": "https://minority-prophet.dev/entry-stamp/v1"},
+    "predicate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["assertion", "origin", "observed_at", "chain", "emitter", "schema"],
+      "properties": {
+        "assertion": {"type": ["string", "integer", "boolean"]},
+        "origin": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "ref"],
+          "properties": {
+            "kind": {"enum": ["root", "echo"]},
+            "ref": {"type": "string", "minLength": 1}
+          }
+        },
+        "observed_at": {"type": "string", "format": "date-time"},
+        "chain": {"type": ["string", "null"], "pattern": "^[a-f0-9]{64}$"},
+        "emitter": {"type": "string", "minLength": 1},
+        "schema": {"const": "entry-stamp/v1"}
+      }
+    }
+  }
+}

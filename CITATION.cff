@@ -1,0 +1,8 @@
+cff-version: 1.2.0
+message: "If you use Minority Prophet Border, please cite it."
+title: "Minority Prophet Border"
+authors:
+  - family-names: "He"
+    given-names: "James Siyuan"
+    alias: "Silentpartnercoding"
+license: MIT
