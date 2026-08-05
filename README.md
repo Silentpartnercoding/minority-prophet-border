@@ -48,8 +48,10 @@ identity/authority implementation
 the consequences — and nothing between a border and a gate can create
 evidence, only carry it.**
 
-Issuers give agents their passports; the border stamps every claim as it is
-born from real execution; the gate weighs the stamps before anything acts.
+Issuers give agents their passports; the Border binds an exact declaration to
+current authority and destination policy; the first Gate evaluates that bound
+record before anything acts. Separate witnesses may later stamp observations
+created at approved execution boundaries for downstream Gates.
 
 ## The two-ID rule
 
@@ -84,6 +86,8 @@ policy for its own decision point.
   Witness for CI-shaped roots.
 - [`border/authority_adapter.py`](border/authority_adapter.py) — neutral,
   fail-closed identity/authority normalization.
+- [`border/reference_authorities.py`](border/reference_authorities.py) —
+  signed-token and capability-grant reference provider adapters.
 - [`border/adapter_maker.py`](border/adapter_maker.py) — provider profile and
   adapter-package generator with explicit gap reporting.
 - [`border/admission.py`](border/admission.py) — practical trip-declaration,
@@ -99,11 +103,11 @@ policy for its own decision point.
 
 ## Deferred work
 
-Production key backends, durable multi-process replay storage, the verifier
-bridge, and end-to-end Gate/runtime integrations remain deployment work. The
-public code provides DSSE packaging and injected signer/verifier interfaces but
-never owns production keys. Any upstream proposal requires separate owner
-approval before a pull request.
+Production key backends, durable multi-process replay storage, and the verifier
+bridge remain deployment work. The public code provides DSSE packaging,
+injected signer/verifier interfaces, two neutral authority-provider families,
+and a four-pair Border/Gate/runtime conformance matrix, but never owns
+production keys.
 
 The future verifier bridge must normalize both approved Witness attestation
 collections and Border entry-stamp predicates into the same internal Gate

@@ -8,8 +8,15 @@ jobs:
         python-version: ["3.10", "3.11", "3.12"]
     steps:
       - uses: actions/checkout@v4
+        with:
+          path: border
+      - uses: actions/checkout@v4
+        with:
+          repository: Silentpartnercoding/minority-prophet-gate
+          path: gate
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - run: python -m py_compile border/*.py
-      - run: python -c "import json; json.load(open('schema/entry_stamp.schema.json')); json.load(open('schema/entry_stamp.statement.schema.json'))"
+      - run: python -m py_compile border/border/*.py gate/minority_prophet/*.py
+      - run: python -c "import json; json.load(open('border/schema/entry_stamp.schema.json')); json.load(open('border/schema/entry_stamp.statement.schema.json'))"
+      - run: PYTHONPATH=border:gate python -m unittest discover -s border/tests -v

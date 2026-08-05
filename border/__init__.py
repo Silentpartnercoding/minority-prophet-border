@@ -23,6 +23,10 @@ from .dsse import (
     verify_envelope,
 )
 from .stamper import stamp_admission
+from .reference_authorities import (
+    CapabilityGrantAuthorityProvider,
+    SignedTokenAuthorityProvider,
+)
 
 __all__ = [
     "AuthorityAdapterError",
@@ -44,4 +48,6 @@ __all__ = [
     "sign_envelope",
     "verify_envelope",
     "stamp_admission",
+    "CapabilityGrantAuthorityProvider",
+    "SignedTokenAuthorityProvider",
 ]
