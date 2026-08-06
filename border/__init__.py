@@ -27,6 +27,8 @@ from .reference_authorities import (
     CapabilityGrantAuthorityProvider,
     SignedTokenAuthorityProvider,
 )
+from .openid_aiim import (OAuthAccessAuthorityProvider, protected_resource_metadata,
+                          validate_cimd_document, www_authenticate)
 
 __all__ = [
     "AuthorityAdapterError",
@@ -50,4 +52,8 @@ __all__ = [
     "stamp_admission",
     "CapabilityGrantAuthorityProvider",
     "SignedTokenAuthorityProvider",
+    "OAuthAccessAuthorityProvider",
+    "protected_resource_metadata",
+    "validate_cimd_document",
+    "www_authenticate",
 ]
