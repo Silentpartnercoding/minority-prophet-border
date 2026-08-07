@@ -116,3 +116,8 @@ production keys.
 The future verifier bridge must normalize both approved Witness attestation
 collections and Border entry-stamp predicates into the same internal Gate
 claim shape. The end-to-end suite must include a mixed-source decision.
+
+## License
+
+Licensed under Apache License 2.0. See [`LICENSE`](LICENSE) and
+[`NOTICE`](NOTICE).
