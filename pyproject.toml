@@ -5,7 +5,7 @@ description = "Neutral admission and evidence-provenance boundary for agentic sy
 authors = [{name = "James Siyuan He"}]
 readme = "README.md"
 requires-python = ">=3.10"
-license = {text = "MIT"}
+license = "Apache-2.0"
 
 [build-system]
 requires = ["setuptools>=68"]
