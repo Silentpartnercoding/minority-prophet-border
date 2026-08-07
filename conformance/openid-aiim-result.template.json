@@ -1,0 +1,16 @@
+{
+  "schema": "openid-aiim-result/v1",
+  "test_id": "replace-with-shared-test-id",
+  "tested_at": "2026-08-06T00:00:00Z",
+  "tester": {"name": "PARTNER", "role": "mcp_client", "version": "VERSION"},
+  "implementation": {"name": "Minority Prophet Border reference gateway", "role": "mcp_server", "version": "0.1.0"},
+  "features": [
+    {"matrix": "oauth", "feature": "OAuth Protected Resource Metadata (OPRM)", "implementation_role": "mcp_server", "outcome": "blank"},
+    {"matrix": "oauth", "feature": "scope parameter in WWW-Authenticate", "implementation_role": "mcp_server", "outcome": "blank"}
+  ],
+  "evidence": {
+    "transcript_digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+    "configuration_digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+    "negative_tests_digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+  }
+}
