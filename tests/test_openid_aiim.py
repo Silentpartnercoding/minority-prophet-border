@@ -24,10 +24,14 @@ class OpenIDAiimTests(unittest.TestCase):
         client_id = "https://gateway.example/client.json"
         valid = {"client_id": client_id, "redirect_uris": ["https://gateway.example/callback"],
                  "jwks_uri": "https://gateway.example/jwks.json", "grant_types": ["authorization_code"],
-                 "code_challenge_methods_supported": ["S256"]}
+                 "response_types": ["code"], "token_endpoint_auth_method": "private_key_jwt"}
         self.assertEqual(validate_cimd_document(client_id, valid), valid)
         with self.assertRaises(AdmissionError): validate_cimd_document("https://other.example/client", valid)
         with self.assertRaises(AdmissionError): validate_cimd_document(client_id, {**valid, "jwks": {"keys": []}})
+        with self.assertRaises(AdmissionError):
+            validate_cimd_document(client_id, {**valid, "token_endpoint_auth_method": "client_secret_basic"})
+        with self.assertRaises(AdmissionError):
+            validate_cimd_document("https://gateway.example/../client", {**valid, "client_id": "https://gateway.example/../client"})
 
     def test_oprm_and_challenge_are_well_formed(self):
         metadata = protected_resource_metadata(resource="https://mcp.example",

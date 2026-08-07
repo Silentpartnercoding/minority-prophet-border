@@ -29,6 +29,9 @@ from .reference_authorities import (
 )
 from .openid_aiim import (OAuthAccessAuthorityProvider, protected_resource_metadata,
                           validate_cimd_document, www_authenticate)
+from .openid_gateway import (HttpResponse, OpenIDGatewayServer, OAuthMcpClient,
+                             PendingAuthorization, UrllibTransport,
+                             authorization_server_metadata_urls)
 
 __all__ = [
     "AuthorityAdapterError",
@@ -56,4 +59,10 @@ __all__ = [
     "protected_resource_metadata",
     "validate_cimd_document",
     "www_authenticate",
+    "HttpResponse",
+    "OpenIDGatewayServer",
+    "OAuthMcpClient",
+    "PendingAuthorization",
+    "authorization_server_metadata_urls",
+    "UrllibTransport",
 ]

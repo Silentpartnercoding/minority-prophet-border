@@ -8,13 +8,17 @@ from __future__ import annotations
 import hashlib
 from datetime import datetime, timezone
 from typing import Any, Callable
-from urllib.parse import urlparse
+from urllib.parse import unquote, urlparse
 from .admission import AdmissionError, document_digest
 
 def _https(value: str, field: str) -> str:
     parsed = urlparse(value)
-    if parsed.scheme != "https" or not parsed.netloc or parsed.fragment:
+    segments = unquote(parsed.path).split("/")
+    if (parsed.scheme != "https" or not parsed.netloc or parsed.fragment
+            or parsed.username or parsed.password):
         raise AdmissionError(f"{field} must be an absolute HTTPS URL without a fragment")
+    if field == "client_id" and (not parsed.path or any(segment in (".", "..") for segment in segments)):
+        raise AdmissionError("client_id must contain a safe path")
     return value
 
 def validate_cimd_document(client_id: str, document: dict[str, Any]) -> dict[str, Any]:
@@ -35,8 +39,9 @@ def validate_cimd_document(client_id: str, document: dict[str, Any]) -> dict[str
         _https(document["jwks_uri"], "jwks_uri")
     if "authorization_code" not in document.get("grant_types", []):
         raise AdmissionError("CIMD authorization_code grant is required")
-    if "S256" not in document.get("code_challenge_methods_supported", []):
-        raise AdmissionError("CIMD must require PKCE S256")
+    method = document.get("token_endpoint_auth_method", "none")
+    if method in {"client_secret_post", "client_secret_basic", "client_secret_jwt"}:
+        raise AdmissionError("CIMD cannot establish shared-secret client authentication")
     return dict(document)
 
 def protected_resource_metadata(*, resource: str, authorization_servers: list[str],

@@ -100,6 +100,8 @@ policy for its own decision point.
   sockets checked by every Gate.
 - [`conformance/`](conformance/) — language-neutral admission vectors and
   adversarial expected outcomes.
+- [`docs/openid-aiim-2026.md`](docs/openid-aiim-2026.md) — executable OpenID
+  AIIM gateway interoperability path and partner result contract.
 
 ## Deferred work
 
