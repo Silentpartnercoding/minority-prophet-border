@@ -4,8 +4,8 @@ import json
 import unittest
 from urllib.parse import parse_qs, urlparse
 
-from border import (AdmissionError, HttpResponse, OAuthMcpClient,
-                    OpenIDGatewayServer, UrllibTransport)
+from border import (AdmissionError, HttpResponse, InteropEvidenceLog,
+                    OAuthMcpClient, OpenIDGatewayServer, UrllibTransport)
 
 BASE = "https://gateway.example"
 RESOURCE = BASE + "/mcp"
@@ -41,7 +41,8 @@ def server(effects):
     return OpenIDGatewayServer(base_url=BASE, authorization_servers=[ISSUER],
         required_scope="mcp:tools", cimd_document=cimd,
         jwks={"keys": [{"kty": "EC", "kid": "interop-key"}]},
-        authorize=authorize, admit_once=admit_once, execute=execute)
+        authorize=authorize, readiness=lambda: True,
+        admit_once=admit_once, execute=execute)
 
 
 class InteropTransport:
@@ -77,6 +78,12 @@ class InteropTransport:
 class OpenIDGatewayTests(unittest.TestCase):
     def test_server_hosts_oprm_cimd_jwks_and_challenges_without_token(self):
         app = server([])
+        self.assertEqual(app.handle("GET", "/healthz", {}, b"").json_body(), {"live": True})
+        self.assertEqual(app.handle("GET", "/readyz", {}, b"").json_body(), {"ready": True})
+        app.readiness = lambda: False
+        not_ready = app.handle("GET", "/readyz", {}, b"")
+        self.assertEqual(not_ready.status, 503)
+        self.assertEqual(not_ready.json_body(), {"ready": False})
         oprm = app.handle("GET", "/.well-known/oauth-protected-resource/mcp", {}, b"")
         self.assertEqual(oprm.status, 200)
         self.assertEqual(oprm.json_body()["resource"], RESOURCE)
@@ -239,6 +246,21 @@ class OpenIDGatewayTests(unittest.TestCase):
         self.assertEqual(observed["content_type"], "application/json")
         with self.assertRaises(AdmissionError):
             transport.request("GET", "http://gateway.example/mcp")
+
+    def test_evidence_log_redacts_secrets_and_query_parameters(self):
+        from datetime import datetime, timezone
+        log = InteropEvidenceLog(clock=lambda: datetime(2026, 8, 7, tzinfo=timezone.utc),
+                                 correlation_salt=b"x" * 32)
+        log.record(direction="outbound", feature="pkce_token_exchange", method="POST",
+            url=ISSUER + "/token?code=never-store-this", status=200, peer="partner-as",
+            token="secret-access-token", metadata={"issuer": ISSUER})
+        serialized = json.dumps(log.events)
+        self.assertNotIn("secret-access-token", serialized)
+        self.assertNotIn("never-store-this", serialized)
+        self.assertIn("token_reference", serialized)
+        evidence = log.evidence_digests(configuration={"resource": RESOURCE},
+                                        negative_tests={"wrong_scope": "blocked"})
+        self.assertTrue(all(value.startswith("sha256:") for value in evidence.values()))
 
 
 if __name__ == "__main__":

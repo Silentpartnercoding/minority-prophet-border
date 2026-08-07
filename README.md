@@ -102,6 +102,8 @@ policy for its own decision point.
   adversarial expected outcomes.
 - [`docs/openid-aiim-2026.md`](docs/openid-aiim-2026.md) — executable OpenID
   AIIM gateway interoperability path and partner result contract.
+- [`docs/openid-aiim-deployment.md`](docs/openid-aiim-deployment.md) — public
+  endpoint, readiness, protected-configuration and bilateral-run contract.
 
 ## Deferred work
 
