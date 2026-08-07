@@ -53,10 +53,18 @@ evidence, only carry it.**
 A verifier is not trusted merely because it is a third party. It earns trust
 by applying transparent rules, remaining independent of the evidence producer,
 exposing uncertainty, and being unable to mint, alter, or promote the evidence
-it verifies. If one component both manufactures and verifies an evidence root,
-the Border marks that provenance as overlapping; it does not treat the root as
-independent. Missing separation is a reason for secondary review, never a new
-source of authority.
+it verifies.
+
+The current Border envelope records an asserted `independence_basis`, rejects
+unknown origins that claim independence, and prevents copied or derived
+evidence from minting a fresh root. It does **not** yet establish whether an
+evidence producer and verifier share an organizational controller. Until a
+versioned control-domain profile and external verification policy exist, a
+deployment must not treat different names, keys, services, or labels as proof
+of independence. Unknown or overlapping control is a reason for secondary
+review, never a new source of authority. The preregistered HVI-1 study in the
+Minority Prophet research repository defines the experiment required to test
+that future profile.
 
 Issuers give agents their passports; the Border binds an exact declaration to
 current authority and destination policy; the first Gate evaluates that bound
