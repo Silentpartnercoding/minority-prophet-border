@@ -2,8 +2,12 @@
 
 The central threat is root-key compromise. Gate exposes the price through its
 root margin: a `flip_budget` at the margin forces abstention, and one more
-forged root reverses. A floor of two is immune to one compromise under the
-stated root-error model.
+forged root reverses. That margin counts forged roots, not compromised keys.
+A single unbounded compromised issuer may manufacture many apparent roots.
+Resistance to one compromised key therefore requires an enforced issuance
+bound, stable root identity, and provenance rules that prevent one authority
+from minting additional independent roots. A numerical floor alone does not
+provide that protection.
 
 Root-policy manipulation is equally security-critical: changing
 `border/boundaries.py` changes what may count as independent evidence. Every
