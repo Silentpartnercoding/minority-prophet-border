@@ -33,6 +33,13 @@ class ArchitectureBoundaryTests(unittest.TestCase):
         self.assertIn("defines a portable admission record for one exact\nagent action", readme)
         self.assertIn("The provider-independent contract", readme)
 
+    def test_readme_requires_verifier_independence(self):
+        readme = (ROOT / "README.md").read_text()
+        self.assertIn("Verifier-independence invariant", readme)
+        self.assertIn("not trusted merely because it is a third party", readme)
+        self.assertIn("unable to mint, alter, or promote the evidence", readme)
+        self.assertIn("secondary review, never a new\nsource of authority", readme)
+
 
 if __name__ == "__main__":
     unittest.main()

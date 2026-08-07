@@ -48,6 +48,16 @@ identity/authority implementation
 the consequences — and nothing between a border and a gate can create
 evidence, only carry it.**
 
+### Verifier-independence invariant
+
+A verifier is not trusted merely because it is a third party. It earns trust
+by applying transparent rules, remaining independent of the evidence producer,
+exposing uncertainty, and being unable to mint, alter, or promote the evidence
+it verifies. If one component both manufactures and verifies an evidence root,
+the Border marks that provenance as overlapping; it does not treat the root as
+independent. Missing separation is a reason for secondary review, never a new
+source of authority.
+
 Issuers give agents their passports; the Border binds an exact declaration to
 current authority and destination policy; the first Gate evaluates that bound
 record before anything acts. Separate witnesses may later stamp observations
