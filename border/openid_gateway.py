@@ -127,6 +127,7 @@ class OpenIDGatewayServer:
                  required_scope: str, cimd_document: Mapping[str, Any],
                  jwks: Mapping[str, Any],
                  authorize: Callable[[str, Mapping[str, Any]], Mapping[str, Any]],
+                 readiness: Callable[[], bool],
                  admit_once: Callable[[str], bool],
                  execute: Callable[[Mapping[str, Any], Mapping[str, Any]], Mapping[str, Any]]) -> None:
         self.base_url = base_url.rstrip("/")
@@ -138,11 +139,17 @@ class OpenIDGatewayServer:
         self.cimd_document = validate_cimd_document(self.client_id, dict(cimd_document))
         self.jwks = dict(jwks)
         self.authorize = authorize
+        self.readiness = readiness
         self.admit_once = admit_once
         self.execute = execute
 
     def handle(self, method: str, path: str, headers: Mapping[str, str],
                body: bytes = b"") -> HttpResponse:
+        if method == "GET" and path == "/healthz":
+            return HttpResponse.json(200, {"live": True})
+        if method == "GET" and path == "/readyz":
+            ready = bool(self.readiness())
+            return HttpResponse.json(200 if ready else 503, {"ready": ready})
         if method == "GET" and path == "/.well-known/oauth-protected-resource/mcp":
             return HttpResponse.json(200, protected_resource_metadata(
                 resource=self.resource_url,
@@ -180,7 +187,8 @@ class OpenIDGatewayServer:
         headers = {key[5:].replace("_", "-"): value for key, value in environ.items()
                    if key.startswith("HTTP_")}
         response = self.handle(environ["REQUEST_METHOD"], environ.get("PATH_INFO", "/"), headers, body)
-        reasons = {200: "OK", 401: "Unauthorized", 403: "Forbidden", 404: "Not Found"}
+        reasons = {200: "OK", 401: "Unauthorized", 403: "Forbidden",
+                   404: "Not Found", 503: "Service Unavailable"}
         output_headers = list(response.headers.items()) + [("Content-Length", str(len(response.body)))]
         start_response(f"{response.status} {reasons[response.status]}", output_headers)
         return [response.body]

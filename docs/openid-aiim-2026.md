@@ -74,6 +74,8 @@ transport and protected client-key operations. This repository deliberately
 does not ship credentials or an authorization server.
 `UrllibTransport` supplies the real HTTPS transport; tests replace it with an
 in-memory peer so the complete flow remains deterministic.
+`InteropEvidenceLog` retains only protocol facts, salted token references and
+document digests; it strips URL queries and never accepts raw headers or bodies.
 
 ## Explicit non-goals
 

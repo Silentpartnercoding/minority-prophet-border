@@ -32,6 +32,7 @@ from .openid_aiim import (OAuthAccessAuthorityProvider, protected_resource_metad
 from .openid_gateway import (HttpResponse, OpenIDGatewayServer, OAuthMcpClient,
                              PendingAuthorization, UrllibTransport,
                              authorization_server_metadata_urls)
+from .openid_evidence import InteropEvidenceLog
 
 __all__ = [
     "AuthorityAdapterError",
@@ -65,4 +66,5 @@ __all__ = [
     "PendingAuthorization",
     "authorization_server_metadata_urls",
     "UrllibTransport",
+    "InteropEvidenceLog",
 ]
