@@ -48,6 +48,21 @@ identity/authority implementation
 the consequences — and nothing between a border and a gate can create
 evidence, only carry it.**
 
+### Optional subject-link seam
+
+Deployments that must combine identity forms from different provider
+namespaces can normalize their signed link receipts with
+`border.subject_link`. The implementer states the required credential types,
+audience, and minimum provider count; the seam returns `accept`, `block`, or
+`escalate` for that explicit requirement.
+
+This seam is optional. A direct provider-to-runtime integration that already
+supplies one sufficient, verifiable composite identity does not need it. The
+seam does not perform identity proofing, match names or attributes, store a
+person profile, grant authority, or establish that differently named providers
+are independent. It only checks explicit provider-issued links and normalizes
+the minimum facts Border needs.
+
 ### Verifier-independence invariant
 
 A verifier is not trusted merely because it is a third party. It earns trust
