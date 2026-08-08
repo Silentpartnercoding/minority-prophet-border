@@ -33,6 +33,14 @@ from .openid_gateway import (HttpResponse, OpenIDGatewayServer, OAuthMcpClient,
                              PendingAuthorization, UrllibTransport,
                              authorization_server_metadata_urls)
 from .openid_evidence import InteropEvidenceLog
+from .subject_link import (
+    SubjectLinkError,
+    SubjectLinkEvidence,
+    SubjectRequirement,
+    SubjectRequirementResult,
+    evaluate_subject_requirement,
+    normalize_subject_link,
+)
 
 __all__ = [
     "AuthorityAdapterError",
@@ -67,4 +75,10 @@ __all__ = [
     "authorization_server_metadata_urls",
     "UrllibTransport",
     "InteropEvidenceLog",
+    "SubjectLinkError",
+    "SubjectLinkEvidence",
+    "SubjectRequirement",
+    "SubjectRequirementResult",
+    "evaluate_subject_requirement",
+    "normalize_subject_link",
 ]
