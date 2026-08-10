@@ -1,11 +1,21 @@
 [project]
 name = "minority-prophet-border"
-version = "0.1.0"
+version = "0.2.0"
 description = "Neutral admission and evidence-provenance boundary for agentic systems."
 authors = [{name = "James Siyuan He"}]
 readme = "README.md"
 requires-python = ">=3.10"
 license = "Apache-2.0"
+
+[project.optional-dependencies]
+sandbox = [
+  "PyJWT[crypto]>=2.10,<3",
+  "gunicorn>=23,<24",
+  "minority-prophet-gate @ https://github.com/Silentpartnercoding/minority-prophet-gate/archive/70f7d342424bd278530296186081438160bfeea2.tar.gz",
+]
+
+[project.scripts]
+minority-prophet-border-keygen = "border.keygen:main"
 
 [build-system]
 requires = ["setuptools>=68"]

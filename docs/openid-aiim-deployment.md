@@ -15,8 +15,16 @@ The deployed HTTPS service exposes:
 - `GET /readyz` - whether injected authorization, replay and execution
   dependencies are ready.
 
-Readiness must stay false until token verification, durable action reservation,
-the execution Gate and protected client authentication are configured.
+The reference live composition is documented in `docs/live-sandbox.md`. It
+implements MCP initialization and tool discovery in addition to the protected
+`interop.echo` call. The callback URI is advertised for CIMD compatibility but
+is not activated until a complementary authorization-server partner and its
+client-authentication contract are selected.
+
+Inbound readiness must stay false until token verification, durable action
+reservation, and the execution Gate are configured. The separate outbound
+readiness surface must stay false until protected client authentication,
+operator authentication, and a downstream resource are also configured.
 
 ## Non-secret configuration
 

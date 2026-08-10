@@ -137,6 +137,9 @@ policy for its own decision point.
   AIIM gateway interoperability path and partner result contract.
 - [`docs/openid-aiim-deployment.md`](docs/openid-aiim-deployment.md) — public
   endpoint, readiness, protected-configuration and bilateral-run contract.
+- [`docs/live-sandbox.md`](docs/live-sandbox.md) — container-ready MCP server
+  surface joining OAuth verification, Border binding, Gate enforcement, and a
+  durable harmless echo adapter.
 
 ## Deferred work
 
