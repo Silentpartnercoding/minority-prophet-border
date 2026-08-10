@@ -504,18 +504,39 @@ class InteropCheckpoint:
         )
         if gate.action != "proceed":
             raise AdmissionError("Gate did not permit the admitted action")
+        request_namespace = document_digest({
+            "issuer": claims["iss"],
+            "client_id": claims["client_id"],
+            "request_id": request_id,
+        })
+        authority_binding = document_digest({
+            "request_id": request_id,
+            "issuer": claims["iss"],
+            "client_id": claims["client_id"],
+            "grant_id": claims["jti"],
+            "subject_id": subject_id,
+            "principal_id": principal_id,
+            "delegation_id": delegation_id,
+            "audience": self.settings.audience,
+            "required_scope": self.settings.required_scope,
+            "action_digest": authority["action_digest"],
+        })
         return {
             "claims": claims,
             "admission": admission.receipt,
             "gate": gate,
             "action": action,
             "arguments": arguments,
-            "idempotency_key": "openid-aiim:" + nonce,
+            # The namespace remains stable across retries by one OAuth client.
+            # The runtime fingerprint below separately binds every authority
+            # field that must not be substituted within that namespace.
+            "idempotency_key": "openid-aiim:" + request_namespace.removeprefix("sha256:"),
+            "runtime_action_id": authority_binding,
         }
 
     def execute(self, request: Mapping[str, Any], context: Mapping[str, Any]) -> dict[str, Any]:
         action = self.RuntimeAction(
-            str(request["id"]),
+            context["runtime_action_id"],
             context["action"]["type"],
             context["action"]["target"],
             context["action"]["payload_digest"],

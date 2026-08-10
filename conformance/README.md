@@ -14,3 +14,11 @@ substitution, authority-action substitution, and expiration. Future versions
 must add cross-language JCS/DSSE known-answer signatures using a public test key,
 durable replay races, multi-process consumption, key rotation, multi-approver
 chains, and evidence-root laundering.
+
+## OpenID AIIM local rehearsal
+
+`bilateral_rehearsal.py` runs a disposable OAuth authorization server and MCP
+client against the reference gateway. It is intentionally local-only and must
+never be presented as partner-confirmed interoperability. The command, matrix,
+retained evidence and limits are documented in
+[`../docs/local-bilateral-rehearsal.md`](../docs/local-bilateral-rehearsal.md).

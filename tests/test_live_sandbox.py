@@ -124,6 +124,36 @@ class LiveSandboxTests(unittest.TestCase):
         self.assertEqual(substituted.status, 403)
         self.assertEqual(valid.checkpoint.runtime.effect_count(), 1)
 
+    def test_identity_and_delegation_cannot_be_substituted_on_retry(self):
+        tokens = {
+            "original": claims(jti="shared-grant"),
+            "other-agent": claims(sub="agent-2", jti="shared-grant"),
+            "other-human": claims(act={"sub": "human-2"}, jti="shared-grant"),
+        }
+        app = create_app(
+            self.settings,
+            verify_token=lambda token: tokens[token],
+            clock=lambda: NOW,
+        )
+
+        def call(token, request):
+            return app.handle(
+                "POST",
+                "/mcp",
+                {"Authorization": f"Bearer {token}"},
+                json.dumps(request).encode(),
+            )
+
+        identity_request = self.request("identity-retry", {"value": 1})
+        self.assertEqual(call("original", identity_request).status, 200)
+        self.assertEqual(call("other-agent", identity_request).status, 403)
+        self.assertEqual(app.checkpoint.runtime.effect_count(), 1)
+
+        delegation_request = self.request("delegation-retry", {"value": 2})
+        self.assertEqual(call("original", delegation_request).status, 200)
+        self.assertEqual(call("other-human", delegation_request).status, 403)
+        self.assertEqual(app.checkpoint.runtime.effect_count(), 2)
+
     def test_settings_fail_closed_without_public_key_or_stamp_key(self):
         environment = {
             "MP_BASE_URL": BASE,

@@ -140,6 +140,8 @@ policy for its own decision point.
 - [`docs/live-sandbox.md`](docs/live-sandbox.md) — container-ready MCP server
   surface joining OAuth verification, Border binding, Gate enforcement, and a
   durable harmless echo adapter.
+- [`docs/local-bilateral-rehearsal.md`](docs/local-bilateral-rehearsal.md) —
+  one-command, local-only OAuth/MCP rehearsal with explicit non-claims.
 
 ## Deferred work
 
