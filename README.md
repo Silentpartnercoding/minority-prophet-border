@@ -44,6 +44,26 @@ identity/authority implementation
              runtime implementation
 ```
 
+### Optional authorized-invocation (Mandate) adapter
+
+Some actions do not transfer authority from one agent to another. Agent A may
+be authorized to request one exact action while Agent B independently holds
+the permission needed to execute it. `border.mandate_adapter` verifies both
+paths and emits a provider-neutral `border-authority-relation/v1` receipt,
+stamped with Border's existing DSSE/in-toto machinery, without mislabeling the
+relationship as delegation.
+
+For example, A may request archiving `notion:page:123`, while B independently
+has Notion permission to execute `archive_page`. Border admits the relation
+only when both permissions, A's signed Mandate, B's bound credential, the exact
+page/action/payload, audience, time, and revocation status verify. The adapter
+is optional; native artifacts may still travel directly to a compatible Gate.
+
+The contract and threat boundary are documented in
+[`schema/authorized_invocation.md`](schema/authorized_invocation.md), with
+language-neutral cases in
+[`conformance/mandate-v1.json`](conformance/mandate-v1.json).
+
 **Issuers credential the travelers, borders witness the crossings, gates guard
 the consequences — and nothing between a border and a gate can create
 evidence, only carry it.**

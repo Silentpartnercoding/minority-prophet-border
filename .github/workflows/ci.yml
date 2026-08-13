@@ -17,12 +17,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+      - if: matrix.python-version == '3.12'
+        run: python -m pip install 'PyJWT[crypto]>=2.10,<3'
       - run: python -m py_compile border/border/*.py gate/minority_prophet/*.py
       - run: python -c "import json; json.load(open('border/schema/entry_stamp.schema.json')); json.load(open('border/schema/entry_stamp.statement.schema.json'))"
       - run: PYTHONPATH=border:gate python -m unittest discover -s border/tests -v
       - if: matrix.python-version == '3.12'
-        run: |
-          python -m pip install 'PyJWT[crypto]>=2.10,<3'
-          PYTHONPATH=border:gate python -m conformance.bilateral_rehearsal --output /tmp/bilateral-rehearsal-result.json
+        run: PYTHONPATH=border:gate python -m conformance.bilateral_rehearsal --output /tmp/bilateral-rehearsal-result.json
       - if: matrix.python-version == '3.12'
         run: docker build -t minority-prophet-border-sandbox:ci border

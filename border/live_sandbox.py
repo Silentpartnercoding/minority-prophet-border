@@ -15,6 +15,7 @@ import json
 import os
 import secrets
 import sqlite3
+import stat
 import threading
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
@@ -217,6 +218,12 @@ class PrivateKeyJWTSigner:
         except ImportError as exc:
             raise AdmissionError("install the sandbox dependencies for private_key_jwt") from exc
         path = Path(private_key_path)
+        try:
+            metadata = path.stat()
+        except OSError as exc:
+            raise AdmissionError("client private key could not be loaded") from exc
+        if not stat.S_ISREG(metadata.st_mode) or stat.S_IMODE(metadata.st_mode) & 0o077:
+            raise AdmissionError("client private key must be a private regular file")
         try:
             pem = path.read_bytes()
             private_key = serialization.load_pem_private_key(pem, password=None)
@@ -620,9 +627,8 @@ class LiveSandboxApplication:
                     return HttpResponse(302, {"Location": result, "Cache-Control": "no-store"}, b"")
                 return HttpResponse.json(200, {"downstream_status": result.status,
                                                "authorization_required": False})
-            except Exception as exc:
-                return HttpResponse.json(403, {"error": "outbound_start_failed",
-                                               "message": str(exc)})
+            except Exception:
+                return HttpResponse.json(403, {"error": "outbound_start_failed"})
         if path == "/oauth/callback" and method == "GET":
             query = str(environ.get("QUERY_STRING") or "")
             state = parse_qs(query).get("state", [""])[0]
@@ -637,9 +643,8 @@ class LiveSandboxApplication:
                 document = result.json_body()
                 return HttpResponse.json(200, {"downstream_status": result.status,
                                                "response": document})
-            except Exception as exc:
-                return HttpResponse.json(403, {"error": "outbound_callback_failed",
-                                               "message": str(exc)})
+            except Exception:
+                return HttpResponse.json(403, {"error": "outbound_callback_failed"})
         return HttpResponse.json(404, {"error": "not_found"})
 
     def wsgi(self, environ: Mapping[str, Any], start_response: Callable[..., Any]):

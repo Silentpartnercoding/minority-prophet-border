@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Minority Prophet Border Authority Relation Receipt v1",
+  "description": "A provider-neutral receipt binding an authorized invocation to independent requester and executor authority paths. It transfers no authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "relationship", "relation_id", "request_id", "requester_id",
+    "request_principal_id", "requester_key_thumbprint", "executor_id", "executor_principal_id",
+    "executor_key_thumbprint", "request_authority_receipt_digest",
+    "executor_authority_receipt_digest", "executor_credential_digest",
+    "mandate_digest", "action_digest", "audience", "verification", "issued_at",
+    "not_before", "expires_at", "nonce"
+  ],
+  "properties": {
+    "schema": {"const": "border-authority-relation/v1"},
+    "relationship": {"const": "MANDATE"},
+    "relation_id": {"type": "string", "minLength": 1},
+    "request_id": {"type": "string", "minLength": 1},
+    "requester_id": {"type": "string", "minLength": 1},
+    "request_principal_id": {"type": "string", "minLength": 1},
+    "requester_key_thumbprint": {"type": "string", "minLength": 1},
+    "executor_id": {"type": "string", "minLength": 1},
+    "executor_principal_id": {"type": "string", "minLength": 1},
+    "executor_key_thumbprint": {"type": "string", "minLength": 1},
+    "request_authority_receipt_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "executor_authority_receipt_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "executor_credential_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "mandate_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "action_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "audience": {"type": "string", "minLength": 1},
+    "verification": {"const": "verified"},
+    "issued_at": {"type": "string", "format": "date-time"},
+    "not_before": {"type": "string", "format": "date-time"},
+    "expires_at": {"type": "string", "format": "date-time"},
+    "nonce": {"type": "string", "minLength": 16}
+  }
+}

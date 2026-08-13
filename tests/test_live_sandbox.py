@@ -1,6 +1,7 @@
 import base64
 from dataclasses import replace
 import hashlib
+import importlib.util
 import io
 import json
 import tempfile
@@ -11,7 +12,7 @@ from pathlib import Path
 
 from border import AdmissionError
 from border import HttpResponse
-from border.live_sandbox import SandboxSettings, create_app
+from border.live_sandbox import PrivateKeyJWTSigner, SandboxSettings, create_app
 
 
 NOW = datetime(2026, 8, 10, 18, tzinfo=timezone.utc)
@@ -168,6 +169,21 @@ class LiveSandboxTests(unittest.TestCase):
         with self.assertRaisesRegex(AdmissionError, "at least 32 bytes"):
             SandboxSettings.from_env(environment)
 
+    @unittest.skipUnless(
+        importlib.util.find_spec("jwt") and importlib.util.find_spec("cryptography"),
+        "sandbox crypto dependencies are optional",
+    )
+    def test_outbound_private_key_must_not_be_group_or_world_readable(self):
+        key_path = Path(self.temporary.name) / "client.pem"
+        key_path.write_bytes(b"not parsed because its mode must fail first")
+        key_path.chmod(0o644)
+        with self.assertRaisesRegex(AdmissionError, "private regular file"):
+            PrivateKeyJWTSigner(
+                str(key_path),
+                BASE + "/client.json",
+                {"keys": [{"kty": "EC", "alg": "ES256", "kid": "test"}]},
+            )
+
     def test_duplicate_json_keys_and_oversized_bodies_fail_closed(self):
         app = create_app(self.settings, verify_token=lambda _: claims(), clock=lambda: NOW)
         duplicate = app.handle("POST", "/mcp", {"Authorization": "Bearer signed.jwt.token"},
@@ -221,6 +237,17 @@ class LiveSandboxTests(unittest.TestCase):
         self.assertEqual(json.loads(body)["downstream_status"], 200)
         replayed, _ = invoke("/oauth/callback", query="code=code-1&state=state-1")
         self.assertEqual(replayed["status"], "403 Forbidden")
+
+        class FailingClient:
+            def begin(self, _resource, _request):
+                raise AdmissionError("private downstream diagnostic")
+
+        app.oauth_client = FailingClient()
+        failed, failed_body = invoke(
+            "/interop/outbound/start", "POST", f"Bearer {operator}",
+        )
+        self.assertEqual(failed["status"], "403 Forbidden")
+        self.assertNotIn(b"private downstream diagnostic", failed_body)
 
 
 if __name__ == "__main__":

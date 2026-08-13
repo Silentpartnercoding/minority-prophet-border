@@ -41,6 +41,15 @@ from .subject_link import (
     evaluate_subject_requirement,
     normalize_subject_link,
 )
+from .mandate_adapter import (
+    MANDATE_PREDICATE_TYPE,
+    MandateAdapterContext,
+    MandateAdapterError,
+    MandateAuthorityAdapter,
+    mandate_statement,
+    stamp_mandate_receipt,
+    verify_mandate_gate_context,
+)
 
 __all__ = [
     "AuthorityAdapterError",
@@ -81,4 +90,11 @@ __all__ = [
     "SubjectRequirementResult",
     "evaluate_subject_requirement",
     "normalize_subject_link",
+    "MANDATE_PREDICATE_TYPE",
+    "MandateAdapterContext",
+    "MandateAdapterError",
+    "MandateAuthorityAdapter",
+    "mandate_statement",
+    "stamp_mandate_receipt",
+    "verify_mandate_gate_context",
 ]

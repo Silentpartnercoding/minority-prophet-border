@@ -11,7 +11,7 @@ license = "Apache-2.0"
 sandbox = [
   "PyJWT[crypto]>=2.10,<3",
   "gunicorn>=23,<24",
-  "minority-prophet-gate @ https://github.com/Silentpartnercoding/minority-prophet-gate/archive/70f7d342424bd278530296186081438160bfeea2.tar.gz",
+  "minority-prophet-gate @ https://github.com/Silentpartnercoding/minority-prophet-gate/archive/82a0e8765b71e41c4f29249f7025f0e21627c4f7.tar.gz",
 ]
 
 [project.scripts]

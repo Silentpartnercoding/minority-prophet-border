@@ -56,6 +56,8 @@ read-only secret and set `MP_CLIENT_PRIVATE_KEY_PATH`,
 not public automation: it requires the unhashed operator token, follows the
 partner's OPRM challenge, and creates a one-time PKCE browser flow. The callback
 exchanges the code with `private_key_jwt` and performs a harmless `tools/list`.
+The private-key file must be a regular file with no group or world permissions
+(mode `0600` or stricter), or startup fails closed.
 
 ## Run
 
