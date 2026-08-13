@@ -1,0 +1,10 @@
+.git
+.github
+.venv
+__pycache__
+*.pyc
+*.sqlite3
+secrets
+spool
+receipts
+tests

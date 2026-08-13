@@ -3,6 +3,12 @@
 Status: executable bilateral test package; no event commitment or partner
 result is claimed by this repository.
 
+The repository also includes a passing, local-only bilateral rehearsal. It
+uses disposable peers to exercise OPRM, PKCE, `private_key_jwt`, token checks,
+exactly-once execution and substitution failures. It is preparation for a real
+bilateral run, not partner confirmation. See
+[`local-bilateral-rehearsal.md`](local-bilateral-rehearsal.md).
+
 ## Minimal role and use case
 
 The implementation participates as an **MCP gateway**: an MCP server toward an

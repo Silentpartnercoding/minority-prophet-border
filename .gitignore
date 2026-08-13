@@ -6,3 +6,7 @@ receipts/
 spool/
 shadow-state.jsonl
 *.jsonl
+*.sqlite3
+var/
+secrets/
+.env

@@ -84,6 +84,31 @@ class OAuthAccessAuthorityProvider:
             claims = self.verify_token(token)
         except Exception as exc:
             raise AdmissionError("OAuth access-token verification failed") from exc
+        return self.normalize_claims(
+            claims,
+            token=token,
+            request_id=request_id,
+            subject_id=subject_id,
+            principal_id=principal_id,
+            delegation_id=delegation_id,
+            action=action,
+        )
+
+    def normalize_claims(self, claims: dict[str, Any], *, token: str,
+                         request_id: str, subject_id: str,
+                         principal_id: str, delegation_id: str,
+                         action: dict[str, Any]) -> dict[str, Any]:
+        """Bind already verified claims to one host-observed action.
+
+        A deployment may call this method after one cryptographic verification
+        pass so identity derivation and the authority receipt use the exact same
+        immutable claim set.  It never treats the supplied mapping as verified
+        on its own; the caller remains responsible for invoking the configured
+        token verifier first.
+        """
+        claims = dict(claims)
+        if "client_id" not in claims and claims.get("azp"):
+            claims["client_id"] = claims["azp"]
         required = ("iss", "sub", "client_id", "aud", "scope", "iat", "nbf", "exp", "jti")
         if any(claims.get(field) in (None, "") for field in required):
             raise AdmissionError("verified access token is missing required claims")

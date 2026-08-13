@@ -100,6 +100,23 @@ def _b64url(value: bytes) -> str:
     return base64.urlsafe_b64encode(value).rstrip(b"=").decode()
 
 
+def _json_request(body: bytes) -> dict[str, Any]:
+    def unique_pairs(pairs):
+        value = {}
+        for key, item in pairs:
+            if key in value:
+                raise AdmissionError(f"MCP request contains duplicate key: {key}")
+            value[key] = item
+        return value
+    try:
+        request = json.loads(body, object_pairs_hook=unique_pairs)
+    except UnicodeDecodeError as exc:
+        raise AdmissionError("MCP request must be UTF-8 JSON") from exc
+    if not isinstance(request, dict):
+        raise AdmissionError("MCP request must be a JSON object")
+    return request
+
+
 def _secure_endpoint(value: Any, field: str) -> str:
     if not isinstance(value, str):
         raise AdmissionError(f"{field} is missing")
@@ -129,7 +146,12 @@ class OpenIDGatewayServer:
                  authorize: Callable[[str, Mapping[str, Any]], Mapping[str, Any]],
                  readiness: Callable[[], bool],
                  admit_once: Callable[[str], bool],
-                 execute: Callable[[Mapping[str, Any], Mapping[str, Any]], Mapping[str, Any]]) -> None:
+                 execute: Callable[[Mapping[str, Any], Mapping[str, Any]], Mapping[str, Any]],
+                 server_name: str = "Minority Prophet Border",
+                 server_version: str = "0.1.0",
+                 tools: list[Mapping[str, Any]] | None = None,
+                 authenticate: Callable[[str], Any] | None = None,
+                 max_body_bytes: int = 65_536) -> None:
         self.base_url = base_url.rstrip("/")
         self.resource_url = self.base_url + "/mcp"
         self.metadata_url = self.base_url + "/.well-known/oauth-protected-resource/mcp"
@@ -142,6 +164,11 @@ class OpenIDGatewayServer:
         self.readiness = readiness
         self.admit_once = admit_once
         self.execute = execute
+        self.server_name = server_name
+        self.server_version = server_version
+        self.tools = [dict(tool) for tool in (tools or [])]
+        self.authenticate = authenticate
+        self.max_body_bytes = max_body_bytes
 
     def handle(self, method: str, path: str, headers: Mapping[str, str],
                body: bytes = b"") -> HttpResponse:
@@ -162,6 +189,8 @@ class OpenIDGatewayServer:
             return HttpResponse.json(200, self.jwks)
         if method != "POST" or path != "/mcp":
             return HttpResponse.json(404, {"error": "not_found"})
+        if len(body) > self.max_body_bytes:
+            return HttpResponse.json(413, {"error": "request_too_large"})
         token = _bearer(headers)
         if token is None:
             return HttpResponse.json(401, {"error": "invalid_token"}, {
@@ -169,9 +198,33 @@ class OpenIDGatewayServer:
                     metadata_url=self.metadata_url, required_scope=self.required_scope)
             })
         try:
-            request = json.loads(body)
-            if not isinstance(request, dict) or request.get("jsonrpc") != "2.0" or "id" not in request:
+            request = _json_request(body)
+            if not isinstance(request, dict) or request.get("jsonrpc") != "2.0":
                 raise AdmissionError("MCP request must be a JSON-RPC 2.0 request")
+            method_name = request.get("method")
+            if self.authenticate is not None and method_name != "tools/call":
+                self.authenticate(token)
+            if method_name == "notifications/initialized" and "id" not in request:
+                return HttpResponse(202, {"Cache-Control": "no-store"}, b"")
+            if "id" not in request:
+                raise AdmissionError("MCP request identifier is required")
+            request_id = request["id"]
+            if (isinstance(request_id, bool) or not isinstance(request_id, (str, int)) or
+                    not str(request_id) or len(str(request_id)) > 128):
+                raise AdmissionError("MCP request identifier is invalid")
+            if method_name == "initialize":
+                return HttpResponse.json(200, {"jsonrpc": "2.0", "id": request["id"],
+                    "result": {"protocolVersion": request.get("params", {}).get(
+                        "protocolVersion", "2025-06-18"),
+                        "capabilities": {"tools": {"listChanged": False}},
+                        "serverInfo": {"name": self.server_name,
+                                       "version": self.server_version}}})
+            if method_name == "tools/list":
+                return HttpResponse.json(200, {"jsonrpc": "2.0", "id": request["id"],
+                                               "result": {"tools": self.tools}})
+            if method_name != "tools/call":
+                return HttpResponse.json(200, {"jsonrpc": "2.0", "id": request["id"],
+                    "error": {"code": -32601, "message": "method not found"}})
             authority = self.authorize(token, request)
             if not self.admit_once(str(request["id"])):
                 raise AdmissionError("MCP request identifier was already admitted")
@@ -182,13 +235,18 @@ class OpenIDGatewayServer:
                                            "error": {"code": -32001, "message": str(exc)}})
 
     def wsgi(self, environ: Mapping[str, Any], start_response: Callable[..., Any]):
-        length = int(environ.get("CONTENT_LENGTH") or 0)
-        body = environ["wsgi.input"].read(length) if length else b""
+        try:
+            length = int(environ.get("CONTENT_LENGTH") or 0)
+        except (TypeError, ValueError):
+            length = self.max_body_bytes + 1
+        if length < 0:
+            length = self.max_body_bytes + 1
+        body = environ["wsgi.input"].read(min(length, self.max_body_bytes + 1)) if length else b""
         headers = {key[5:].replace("_", "-"): value for key, value in environ.items()
                    if key.startswith("HTTP_")}
         response = self.handle(environ["REQUEST_METHOD"], environ.get("PATH_INFO", "/"), headers, body)
-        reasons = {200: "OK", 401: "Unauthorized", 403: "Forbidden",
-                   404: "Not Found", 503: "Service Unavailable"}
+        reasons = {200: "OK", 202: "Accepted", 401: "Unauthorized", 403: "Forbidden",
+                   404: "Not Found", 413: "Content Too Large", 503: "Service Unavailable"}
         output_headers = list(response.headers.items()) + [("Content-Length", str(len(response.body)))]
         start_response(f"{response.status} {reasons[response.status]}", output_headers)
         return [response.body]
