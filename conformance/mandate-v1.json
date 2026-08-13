@@ -1,0 +1,32 @@
+{
+  "schema": "border-mandate-conformance/v1",
+  "description": "Provider-neutral expected outcomes for an authorized Notion archive-page invocation. Signature callbacks use explicit public test fixtures; strings here are not production proofs.",
+  "baseline": {
+    "action": {
+      "type": "notion.archive_page",
+      "target": "notion:page:123",
+      "payload_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "relationship": "MANDATE",
+    "requester": "agent-a",
+    "executor": "agent-b",
+    "audience": "notion-gateway.example"
+  },
+  "cases": [
+    {"id": "valid_dual_authority", "mutation": null, "expected": "admit"},
+    {"id": "requester_not_authorized", "mutation": "request_authorizes=false", "expected": "fail_closed"},
+    {"id": "executor_not_authorized", "mutation": "executor_authorizes=false", "expected": "fail_closed"},
+    {"id": "delegate_mislabeled_as_mandate", "mutation": "relationship=DELEGATE", "expected": "fail_closed"},
+    {"id": "wrong_audience", "mutation": "mandate.audience=other", "expected": "fail_closed"},
+    {"id": "wrong_page", "mutation": "action.target=notion:page:999", "expected": "fail_closed"},
+    {"id": "changed_payload", "mutation": "action.payload_digest=other", "expected": "fail_closed"},
+    {"id": "request_authority_substitution", "mutation": "request_authority_receipt_digest=other", "expected": "fail_closed"},
+    {"id": "executor_subject_substitution", "mutation": "executor_authority.subject_id=agent-c", "expected": "fail_closed"},
+    {"id": "executor_key_substitution", "mutation": "executor_credential.subject_key_thumbprint=other", "expected": "fail_closed"},
+    {"id": "expired_mandate", "mutation": "mandate.expires_at=past", "expected": "fail_closed"},
+    {"id": "mandate_exceeds_authority_window", "mutation": "mandate.expires_at=after_executor_expiry", "expected": "fail_closed"},
+    {"id": "gate_request_authority_revoked", "mutation": "request_authority_is_current=false", "expected": "fail_closed"},
+    {"id": "gate_executor_authority_revoked", "mutation": "executor_authority_is_current=false", "expected": "fail_closed"},
+    {"id": "gate_mandate_revoked", "mutation": "mandate_is_current=false", "expected": "fail_closed"}
+  ]
+}

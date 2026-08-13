@@ -66,6 +66,8 @@ def sign_envelope(
 def verify_envelope(
     envelope: dict[str, Any],
     verify: Callable[[str, bytes, bytes], bool],
+    *,
+    expected_predicate_type: str = PREDICATE_TYPE,
 ) -> dict[str, Any]:
     """Verify at least one DSSE signature and return the canonical statement."""
 
@@ -97,7 +99,7 @@ def verify_envelope(
         raise AdmissionError("DSSE payload is not JSON") from exc
     if canonicalize(statement) != payload:
         raise AdmissionError("DSSE payload is not canonical JCS")
-    if statement.get("_type") != STATEMENT_TYPE or statement.get("predicateType") != PREDICATE_TYPE:
+    if statement.get("_type") != STATEMENT_TYPE or statement.get("predicateType") != expected_predicate_type:
         raise AdmissionError("unknown admission statement type")
     return statement
 
