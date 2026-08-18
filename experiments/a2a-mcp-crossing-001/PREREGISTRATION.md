@@ -1,6 +1,10 @@
 # A2A-MCP-CROSSING-001 — preregistration
 
-**Status: cases frozen, experiment not run, nothing claimed.**
+**Status: cases frozen, experiment RUN 18 August 2026 — see `RESULTS.md`.**
+
+Everything below this line is unchanged from before either lane existed, so what
+was predicted can be read against what happened. `cases.json` is byte-identical
+and still hashes to the digest recorded here.
 
 `cases.json`
 sha256 `eea9a7c5ca0e0d90ca308401c9408f0187721c5edeb4a46bffaf2a0484ca12d1`
@@ -87,3 +91,8 @@ intake. The experiment does not depend on them being true.
 
 Implement the two lanes and run the frozen cases. Record every outcome,
 including the boring ones, against the digest above.
+
+**Done.** `RESULTS.md` and `results.json`. Verdict: interesting — the valid path
+succeeded in both lanes and all five mutations took effect natively while the
+bound lane refused them. The results also record a measurement correction and
+the fidelity limits of the run.
