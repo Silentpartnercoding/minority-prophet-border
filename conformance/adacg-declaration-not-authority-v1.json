@@ -1,0 +1,80 @@
+{
+  "schema": "adacg-declaration-not-authority/v1",
+  "description": "A cryptographically valid agent declaration is not current authority to execute an action. Provider-neutral expected outcomes for the boundary between declaration, assurance and authorization. The declaration below is Open-KYA-shaped and is deliberately never an input to the authority decision; it is carried here so an implementer can see exactly which artifact is being denied effect. Signature strings are test fixtures, not production proofs.",
+  "declaration": {
+    "schema": "open-kya-manifest-shaped/v0",
+    "note": "Shaped after the ADACG Open KYA Manifest scope. Not an ADACG artifact and not published by ADACG.",
+    "agent_id": "agent-b",
+    "operator": "example-operator",
+    "model": "example-model-v3",
+    "software_version": "2026.08.1",
+    "declared_capabilities": [
+      "notion.archive_page"
+    ],
+    "guardrails": {
+      "spend_limit": "0",
+      "api_allowlist": [
+        "notion-gateway.example"
+      ]
+    },
+    "runtime_binding": {
+      "type": "TEE",
+      "attestation": "valid-test-attestation"
+    },
+    "conformance_profile": "Transact",
+    "signature": "valid-declaration-signature"
+  },
+  "baseline": {
+    "action": {
+      "type": "notion.archive_page",
+      "target": "notion:page:123",
+      "payload_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "relationship": "MANDATE",
+    "requester": "agent-a",
+    "executor": "agent-b",
+    "audience": "notion-gateway.example"
+  },
+  "cases": [
+    {
+      "id": "current_authority_present",
+      "mutation": null,
+      "expected": "admit",
+      "why": "Positive control. Without it, every other case failing closed would be consistent with a broken harness rather than with the rule under test."
+    },
+    {
+      "id": "declaration_valid_but_executor_lacks_current_authority",
+      "mutation": "executor_authorizes=false",
+      "expected": "fail_closed",
+      "reason": "executor lacks authority to execute this exact action",
+      "why": "ADACG-CONFORMANCE-NEG-001. Valid declaration, valid identity, valid runtime binding, declared capability notion.archive_page, and no independently verified current authority for this exact page. Must not qualify for Transact and must not execute."
+    },
+    {
+      "id": "declaration_valid_but_requester_lacks_authority",
+      "mutation": "request_authorizes=false",
+      "expected": "fail_closed",
+      "reason": "requester lacks authority to request this exact action",
+      "why": "The executor's own authority does not launder an unauthorised request. Neither authority path substitutes for the other."
+    },
+    {
+      "id": "authority_is_for_a_different_page",
+      "mutation": "action.target=notion:page:999",
+      "expected": "fail_closed",
+      "reason": "mandate action substitution",
+      "why": "Authority is bound to the exact target. A declaration naming the capability in general does not reach a page the authority does not name."
+    },
+    {
+      "id": "declaration_absent_entirely",
+      "mutation": "declaration=null",
+      "expected": "admit",
+      "why": "The converse, and the sharper half. Removing the declaration changes nothing, because the declaration is not an input to the authority decision. Declaration and authority are not two degrees of the same thing."
+    },
+    {
+      "id": "relationship_mislabelled_as_delegation",
+      "mutation": "relationship=DELEGATE",
+      "expected": "fail_closed",
+      "reason": "artifact is not an authorized-invocation Mandate",
+      "why": "A mandate is not a delegation. Recording it as one would assert that authority moved from A to B, which it did not."
+    }
+  ]
+}

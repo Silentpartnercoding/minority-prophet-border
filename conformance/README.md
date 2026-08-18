@@ -14,6 +14,18 @@ fifteen of its vectors are executed against the adapter by
 outcomes the reference implementation actually reproduces rather than outcomes
 it is asserted to.
 
+`adacg-declaration-not-authority-v1.json` states the boundary between
+declaration, assurance and authorization: a cryptographically valid agent
+declaration is not current authority to execute an action. It carries a
+complete, valid, Transact-profile, TEE-bound Open-KYA-shaped manifest whose
+declared capability is the very action being refused, and shows that the
+manifest changes no outcome in either direction -- present or absent, the
+authority decision is identical. It is executed by
+`tests/test_adacg_declaration_not_authority.py`, which pins the refusal reason
+for every negative case and includes an admitting positive control, because a
+corpus in which everything fails closed is also what a broken harness looks
+like.
+
 The placeholder authority signature is not accepted by production code. The
 conformance runner supplies an explicit test verifier so the vectors isolate
 binding semantics; cryptographic DSSE tampering is tested separately.
