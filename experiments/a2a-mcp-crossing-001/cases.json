@@ -1,0 +1,61 @@
+{
+  "experiment": "A2A-MCP-CROSSING-001",
+  "status": "frozen-before-protection",
+  "frozen_at": "2026-08-18",
+  "description": "Six crossings from an A2A task into an MCP tool invocation, declared before the exact-crossing binding is implemented. Each case is run in two lanes and the predicted outcome in each lane is recorded here, in advance.",
+  "lanes": {
+    "native": "A2A caller and MCP server composed directly. Each side authenticates by its own rules. No crossing receipt.",
+    "bound": "The identical composition with a Border exact-crossing binding carried as an A2A extension reference, rechecked by Gate before the MCP action runs."
+  },
+  "action": {
+    "tool": "interop.echo",
+    "why": "Harmless and side-effect free. The experiment is about whether authority survived a handoff, not about causing an effect."
+  },
+  "cases": [
+    {
+      "id": "valid_crossing",
+      "mutation": null,
+      "predicted_native": "succeed",
+      "predicted_bound": "succeed",
+      "role": "Positive control. If the valid path does not succeed in BOTH lanes the experiment is void, because every later refusal would be consistent with a broken lane rather than with a seam defect."
+    },
+    {
+      "id": "substitute_a2a_caller",
+      "mutation": "the A2A task is presented by a different caller identity than the one the authority was issued to",
+      "predicted_native": "unknown",
+      "predicted_bound": "reject",
+      "role": "A2A leaves authorization models largely implementation-defined. Whether a native composition notices the substitution is exactly what is being measured, so it is recorded as unknown rather than guessed."
+    },
+    {
+      "id": "substitute_task_or_context_id",
+      "mutation": "taskId or contextId replaced with another live task's identifier",
+      "predicted_native": "unknown",
+      "predicted_bound": "reject",
+      "role": "Tests whether the authority is bound to the specific task or merely to a well-formed one."
+    },
+    {
+      "id": "change_mcp_tool_or_payload",
+      "mutation": "the MCP tool name or its arguments differ from what the authority named",
+      "predicted_native": "unknown",
+      "predicted_bound": "reject",
+      "role": "The crossing is where an authority for action X can become an invocation of action Y without either side seeing an anomaly."
+    },
+    {
+      "id": "replay_previous_authorization",
+      "mutation": "a previously valid crossing authorization is presented a second time",
+      "predicted_native": "unknown",
+      "predicted_bound": "reject",
+      "role": "Freshness across the handoff, as distinct from freshness within either protocol."
+    },
+    {
+      "id": "expired_or_revoked_authority",
+      "mutation": "the authority is expired or revoked at the moment of the MCP invocation",
+      "predicted_native": "unknown",
+      "predicted_bound": "reject",
+      "role": "Revocation must be evaluated at the crossing, not only at issuance."
+    }
+  ],
+  "interest_condition": "The experiment is interesting only if valid_crossing succeeds in BOTH lanes AND at least one of the five mutations passes ordinary component checks in the native lane while being rejected in the bound lane.",
+  "refutation": "If every mutation is already caught in the native lane, there is no seam gap to own and A2A-MCP-CROSSING-001 reports that result. That outcome is publishable and must be published rather than discarded.",
+  "not_claimed": "This file does not assert that an exploitable A2A or MCP defect exists. The five 'unknown' predictions are unknown on purpose. Any claim of a seam gap must be earned by running this."
+}
