@@ -8,7 +8,11 @@ outcome or fail-closed error after applying the case mutations to the baseline.
 invocation adapter. Its Notion example requires two independently verified
 authority paths: A may request archiving one exact page, and B may execute that
 archive. Neither path may substitute for the other, and the relationship must
-remain explicitly `MANDATE` rather than being interpreted as delegation.
+remain explicitly `MANDATE` rather than being interpreted as delegation. All
+fifteen of its vectors are executed against the adapter by
+`tests/test_mandate_conformance_vectors.py`, so the outcomes published here are
+outcomes the reference implementation actually reproduces rather than outcomes
+it is asserted to.
 
 The placeholder authority signature is not accepted by production code. The
 conformance runner supplies an explicit test verifier so the vectors isolate
