@@ -1,0 +1,214 @@
+{
+  "experiment": "A2A-MCP-CROSSING-001",
+  "cases_sha256": "eea9a7c5ca0e0d90ca308401c9408f0187721c5edeb4a46bffaf2a0484ca12d1",
+  "verdict": "interesting",
+  "valid_path_succeeds_in_both_lanes": true,
+  "discriminating_cases": [
+    "substitute_a2a_caller",
+    "substitute_task_or_context_id",
+    "change_mcp_tool_or_payload",
+    "replay_previous_authorization",
+    "expired_or_revoked_authority"
+  ],
+  "results": [
+    {
+      "case": "valid_crossing",
+      "lane": "native",
+      "outcome": "succeed",
+      "tool_invocations": 1,
+      "mutated_crossing_took_effect": true,
+      "effect_threshold": 0,
+      "detail": null,
+      "invocations": [
+        {
+          "tool": "interop.echo",
+          "arguments": {
+            "payload": "hello"
+          },
+          "lane": "native"
+        }
+      ]
+    },
+    {
+      "case": "valid_crossing",
+      "lane": "bound",
+      "outcome": "succeed",
+      "tool_invocations": 1,
+      "mutated_crossing_took_effect": true,
+      "effect_threshold": 0,
+      "detail": null,
+      "invocations": [
+        {
+          "tool": "interop.echo",
+          "arguments": {
+            "payload": "hello"
+          },
+          "lane": "bound"
+        }
+      ]
+    },
+    {
+      "case": "substitute_a2a_caller",
+      "lane": "native",
+      "outcome": "succeed",
+      "tool_invocations": 1,
+      "mutated_crossing_took_effect": true,
+      "effect_threshold": 0,
+      "detail": null,
+      "invocations": [
+        {
+          "tool": "interop.echo",
+          "arguments": {
+            "payload": "hello"
+          },
+          "lane": "native"
+        }
+      ]
+    },
+    {
+      "case": "substitute_a2a_caller",
+      "lane": "bound",
+      "outcome": "reject",
+      "tool_invocations": 0,
+      "mutated_crossing_took_effect": false,
+      "effect_threshold": 0,
+      "detail": "MandateAdapterError: requester identity substitution: receipt binds agent-a, task presented by agent-c",
+      "invocations": []
+    },
+    {
+      "case": "substitute_task_or_context_id",
+      "lane": "native",
+      "outcome": "succeed",
+      "tool_invocations": 1,
+      "mutated_crossing_took_effect": true,
+      "effect_threshold": 0,
+      "detail": null,
+      "invocations": [
+        {
+          "tool": "interop.echo",
+          "arguments": {
+            "payload": "hello"
+          },
+          "lane": "native"
+        }
+      ]
+    },
+    {
+      "case": "substitute_task_or_context_id",
+      "lane": "bound",
+      "outcome": "reject",
+      "tool_invocations": 0,
+      "mutated_crossing_took_effect": false,
+      "effect_threshold": 0,
+      "detail": "MandateAdapterError: request_id substitution: receipt binds task-1, task presented as task-2",
+      "invocations": []
+    },
+    {
+      "case": "change_mcp_tool_or_payload",
+      "lane": "native",
+      "outcome": "succeed",
+      "tool_invocations": 1,
+      "mutated_crossing_took_effect": true,
+      "effect_threshold": 0,
+      "detail": null,
+      "invocations": [
+        {
+          "tool": "interop.echo",
+          "arguments": {
+            "payload": "goodbye"
+          },
+          "lane": "native"
+        }
+      ]
+    },
+    {
+      "case": "change_mcp_tool_or_payload",
+      "lane": "bound",
+      "outcome": "reject",
+      "tool_invocations": 0,
+      "mutated_crossing_took_effect": false,
+      "effect_threshold": 0,
+      "detail": "MandateAdapterError: mandate action substitution",
+      "invocations": []
+    },
+    {
+      "case": "replay_previous_authorization",
+      "lane": "native",
+      "outcome": "succeed",
+      "tool_invocations": 2,
+      "mutated_crossing_took_effect": true,
+      "effect_threshold": 1,
+      "detail": null,
+      "invocations": [
+        {
+          "tool": "interop.echo",
+          "arguments": {
+            "payload": "hello"
+          },
+          "lane": "native"
+        },
+        {
+          "tool": "interop.echo",
+          "arguments": {
+            "payload": "hello"
+          },
+          "lane": "native"
+        }
+      ]
+    },
+    {
+      "case": "replay_previous_authorization",
+      "lane": "bound",
+      "outcome": "reject",
+      "tool_invocations": 1,
+      "mutated_crossing_took_effect": false,
+      "effect_threshold": 1,
+      "detail": "MandateAdapterError: nonce replay",
+      "invocations": [
+        {
+          "tool": "interop.echo",
+          "arguments": {
+            "payload": "hello"
+          },
+          "lane": "bound"
+        }
+      ]
+    },
+    {
+      "case": "expired_or_revoked_authority",
+      "lane": "native",
+      "outcome": "succeed",
+      "tool_invocations": 1,
+      "mutated_crossing_took_effect": true,
+      "effect_threshold": 0,
+      "detail": null,
+      "invocations": [
+        {
+          "tool": "interop.echo",
+          "arguments": {
+            "payload": "hello"
+          },
+          "lane": "native"
+        }
+      ]
+    },
+    {
+      "case": "expired_or_revoked_authority",
+      "lane": "bound",
+      "outcome": "reject",
+      "tool_invocations": 0,
+      "mutated_crossing_took_effect": false,
+      "effect_threshold": 0,
+      "detail": "MandateAdapterError: mandate is revoked, stale, or indeterminate at Gate decision",
+      "invocations": []
+    }
+  ],
+  "probes": [
+    {
+      "probe": "unregistered_tool",
+      "outcome": "reject",
+      "detail": "ToolError: Unknown tool: interop.delete_everything",
+      "note": "MCP rejects unknown tools without any binding. Credited."
+    }
+  ]
+}

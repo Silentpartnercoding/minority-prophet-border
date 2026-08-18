@@ -61,14 +61,35 @@ class CrossingPreregistrationTests(unittest.TestCase):
             with self.subTest(case=case["id"]):
                 self.assertEqual("unknown", case["predicted_native"])
 
-    def test_nothing_is_claimed_yet(self):
+    def test_the_corpus_still_claims_nothing(self):
+        """The frozen file predicts; it never concludes. That stays true after
+        the run, which is why the conclusion lives in RESULTS.md instead."""
         self.assertEqual("frozen-before-protection", self.corpus["status"])
         self.assertIn("does not assert", self.corpus["not_claimed"])
-        self.assertNotIn("results", [p.name for p in EXPERIMENT.iterdir()])
 
     def test_the_refutation_outcome_is_publishable(self):
         """An experiment that can only report one outcome is not an experiment."""
         self.assertIn("published", self.corpus["refutation"])
+
+    def test_results_are_bound_to_the_frozen_cases(self):
+        """Results must name the case set they were produced against.
+
+        A results file recording a different digest is a result about a
+        different experiment, however similar it looks.
+        """
+        results_path = EXPERIMENT / "results.json"
+        if not results_path.exists():
+            self.skipTest("experiment has not been run")
+        results = json.loads(results_path.read_text())
+        self.assertEqual(
+            hashlib.sha256(CASES.read_bytes()).hexdigest(), results["cases_sha256"])
+        self.assertIn(results["verdict"], {"interesting", "void", "refuted"})
+        self.assertEqual(
+            sorted(c["id"] for c in self.corpus["cases"]),
+            sorted({r["case"] for r in results["results"]}),
+            "results must cover exactly the frozen cases, no more and no fewer")
+        for lane in ("native", "bound"):
+            self.assertIn(lane, {r["lane"] for r in results["results"]})
 
 
 if __name__ == "__main__":
