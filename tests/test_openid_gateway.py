@@ -166,6 +166,39 @@ class OpenIDGatewayTests(unittest.TestCase):
         with self.assertRaises(AdmissionError):
             client.begin(RESOURCE, REQUEST)
 
+    def test_opaque_registered_client_id_is_accepted(self):
+        """A partner AS that does not implement CIMD issues an opaque client_id.
+
+        Requiring an HTTPS client_id made the client half unusable against any
+        such authorization server, which is most of them.
+        """
+        client = OAuthMcpClient(InteropTransport(server([])),
+            client_id="agentcore-neutral-gateway-01",
+            redirect_uri=BASE + "/oauth/callback")
+        self.assertEqual(client.client_id, "agentcore-neutral-gateway-01")
+
+    def test_cimd_client_id_url_is_still_validated(self):
+        client = OAuthMcpClient(InteropTransport(server([])),
+            client_id=BASE + "/client.json", redirect_uri=BASE + "/oauth/callback")
+        self.assertEqual(client.client_id, BASE + "/client.json")
+        for rejected in ("http://gateway.example/client.json",
+                         "https://gateway.example/client.json#frag"):
+            with self.assertRaises(AdmissionError):
+                OAuthMcpClient(InteropTransport(server([])), client_id=rejected,
+                               redirect_uri=BASE + "/oauth/callback")
+
+    def test_unusable_client_identifiers_are_rejected(self):
+        for rejected in ("", "has space", "tab\there", "x" * 256):
+            with self.assertRaises(AdmissionError):
+                OAuthMcpClient(InteropTransport(server([])), client_id=rejected,
+                               redirect_uri=BASE + "/oauth/callback")
+
+    def test_redirect_uri_is_still_required_to_be_https(self):
+        with self.assertRaises(AdmissionError):
+            OAuthMcpClient(InteropTransport(server([])),
+                client_id="agentcore-neutral-gateway-01",
+                redirect_uri="http://127.0.0.1:8765/callback")
+
     def test_oprm_resource_substitution_is_rejected(self):
         class SubstitutionTransport(InteropTransport):
             def request(self, method, url, **kwargs):
