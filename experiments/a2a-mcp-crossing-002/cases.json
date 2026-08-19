@@ -1,0 +1,61 @@
+{
+  "experiment": "A2A-MCP-CROSSING-002",
+  "question": "Does a crossing binding survive an intermediary that holds its own downstream credential?",
+  "action": "interop.echo",
+  "lanes": ["direct", "brokered"],
+  "cases": [
+    {
+      "id": "valid_brokered_crossing",
+      "role": "control",
+      "description": "A legitimate request from the original caller, carried through the broker with an intact crossing binding, targeting the agent the binding names.",
+      "mutation": null,
+      "must": "succeed in both lanes",
+      "prediction": "succeed in both. If this fails in either lane the experiment is void, because every later refusal would be consistent with a broken lane rather than a broker-introduced gap."
+    },
+    {
+      "id": "broker_substitutes_own_identity",
+      "role": "mutation",
+      "description": "The broker authenticates downstream as itself, using its own registered credential, rather than presenting evidence naming the original caller.",
+      "mutation": "downstream sees broker identity in place of original requester identity",
+      "must": "be refused in the brokered lane only if the binding names the original requester and that name is checked downstream",
+      "prediction": "unknown"
+    },
+    {
+      "id": "second_caller_reuses_broker_path",
+      "role": "mutation",
+      "description": "A second, separately authenticated caller reaches the same broker route. The broker's downstream credential is unchanged. The first caller's crossing binding is still in the broker's possession.",
+      "mutation": "requester substituted upstream of the broker while the broker's downstream credential stays constant",
+      "must": "be refused; caller B must not be able to cause an action bound to caller A's evidence",
+      "prediction": "unknown"
+    },
+    {
+      "id": "broker_forwards_unreceived_receipt",
+      "role": "mutation",
+      "description": "The broker presents a well-formed crossing binding that it was never given by any caller in this exchange.",
+      "mutation": "binding fabricated at the broker rather than relayed",
+      "must": "be refused",
+      "prediction": "unknown"
+    },
+    {
+      "id": "receipt_valid_for_different_downstream",
+      "role": "mutation",
+      "description": "The crossing binding is genuine, unexpired and correctly signed, but names a different downstream agent than the one the broker routes to.",
+      "mutation": "downstream target substituted while the binding remains internally valid",
+      "must": "be refused",
+      "prediction": "unknown"
+    },
+    {
+      "id": "broker_calls_after_upstream_revocation",
+      "role": "mutation",
+      "description": "The original caller's authority is revoked. The broker's own downstream credential remains valid and unrevoked.",
+      "mutation": "upstream authority revoked, intermediary credential still live",
+      "must": "be refused",
+      "prediction": "unknown"
+    }
+  ],
+  "notClaimed": [
+    "That any named product implements the brokered lane in this shape. The broker is modelled from the composition pattern observed in the 2026-08-19 refutation check, not copied from any implementation.",
+    "That A2A, MCP, or any gateway is defective. This measures whether a binding degrades across an intermediary, not whether anyone's code is wrong.",
+    "That either composition direction is the more common production shape. That is a survey question and is out of scope here."
+  ]
+}
