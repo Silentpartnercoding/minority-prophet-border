@@ -117,6 +117,25 @@ def _json_request(body: bytes) -> dict[str, Any]:
     return request
 
 
+def _client_identifier(value: Any, field: str) -> str:
+    """Accept either a CIMD client-id URL or an opaque registered identifier.
+
+    A Client ID Metadata Document identifier is an HTTPS URL and is validated as
+    one. A classically registered client receives an opaque string from the
+    authorization server, which carries no URL semantics and must not be
+    dereferenced; it is accepted as-is provided it is a non-empty printable
+    token. Rejecting it would make the client half unusable against any
+    authorization server that does not implement CIMD.
+    """
+    if not isinstance(value, str) or not value:
+        raise AdmissionError(f"{field} is missing")
+    if value.lower().startswith(("http://", "https://")):
+        return _secure_endpoint(value, field)
+    if len(value) > 255 or any(ch.isspace() or not ch.isprintable() for ch in value):
+        raise AdmissionError(f"{field} is not a usable client identifier")
+    return value
+
+
 def _secure_endpoint(value: Any, field: str) -> str:
     if not isinstance(value, str):
         raise AdmissionError(f"{field} is missing")
@@ -269,7 +288,7 @@ class OAuthMcpClient:
                  redirect_uri: str,
                  client_authentication: Callable[[str], Mapping[str, str]] | None = None) -> None:
         self.transport = transport
-        self.client_id = _secure_endpoint(client_id, "client_id")
+        self.client_id = _client_identifier(client_id, "client_id")
         self.redirect_uri = _secure_endpoint(redirect_uri, "redirect_uri")
         self.client_authentication = client_authentication or (lambda _: {})
         self.pending: dict[str, PendingAuthorization] = {}
