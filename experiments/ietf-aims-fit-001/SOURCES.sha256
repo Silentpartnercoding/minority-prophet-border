@@ -1,0 +1,22 @@
+# Official standards inputs
+41b3899039a6c978c69eed32b17485a72f6dfef72c96d38eec9bbe9b0190e37a  https://www.ietf.org/archive/id/draft-klrc-aiagent-auth-03.txt
+a08af6270c8efd4a8320fb59e69bf29fe747ee14a4681be30aac9be45bf56e1e  https://www.ietf.org/archive/id/draft-ietf-wimse-wpt-01.txt
+03b260de5a1b3e64d84a090908eb29ebd3860eefea52d344ff9c66ebd92e4b84  https://www.ietf.org/archive/id/draft-ietf-oauth-transaction-tokens-09.txt
+70f80eae45e00751ddaba43fb3326b117db18787a18172965f3d3b931f482b28  https://www.ietf.org/archive/id/draft-ietf-oauth-identity-chaining-16.txt
+358d658014738bf4dc56c8aae2094ce716ede23b6d5a80488a7dc8e8d72da609  https://www.rfc-editor.org/rfc/rfc8693.txt
+68d3ff3910c0f2340fd7b93b430e00053da845b6eebe095ebef0c8bfda5e14c5  https://www.rfc-editor.org/rfc/rfc9068.txt
+612655786bf4293bfc486e4177571467fbb3de6e6f0eea90cb74c346a34fdf3c  https://www.rfc-editor.org/rfc/rfc9421.txt
+b65bcd0d9daf90fd7006a42cf48e0ac3ba24b7f5637d5197f2de41c6b91c8a89  https://www.rfc-editor.org/rfc/rfc9728.txt
+
+# Frozen Border evidence inputs at public main f476d87864bcb9c1ad851ed64014886a159d6643
+62d6375c68272a225f61456360a31585d8af5774054337b038538da74788fa5a  schema/authorized_invocation.md
+4787fd98a315defbda0dd5130724b57806b9cea9ad14489bedea4fa6e2596409  conformance/mandate-v1.json
+36253e328f4d2803a02aba8215e68cfa9b67b3a10e2f818bb16389034bcdfb65  tests/test_mandate_conformance_vectors.py
+ed4f9528f3acf7a48185bfc44a777bb99167d61cfef604715117bd1a60fdc71e  conformance/crossing_receipt.py
+db5b04561f2c3fdf8781c4717ba65831b29cfa455d17bfc1ff836ea0ed85b3cf  tests/test_crossing_receipt.py
+eea9a7c5ca0e0d90ca308401c9408f0187721c5edeb4a46bffaf2a0484ca12d1  experiments/a2a-mcp-crossing-001/cases.json
+4d32caee22b7d117ee8c62883ffae48d2203e00d4e28bfc2a3dcca6308c5583b  experiments/a2a-mcp-crossing-001/results.json
+50042049a8fae6cc6194af9d3752dc99e08cd26f87c038399303f9ac9e427d0c  experiments/a2a-mcp-crossing-001/results-transport.json
+5fcab8ccd6a7d89873c634f2a04aa348dd32ced7c63a6926445f3162024d5fe7  experiments/a2a-mcp-crossing-001/RESULTS-TRANSPORT.md
+8e6e393d7b6701e62ab9ffbc19a14ac271d48e3aca601a6bc7547979eabc4ac4  experiments/a2a-mcp-crossing-002/cases.json
+4783b9161592e1913787df2423756d855757eade8c4a6ea575fb8ef063b1a00d  experiments/a2a-mcp-crossing-002/AMENDMENT-2.md

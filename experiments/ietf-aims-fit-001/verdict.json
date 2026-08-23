@@ -1,0 +1,36 @@
+{
+  "schema": "aims-fit-result/v1",
+  "experiment": "AIMS-FIT-001",
+  "frozen_at": "2026-08-22",
+  "aims_version": "draft-klrc-aiagent-auth-03",
+  "aims_sha256": "41b3899039a6c978c69eed32b17485a72f6dfef72c96d38eec9bbe9b0190e37a",
+  "status": "complete_draft_only",
+  "overall": "RED_WITH_AMBER_COMPONENTS",
+  "cases": [
+    {
+      "id": "mandate-not-delegation",
+      "label": "MANDATE != delegation",
+      "result": "unrepresented",
+      "missing_semantic": "A signed non-delegating authorized-invocation relation joining an independently authorized requester and executor without transferring requester authority"
+    },
+    {
+      "id": "a2a-mcp-crossing",
+      "label": "A2A -> MCP crossing",
+      "result": "unrepresented",
+      "missing_semantic": "A non-delegating original requester and current credentialed presenter relation that is required at the exact translated action decision"
+    }
+  ],
+  "important_ambiguities": [
+    "A2A task/context to MCP tool/argument semantic mapping",
+    "joint verification of both Mandate authority paths",
+    "durable atomic replay consumption across replicas and restarts",
+    "current upstream-authority recheck at the effect boundary",
+    "non-HTTP protocol bindings"
+  ],
+  "non_claims": [
+    "AIMS is broken",
+    "A2A or MCP is defective",
+    "Border should replace AIMS or OAuth",
+    "the missing semantics require a new protocol rather than clarification or a companion profile"
+  ]
+}
