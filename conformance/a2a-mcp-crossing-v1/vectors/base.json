@@ -1,0 +1,35 @@
+{
+  "authority": {
+    "authority_id": "authority-001",
+    "requester_id": "agent-a",
+    "task_id": "task-001",
+    "context_id": "context-001",
+    "mcp_server": "urn:mcp:interop",
+    "action_digest": "bf9e3e3b84b2c0ad6409787dba94b002ffaccdaa5b9ecc5bb47526ce2220cc64",
+    "not_before": "2026-08-23T00:00:00Z",
+    "expires_at": "2026-08-24T00:00:00Z",
+    "status_ref": "status/authority-001"
+  },
+  "reference": {
+    "profile": "https://minorityprophet.org/conformance/a2a-mcp-crossing/v1",
+    "authority_id": "authority-001",
+    "authority_digest": "86dabdbc08a7b4b2b40c5bb77882bd9590c463a46a5696e8474d7556fc62fdbb",
+    "requester_id": "agent-a",
+    "task_id": "task-001",
+    "context_id": "context-001",
+    "mcp_server": "urn:mcp:interop",
+    "action_digest": "bf9e3e3b84b2c0ad6409787dba94b002ffaccdaa5b9ecc5bb47526ce2220cc64",
+    "not_before": "2026-08-23T00:00:00Z",
+    "expires_at": "2026-08-24T00:00:00Z",
+    "nonce": "nonce-001-abcdef0123456789",
+    "status_ref": "status/authority-001"
+  },
+  "observed": {
+    "caller_id": "agent-a",
+    "task_id": "task-001",
+    "context_id": "context-001",
+    "mcp_server": "urn:mcp:interop",
+    "tool": "interop.echo",
+    "arguments": {"message": "hello"}
+  }
+}

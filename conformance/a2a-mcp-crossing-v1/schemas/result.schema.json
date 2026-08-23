@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://minorityprophet.org/schema/a2a-mcp-crossing-result-v1.json",
+  "title": "A2A to MCP crossing result v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["profile", "grade", "cases_sha256", "implementation", "results", "summary"],
+  "properties": {
+    "profile": {"const": "https://minorityprophet.org/conformance/a2a-mcp-crossing/v1"},
+    "grade": {"enum": ["reference_fixture", "transport_real", "implementation_independent", "operator_independent"]},
+    "cases_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "implementation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["a2a", "mcp", "verifier", "operator"],
+      "properties": {
+        "a2a": {"type": "string"},
+        "mcp": {"type": "string"},
+        "verifier": {"type": "string"},
+        "operator": {"type": "string"}
+      }
+    },
+    "results": {
+      "type": "array",
+      "minItems": 12,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["case", "lane", "outcome", "reason", "effect_count"],
+        "properties": {
+          "case": {"type": "string"},
+          "lane": {"enum": ["native", "bound"]},
+          "outcome": {"enum": ["succeed", "reject", "non_comparable"]},
+          "reason": {"type": "string"},
+          "effect_count": {"type": "integer", "minimum": 0}
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["valid_both", "discriminating_cases", "green_eligible"],
+      "properties": {
+        "valid_both": {"type": "boolean"},
+        "discriminating_cases": {"type": "array", "items": {"type": "string"}},
+        "green_eligible": {"type": "boolean"}
+      }
+    }
+  }
+}

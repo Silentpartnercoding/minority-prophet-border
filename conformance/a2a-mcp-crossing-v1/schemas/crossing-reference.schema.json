@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://minorityprophet.org/schema/a2a-mcp-crossing-reference-v1.json",
+  "title": "A2A to MCP crossing reference v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "profile", "authority_id", "authority_digest", "requester_id",
+    "task_id", "context_id", "mcp_server", "action_digest", "not_before",
+    "expires_at", "nonce", "status_ref"
+  ],
+  "properties": {
+    "profile": {"const": "https://minorityprophet.org/conformance/a2a-mcp-crossing/v1"},
+    "authority_id": {"type": "string", "minLength": 1},
+    "authority_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "requester_id": {"type": "string", "minLength": 1},
+    "task_id": {"type": "string", "minLength": 1},
+    "context_id": {"type": "string", "minLength": 1},
+    "mcp_server": {"type": "string", "minLength": 1},
+    "action_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "not_before": {"type": "string", "format": "date-time"},
+    "expires_at": {"type": "string", "format": "date-time"},
+    "nonce": {"type": "string", "minLength": 16},
+    "status_ref": {"type": "string", "minLength": 1}
+  }
+}
