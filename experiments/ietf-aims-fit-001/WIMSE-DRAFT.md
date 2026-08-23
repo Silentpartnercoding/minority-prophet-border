@@ -1,4 +1,4 @@
-# Draft WIMSE adoption response — not sent
+# WIMSE adoption response — sent 2026-08-22
 
 Subject: Re: Call for Adoption: AI Agent Authentication and Authorization
 

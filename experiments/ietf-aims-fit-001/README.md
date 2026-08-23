@@ -1,6 +1,6 @@
 # AIMS-FIT-001
 
-**Status:** complete, draft-only, not submitted to the IETF
+**Status:** complete; submitted to the WIMSE adoption call on 2026-08-22
 
 **Frozen:** 2026-08-22
 
