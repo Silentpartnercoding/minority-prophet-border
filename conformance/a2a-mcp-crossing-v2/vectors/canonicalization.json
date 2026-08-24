@@ -1,0 +1,4 @@
+[
+  {"description":"ASCII ordering","value":{"b":1,"a":2},"canonical":"{\"a\":2,\"b\":1}","sha256":"d3626ac30a87e6f7a6428233b3c68299976865fa5508e4267c5415c76af7a772"},
+  {"description":"UTF-8 key ordering and unescaped value","value":{"é":"雪","z":"café"},"canonical":"{\"z\":\"café\",\"é\":\"雪\"}","sha256":"137f201f34875dce24442d58c432395cadc196d000b901ce1d64ea899dc896fc"}
+]

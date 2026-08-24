@@ -1,0 +1,19 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://minorityprophet.org/schema/a2a-mcp-crossing-result-v2.json",
+  "type":"object","additionalProperties":false,
+  "required":["profile","grade","cases_sha256","implementation","results"],
+  "properties":{
+    "profile":{"const":"https://minorityprophet.org/conformance/a2a-mcp-crossing/v2"},
+    "grade":{"enum":["reference_fixture","transport_real","implementation_independent","operator_independent"]},
+    "cases_sha256":{"const":"b7c18cdb29570e11c318d781c546a4a42d076c9b2e9d8d89a2b67d76bd249a56"},
+    "implementation":{"type":"object","additionalProperties":false,"required":["a2a","mcp","verifier","operator"],"properties":{"a2a":{"type":"string"},"mcp":{"type":"string"},"verifier":{"type":"string"},"operator":{"type":"string"}}},
+    "results":{"type":"array","minItems":17,"maxItems":17,"items":{"$ref":"#/$defs/caseResult"}}
+  },
+  "$defs":{
+    "attempt":{"type":"object","additionalProperties":false,"required":["attempt","outcome","reason","effect_before","effect_after","effect_delta"],"properties":{"attempt":{"type":"integer","minimum":1},"outcome":{"enum":["succeed","reject","non_comparable"]},"reason":{"enum":["accepted","profile_mismatch","authority_digest_mismatch","authority_id_mismatch","task_binding_unresolved","caller_mismatch","message_mismatch","task_mismatch","context_mismatch","audience_mismatch","action_digest_mismatch","not_yet_valid","expired","status_reference_mismatch","status_stale","authority_not_current","nonce_replay","adapter_non_comparable"]},"effect_before":{"type":"integer","minimum":0},"effect_after":{"type":"integer","minimum":0},"effect_delta":{"type":"integer","minimum":0,"maximum":1}}},
+    "lane":{"type":"object","additionalProperties":false,"required":["measurement","attempts"],"properties":{"measurement":{"enum":["measured","not_measured"]},"attempts":{"type":"array","items":{"$ref":"#/$defs/attempt"}}}},
+    "caseResult":{"type":"object","additionalProperties":false,"required":["case","native","bound"],"properties":{"case":{"enum":["valid_crossing","caller_swap","message_swap","task_swap","context_swap","audience_swap","tool_swap","arguments_swap","nonce_substitution","authority_id_swap","authority_digest_swap","not_yet_valid","expired","status_ref_swap","revoked","stale_status","replay"]},"native":{"$ref":"#/$defs/lane"},"bound":{"$ref":"#/$defs/lane"}}}
+  }
+}
+

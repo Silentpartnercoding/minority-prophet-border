@@ -1,0 +1,24 @@
+{
+  "profile": "https://minorityprophet.org/conformance/a2a-mcp-crossing/v2",
+  "status": "review-candidate",
+  "cases": [
+    {"id":"valid_crossing","expected_bound":"succeed","expected_reason":"accepted"},
+    {"id":"caller_swap","expected_bound":"reject","expected_reason":"caller_mismatch"},
+    {"id":"message_swap","expected_bound":"reject","expected_reason":"message_mismatch"},
+    {"id":"task_swap","expected_bound":"reject","expected_reason":"task_mismatch"},
+    {"id":"context_swap","expected_bound":"reject","expected_reason":"context_mismatch"},
+    {"id":"audience_swap","expected_bound":"reject","expected_reason":"audience_mismatch"},
+    {"id":"tool_swap","expected_bound":"reject","expected_reason":"action_digest_mismatch"},
+    {"id":"arguments_swap","expected_bound":"reject","expected_reason":"action_digest_mismatch"},
+    {"id":"nonce_substitution","expected_bound":"reject","expected_reason":"authority_digest_mismatch"},
+    {"id":"authority_id_swap","expected_bound":"reject","expected_reason":"authority_id_mismatch"},
+    {"id":"authority_digest_swap","expected_bound":"reject","expected_reason":"authority_digest_mismatch"},
+    {"id":"not_yet_valid","expected_bound":"reject","expected_reason":"not_yet_valid"},
+    {"id":"expired","expected_bound":"reject","expected_reason":"expired"},
+    {"id":"status_ref_swap","expected_bound":"reject","expected_reason":"status_reference_mismatch"},
+    {"id":"revoked","expected_bound":"reject","expected_reason":"authority_not_current"},
+    {"id":"stale_status","expected_bound":"reject","expected_reason":"status_stale"},
+    {"id":"replay","expected_bound":"reject","expected_reason":"nonce_replay"}
+  ]
+}
+
