@@ -46,6 +46,18 @@ class CrossingV2Tests(unittest.TestCase):
         attempt = rows["nonce_substitution"]["bound"]["attempts"][0]
         self.assertEqual(("reject", "authority_digest_mismatch", 0), (attempt["outcome"], attempt["reason"], attempt["effect_delta"]))
 
+    def test_nonce_substitution_after_success_fails_in_shared_store(self):
+        status = json.loads((ROOT / "vectors/status-current.json").read_text())
+        now = datetime(2026,8,23,12,tzinfo=timezone.utc)
+        with tempfile.TemporaryDirectory() as temp:
+            store = Path(temp) / "shared.db"
+            first = reference.CrossingVerifier(reference.SQLiteReplayStore(store)).verify(reference=self.base["reference"],authority=self.base["authority"],status=status,observed=self.base["observed"],now=now)
+            substituted = copy.deepcopy(self.base)
+            substituted["authority"]["nonce"] = "attacker-selected-fresh-nonce"
+            second = reference.CrossingVerifier(reference.SQLiteReplayStore(store)).verify(reference=substituted["reference"],authority=substituted["authority"],status=status,observed=substituted["observed"],now=now)
+        self.assertEqual(("succeed", "accepted"), (first.outcome, first.reason))
+        self.assertEqual(("reject", "authority_digest_mismatch"), (second.outcome, second.reason))
+
     def test_replay_is_namespaced_and_durable(self):
         authority = self.base["authority"]
         self.assertEqual(reference.digest([authority["issuer_id"], authority["authority_id"], authority["nonce"]]), reference.replay_key(authority))

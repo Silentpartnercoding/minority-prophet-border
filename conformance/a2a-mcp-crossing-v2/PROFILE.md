@@ -48,4 +48,3 @@ run, a valid success in both lanes, and at least one measured discrimination.
 
 The case corpus digest is recorded in `cases-v2.sha256` and the runner rejects
 any mismatch. Result summaries are derived, never submitted as assertions.
-

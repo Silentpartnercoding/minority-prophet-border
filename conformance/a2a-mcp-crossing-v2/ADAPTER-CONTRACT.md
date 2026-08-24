@@ -13,4 +13,3 @@ which source it used. Self-reported `serverInfo` is insufficient by itself.
 An effect recorder outside the verifier records each attempt's before/after
 count. Native results must be measured, never inferred. The submission manifest
 binds the corpus, result, raw log, and adapter configuration by SHA-256.
-

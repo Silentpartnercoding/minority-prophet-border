@@ -15,4 +15,3 @@ python3 -m unittest tests.test_a2a_mcp_crossing_conformance_v2 -v
 
 The reference runner reports the native lane as `not_measured`. Only a real
 adapter may report native outcomes or a discriminating experiment.
-

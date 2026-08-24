@@ -118,4 +118,3 @@ class CrossingVerifier:
         if not self.replay_store.consume(replay_key(authority), now, expires):
             return Decision("reject", "nonce_replay")
         return Decision("succeed", "accepted")
-

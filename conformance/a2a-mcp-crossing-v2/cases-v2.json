@@ -21,4 +21,3 @@
     {"id":"replay","expected_bound":"reject","expected_reason":"nonce_replay"}
   ]
 }
-
