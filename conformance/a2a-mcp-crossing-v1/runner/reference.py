@@ -10,6 +10,7 @@ from __future__ import annotations
 import hashlib
 import json
 import sqlite3
+from contextlib import closing
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -72,14 +73,15 @@ class SQLiteReplayStore:
 
     def __init__(self, path: Path):
         self.path = path
-        with sqlite3.connect(self.path) as connection:
-            connection.execute(
-                "CREATE TABLE IF NOT EXISTS consumed_nonce "
-                "(nonce TEXT PRIMARY KEY, consumed_at TEXT NOT NULL)"
-            )
+        with closing(sqlite3.connect(self.path)) as connection:
+            with connection:
+                connection.execute(
+                    "CREATE TABLE IF NOT EXISTS consumed_nonce "
+                    "(nonce TEXT PRIMARY KEY, consumed_at TEXT NOT NULL)"
+                )
 
     def consume(self, nonce: str, now: datetime) -> bool:
-        with sqlite3.connect(self.path, isolation_level=None, timeout=5) as connection:
+        with closing(sqlite3.connect(self.path, isolation_level=None, timeout=5)) as connection:
             connection.execute("BEGIN IMMEDIATE")
             try:
                 connection.execute(

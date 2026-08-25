@@ -1,0 +1,16 @@
+{
+  "profile":"https://minorityprophet.org/conformance/a2a-mcp-crossing/v2",
+  "identity":"complete executable corpus",
+  "files":[
+    {"path":"cases-v2.json","sha256":"45cc5d9a45443571b623605190cda35fb0635d14e9e788398194204a0be8c637"},
+    {"path":"vectors/base.json","sha256":"b0c7d9b46316ef5b7f33b694ec0d9a861194e9f31df062fb510ef83cea6d946a"},
+    {"path":"vectors/status-current.json","sha256":"4e004e8eb9658eaa5e78d18fb1d4a1a9ac3565e0435142137fad780edd7f2a30"},
+    {"path":"vectors/status-revoked.json","sha256":"5c6728bcc446fbc08f48b2dcd03388bfabedb3b33358f65f0cc27bc6649c96c2"},
+    {"path":"vectors/status-stale.json","sha256":"115d5efedfa310c938cd562c99d4a08bf4d5b882216878d2da38d40d51b41164"},
+    {"path":"vectors/canonicalization.json","sha256":"6d95b4634ff53cdd181324829318d772a946d8dd7ee2a92ae1994a5895849d40"},
+    {"path":"vectors/invalid-json.json","sha256":"33c770843ab9311f5cb665e6dac9cebb1eaf443e15958e452389371336ab8bb5"},
+    {"path":"runner/reference.py","sha256":"a3bf712a3064e15fe1e196d6e712f800aaac28a21b30faf1b252c55f372eae71"},
+    {"path":"runner/run.py","sha256":"f694d848e52ebef2fe384d31b1017f9e60d91d561f9f82d50b8e38e444865ad7"},
+    {"path":"runner/canonicalize.mjs","sha256":"5e7c2503ac83d10b42887aab8670e5dfba3684498733c7569a917ea49146d04f"}
+  ]
+}

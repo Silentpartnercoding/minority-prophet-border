@@ -1,0 +1,3 @@
+[
+  {"description":"duplicate object key is refused before canonicalization","json":"{\"authority_id\":\"first\",\"authority_id\":\"second\"}","error":"duplicate JSON object key: authority_id"}
+]

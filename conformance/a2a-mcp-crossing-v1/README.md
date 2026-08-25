@@ -29,6 +29,9 @@ document conforming to `schemas/result.schema.json`.
 outcomes. `PROFILE.md` records its SHA-256 digest. Changing the corpus creates a
 new profile version; it must not silently change v1.
 
+The Python 3.14 connection-close repair in the reference runner is maintenance
+only: it changes no frozen JSON bytes, profile digest, case behavior, or result.
+
 The JSON files under `vectors/` are illustrative inputs for the independent
 reference runner. An external implementation may translate them into its own
 wire objects, but its submission must say exactly what was preserved,

@@ -1,7 +1,16 @@
 {
   "profile":"https://minorityprophet.org/conformance/a2a-mcp-crossing/v2",
-  "corpus_sha256":"0a03b3cc6188c012f92809334201681308a670d741ea9a2eabe5159ba4c1d04c",
-  "result_sha256":"REPLACE_WITH_SHA256",
-  "raw_log_sha256":"REPLACE_WITH_SHA256",
-  "adapter_config_sha256":"REPLACE_WITH_SHA256"
+  "artifacts":{
+    "corpus_manifest":{"path":"corpus-manifest.json","sha256":"REPLACE_WITH_SHA256"},
+    "result":{"path":"result.json","sha256":"REPLACE_WITH_SHA256"},
+    "raw_log":{"path":"raw-log.jsonl","sha256":"REPLACE_WITH_SHA256"},
+    "adapter_config":{"path":"adapter-config.json","sha256":"REPLACE_WITH_SHA256"},
+    "implementation":{"path":"implementation.json","sha256":"REPLACE_WITH_SHA256"},
+    "effect_recorder":{"path":"effect-recorder.json","sha256":"REPLACE_WITH_SHA256"},
+    "replay_store":{"path":"replay-store.json","sha256":"REPLACE_WITH_SHA256"},
+    "caller_source":{"path":"caller-source.json","sha256":"REPLACE_WITH_SHA256"},
+    "audience_source":{"path":"audience-source.json","sha256":"REPLACE_WITH_SHA256"},
+    "status_source_policy":{"path":"status-source-policy.json","sha256":"REPLACE_WITH_SHA256"},
+    "grade_evidence":{"path":"grade-evidence.json","sha256":"REPLACE_WITH_SHA256"}
+  }
 }

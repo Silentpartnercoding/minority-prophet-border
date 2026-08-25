@@ -1,5 +1,20 @@
 # V2 submissions
 
-Publish the result JSON, raw adapter log, and adapter configuration together
-with a manifest containing their SHA-256 digests. Run `validate_result()` before
-submission; summaries and green eligibility are recomputed by consumers.
+Publish every artifact required by `submission-manifest.schema.json` in one
+directory with the manifest. Paths are relative and every file is bound by its
+SHA-256 digest. The evidence schemas require exact implementation commits, an
+external effect recorder, shared replay-store scope, authenticated caller and
+audience sources, status verification/freshness policy, and grade-control
+evidence. Identified corpus transformations belong in the adapter configuration.
+
+Consumers run the single intake path; it performs Draft 2020-12 schema checks,
+semantic validation, digest/path verification, corpus matching, and summary
+derivation:
+
+```sh
+python3 conformance/a2a-mcp-crossing-v2/runner/verify_submission.py \
+  submissions/example/submission.json
+```
+
+An intake-confirmed grade is a reviewer decision, not a submitted assertion.
+Pass `--confirmed-grade` only after reviewing the bound evidence.
