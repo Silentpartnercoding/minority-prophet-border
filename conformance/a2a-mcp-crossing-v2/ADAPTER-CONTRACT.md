@@ -7,6 +7,9 @@ obtain server-issued `task_id`/`context_id`, obtain an issuer-authenticated
 resolved artifact linked by `previous_stage_digest`, and verify the immutable
 fields and linkage before effect. Existing-task mode is explicit and supplies
 no staged artifacts.
+It also omits `previous_stage_digest`. Required binding fields are typed and
+non-empty; absence on both the authority and observation sides is a refusal,
+not equality.
 
 The MCP adapter observes the final tool and arguments immediately before
 dispatch. It derives `mcp_audience` from OAuth resource/audience, authenticated
@@ -21,6 +24,10 @@ transformation in its bound configuration.
 The submission manifest names and binds the actual corpus manifest, result,
 raw log, adapter configuration, implementation commits, effect recorder,
 shared replay store, authenticated caller source, MCP audience source, status
-source/verification policy, and grade evidence. Digest binding makes those
+source/verification policy, authority-authentication results, and grade
+evidence. Digest binding makes those
 artifacts reviewable; the intake reviewer still decides whether the evidence
 supports the confirmed grade.
+The authentication evidence records successful issuer-policy evaluation for
+both initial and resolved artifacts. A complete green run externally observes
+both lanes for every case; fixture rows cannot fill gaps in an external result.

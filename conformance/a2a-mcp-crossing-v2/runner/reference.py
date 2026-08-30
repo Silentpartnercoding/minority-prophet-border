@@ -13,6 +13,9 @@ from typing import Any, Mapping
 PROFILE = "https://minorityprophet.org/conformance/a2a-mcp-crossing/v2"
 MAX_STATUS_AGE_SECONDS = 300
 MAX_SAFE_INTEGER = 9_007_199_254_740_991
+AUDIENCE_SOURCES = frozenset({
+    "oauth_resource", "authenticated_endpoint", "certificate_identity", "pinned_configuration",
+})
 
 
 class FixtureError(ValueError):
@@ -86,6 +89,102 @@ def digest(value: Any) -> str:
     return hashlib.sha256(canonical_bytes(value)).hexdigest()
 
 
+def _require_mapping(container: Mapping[str, Any], field: str) -> Mapping[str, Any]:
+    value = container.get(field)
+    if not isinstance(value, Mapping):
+        raise FixtureError(f"{field} must be an object")
+    return value
+
+
+def _require_string(container: Mapping[str, Any], field: str) -> str:
+    value = container.get(field)
+    if not isinstance(value, str) or not value:
+        raise FixtureError(f"{field} must be a non-empty string")
+    return value
+
+
+def _require_digest(container: Mapping[str, Any], field: str) -> str:
+    value = _require_string(container, field)
+    if len(value) != 64 or any(character not in "0123456789abcdef" for character in value):
+        raise FixtureError(f"{field} must be a lowercase SHA-256 digest")
+    return value
+
+
+def _validate_audience(container: Mapping[str, Any]) -> None:
+    audience = _require_mapping(container, "mcp_audience")
+    _require_string(audience, "value")
+    source = _require_string(audience, "source")
+    if source not in AUDIENCE_SOURCES:
+        raise FixtureError("mcp_audience.source is not transport-bound")
+
+
+def _validate_authority(authority: Mapping[str, Any], *, initial: bool) -> None:
+    for field in (
+        "issuer_id", "authority_id", "requester_id", "not_before", "expires_at", "status_ref", "nonce",
+    ):
+        _require_string(authority, field)
+    _require_digest(authority, "action_digest")
+    _validate_audience(authority)
+    parse_time(authority["not_before"])
+    parse_time(authority["expires_at"])
+    binding = _require_mapping(authority, "a2a_binding")
+    _require_string(binding, "stage")
+    _require_string(binding, "message_id")
+    if initial:
+        return
+    _require_string(binding, "mode")
+    _require_string(binding, "task_id")
+    _require_string(binding, "context_id")
+    if binding["mode"] == "first_turn_reissued":
+        _require_digest(binding, "previous_stage_digest")
+    elif binding["mode"] == "existing_task" and "previous_stage_digest" in binding:
+        raise FixtureError("existing_task cannot carry previous_stage_digest")
+
+
+def _validate_reference(reference: Mapping[str, Any]) -> None:
+    _require_string(reference, "profile")
+    _require_string(reference, "authority_id")
+    _require_digest(reference, "authority_digest")
+
+
+def _validate_inputs(
+    *,
+    reference: Mapping[str, Any],
+    authority: Mapping[str, Any],
+    status: Mapping[str, Any],
+    observed: Mapping[str, Any],
+    initial_reference: Mapping[str, Any] | None,
+    initial_authority: Mapping[str, Any] | None,
+) -> None:
+    for name, value in (
+        ("reference", reference), ("authority", authority), ("status", status), ("observed", observed),
+    ):
+        if not isinstance(value, Mapping):
+            raise FixtureError(f"{name} must be an object")
+        _validate_json_value(value)
+    _validate_reference(reference)
+    _validate_authority(authority, initial=False)
+    for field in ("status_ref", "authority_id", "observed_at", "status"):
+        _require_string(status, field)
+    parse_time(status["observed_at"])
+    for field in ("caller_id", "message_id", "task_id", "context_id", "tool"):
+        _require_string(observed, field)
+    _validate_audience(observed)
+    arguments = observed.get("arguments")
+    if not isinstance(arguments, Mapping):
+        raise FixtureError("arguments must be an object")
+    if initial_reference is not None:
+        if not isinstance(initial_reference, Mapping):
+            raise FixtureError("initial_reference must be an object")
+        _validate_json_value(initial_reference)
+        _validate_reference(initial_reference)
+    if initial_authority is not None:
+        if not isinstance(initial_authority, Mapping):
+            raise FixtureError("initial_authority must be an object")
+        _validate_json_value(initial_authority)
+        _validate_authority(initial_authority, initial=True)
+
+
 def action_digest(observed: Mapping[str, Any]) -> str:
     return digest({"arguments": observed["arguments"], "mcp_audience": observed["mcp_audience"], "tool": observed["tool"]})
 
@@ -141,6 +240,17 @@ class CrossingVerifier:
         initial_reference: Mapping[str, Any] | None = None,
         initial_authority: Mapping[str, Any] | None = None,
     ) -> Decision:
+        try:
+            _validate_inputs(
+                reference=reference,
+                authority=authority,
+                status=status,
+                observed=observed,
+                initial_reference=initial_reference,
+                initial_authority=initial_authority,
+            )
+        except (FixtureError, KeyError, TypeError, ValueError):
+            return Decision("reject", "input_contract_invalid")
         if reference.get("profile") != PROFILE:
             return Decision("reject", "profile_mismatch")
         if reference.get("authority_digest") != digest(authority):

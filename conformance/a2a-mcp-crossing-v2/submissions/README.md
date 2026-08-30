@@ -5,7 +5,10 @@ directory with the manifest. Paths are relative and every file is bound by its
 SHA-256 digest. The evidence schemas require exact implementation commits, an
 external effect recorder, shared replay-store scope, authenticated caller and
 audience sources, status verification/freshness policy, and grade-control
-evidence. Identified corpus transformations belong in the adapter configuration.
+evidence. Initial and resolved authority-authentication policy/results are a
+separate required artifact. Identified corpus transformations belong in the
+adapter configuration; exact-byte consumption requires an empty transformation
+list, while identified transformation requires at least one non-empty entry.
 
 Consumers run the single intake path; it performs Draft 2020-12 schema checks,
 semantic validation, digest/path verification, corpus matching, and summary

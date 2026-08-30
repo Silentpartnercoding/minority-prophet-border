@@ -35,7 +35,11 @@ def validate_schema(value, schema_path):
 def validate_evidence(value, definition):
     jsonschema = _jsonschema()
     evidence_schema = runner.load(ROOT / "schemas/submission-evidence.schema.json")
-    schema = {"$schema": evidence_schema["$schema"], **evidence_schema["$defs"][definition]}
+    schema = {
+        "$schema": evidence_schema["$schema"],
+        "$defs": evidence_schema["$defs"],
+        **evidence_schema["$defs"][definition],
+    }
     jsonschema.Draft202012Validator(schema).validate(value)
 
 
@@ -60,23 +64,35 @@ def verify_submission(manifest_path, *, confirmed_grade=None):
         name: _resolve_artifact(manifest_path, artifact)
         for name, artifact in manifest["artifacts"].items()
     }
+    if resolved["raw_log"].stat().st_size == 0:
+        raise ValueError("raw log must not be empty")
     result = runner.load(resolved["result"])
     validate_schema(result, ROOT / "schemas/result.schema.json")
     runner.validate_result(result)
     corpus_sha256 = hashlib.sha256(resolved["corpus_manifest"].read_bytes()).hexdigest()
     if result["corpus_sha256"] != corpus_sha256:
         raise ValueError("result and submitted corpus manifest identify different bytes")
+    evidence = {}
     for name in (
         "adapter_config", "implementation", "effect_recorder", "replay_store", "caller_source",
-        "audience_source", "status_source_policy", "grade_evidence",
+        "audience_source", "status_source_policy", "authority_authentication", "grade_evidence",
     ):
-        validate_evidence(runner.load(resolved[name]), name)
-    grade_evidence = runner.load(resolved["grade_evidence"])
+        evidence[name] = runner.load(resolved[name])
+        validate_evidence(evidence[name], name)
+    component_names = [component["name"] for component in evidence["implementation"]["components"]]
+    if len(component_names) != len(set(component_names)):
+        raise ValueError("implementation component names must be unique")
+    expected_issuer = runner.load(ROOT / "vectors/base.json")["authority"]["issuer_id"]
+    for stage in ("initial", "resolved"):
+        if evidence["authority_authentication"][stage]["issuer_id"] != expected_issuer:
+            raise ValueError(f"{stage} authority authentication identifies the wrong issuer")
+    grade_evidence = evidence["grade_evidence"]
     if grade_evidence["claimed_grade"] != result["grade"]:
         raise ValueError("grade evidence does not match the submitted grade")
     summary = runner.derive_summary(result, confirmed_grade=confirmed_grade)
     return {
         "manifest": str(manifest_path),
+        "intake_contract_sha256": runner.corpus_digest(),
         "verified_artifacts": sorted(resolved),
         "summary": summary,
     }

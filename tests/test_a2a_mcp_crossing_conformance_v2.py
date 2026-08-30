@@ -72,7 +72,9 @@ class CrossingV2Tests(unittest.TestCase):
         self.assertTrue({
             self.cases["base_vector"], "cases-v2.json", "vectors/canonicalization.json",
             "vectors/invalid-json.json", "runner/run.py", "runner/reference.py",
-            "runner/canonicalize.mjs",
+            "runner/canonicalize.mjs", "runner/verify_submission.py",
+            "schemas/result.schema.json", "schemas/submission-manifest.schema.json",
+            "schemas/submission-evidence.schema.json",
         }.issubset(paths))
         self.assertTrue({case["status_vector"] for case in self.cases["cases"]}.issubset(paths))
         self.assertTrue(all("mutations" in case and "attempts" in case for case in self.cases["cases"]))
@@ -102,6 +104,43 @@ class CrossingV2Tests(unittest.TestCase):
         self.assertEqual("stage_link_mismatch", rows["previous_stage_digest_swap"]["bound"]["attempts"][0]["reason"])
         self.assertEqual("stage_message_mismatch", rows["stage_message_swap"]["bound"]["attempts"][0]["reason"])
         self.assertEqual("stage_evidence_missing", rows["stage_evidence_omitted"]["bound"]["attempts"][0]["reason"])
+        self.assertEqual("accepted", rows["existing_task_valid"]["bound"]["attempts"][0]["reason"])
+        self.assertEqual("stage_evidence_unexpected", rows["existing_task_stage_evidence_present"]["bound"]["attempts"][0]["reason"])
+        self.assertEqual("input_contract_invalid", rows["existing_task_previous_stage_present"]["bound"]["attempts"][0]["reason"])
+
+    def test_paired_omission_cannot_collapse_required_bindings(self):
+        rows = {row["case"]: row for row in runner.run()["results"]}
+        for case_id in (
+            "requester_omitted_both", "message_omitted_both", "task_omitted_both", "context_omitted_both",
+        ):
+            attempt = rows[case_id]["bound"]["attempts"][0]
+            self.assertEqual(("reject", "input_contract_invalid", 0), (
+                attempt["outcome"], attempt["reason"], attempt["effect_delta"],
+            ))
+
+    def test_required_binding_types_and_values_fail_closed(self):
+        status = runner.load(ROOT / "vectors/status-current.json")
+        now = datetime(2026, 8, 23, 12, tzinfo=timezone.utc)
+        for target, path, value in (
+            ("observed", ("caller_id",), ""),
+            ("observed", ("task_id",), 7),
+            ("authority", ("requester_id",), ""),
+            ("authority", ("a2a_binding", "context_id"), None),
+        ):
+            bundle = copy.deepcopy(self.base)
+            container = bundle[target]
+            for segment in path[:-1]:
+                container = container[segment]
+            container[path[-1]] = value
+            if target == "authority":
+                bundle["reference"]["authority_digest"] = reference.digest(bundle["authority"])
+            with tempfile.TemporaryDirectory() as temp:
+                decision = reference.CrossingVerifier(reference.SQLiteReplayStore(Path(temp) / "r.db")).verify(
+                    reference=bundle["reference"], authority=bundle["authority"], status=status,
+                    observed=bundle["observed"], initial_reference=bundle["initial_reference"],
+                    initial_authority=bundle["initial_authority"], now=now,
+                )
+            self.assertEqual(("reject", "input_contract_invalid"), (decision.outcome, decision.reason))
 
     def test_nonce_substitution_cannot_authorize_second_effect(self):
         rows = {row["case"]: row for row in runner.run()["results"]}
@@ -203,6 +242,24 @@ class CrossingV2Tests(unittest.TestCase):
         self.assertFalse(unconfirmed["green_eligible"])
         self.assertTrue(confirmed["green_eligible"])
 
+    def test_mixed_provenance_and_incomplete_results_are_structured_non_green(self):
+        result = self.external_result()
+        for row in result["results"][2:]:
+            row["native"] = {"measurement": "not_measured", "attempts": []}
+            row["bound"]["measurement"] = "fixture_observed"
+        summary = runner.derive_summary(result, confirmed_grade="operator_independent")
+        self.assertFalse(summary["complete_bound_external"])
+        self.assertFalse(summary["complete_external_execution"])
+        self.assertFalse(summary["bound_expectations_match"])
+        self.assertFalse(summary["green_eligible"])
+        self.assertTrue(summary["unmeasured_bound_cases"])
+
+        incomplete = self.external_result()
+        incomplete["results"][-1]["bound"] = {"measurement": "not_measured", "attempts": []}
+        summary = runner.derive_summary(incomplete, confirmed_grade="operator_independent")
+        self.assertFalse(summary["green_eligible"])
+        self.assertIn(incomplete["results"][-1]["case"], summary["unmeasured_bound_cases"])
+
     def test_duplicate_or_invented_results_are_rejected(self):
         result = runner.run()
         result["results"][1] = copy.deepcopy(result["results"][0])
@@ -220,20 +277,30 @@ class CrossingV2Tests(unittest.TestCase):
                 self.assertEqual(vector["canonical"].encode(), reference.canonical_bytes(vector["value"]))
                 self.assertEqual(vector["sha256"], reference.digest(vector["value"]))
         node = shutil.which("node")
-        if node:
-            output = subprocess.check_output([node, RUNNER / "canonicalize.mjs", ROOT / "vectors/canonicalization.json"], text=True)
-            node_rows = {row["description"]: row for row in json.loads(output)}
-            for vector in vectors:
-                row = node_rows[vector["description"]]
-                if vector.get("invalid"):
-                    self.assertIn("error", row)
-                else:
-                    self.assertEqual((vector["canonical"], vector["sha256"]), (row["canonical"], row["sha256"]))
+        self.assertIsNotNone(node, "Node is normative for the v2 cross-language contract")
+        output = subprocess.check_output([node, RUNNER / "canonicalize.mjs", "--vectors", ROOT / "vectors/canonicalization.json"], text=True)
+        node_rows = {row["description"]: row for row in json.loads(output)}
+        for vector in vectors:
+            row = node_rows[vector["description"]]
+            if vector.get("invalid"):
+                self.assertIn("error", row)
+            else:
+                self.assertEqual((vector["canonical"], vector["sha256"]), (row["canonical"], row["sha256"]))
 
     def test_duplicate_json_keys_are_rejected_before_canonicalization(self):
         for vector in runner.load(ROOT / "vectors/invalid-json.json"):
-            with self.assertRaisesRegex(reference.FixtureError, "duplicate JSON object key"):
+            with self.assertRaisesRegex(reference.FixtureError, vector["error"]):
                 reference.strict_json_loads(vector["json"])
+
+    def test_python_and_javascript_reject_the_same_raw_json_domain(self):
+        node = shutil.which("node")
+        self.assertIsNotNone(node, "Node is normative for the v2 raw-input contract")
+        output = subprocess.check_output([
+            node, RUNNER / "canonicalize.mjs", "--raw-cases", ROOT / "vectors/invalid-json.json",
+        ], text=True)
+        rows = json.loads(output)
+        self.assertEqual(len(runner.load(ROOT / "vectors/invalid-json.json")), len(rows))
+        self.assertTrue(all("error" in row and not row.get("accepted") for row in rows))
 
     @unittest.skipUnless(jsonschema, "install the conformance extra")
     def test_draft_2020_schema_and_semantics_are_one_intake_path(self):
@@ -265,6 +332,10 @@ class CrossingV2Tests(unittest.TestCase):
                 "caller_source": {"source": "authenticated A2A transport", "transport_authenticated": True},
                 "audience_source": {"source": "oauth_resource", "transport_bound": True},
                 "status_source_policy": {"source": "signed projection", "verification_policy": "issuer signature", "max_age_seconds": 300},
+                "authority_authentication": {
+                    "initial": {"issuer_id": "https://issuer.example", "mechanism": "signature", "policy": "trusted issuer key", "verified": True},
+                    "resolved": {"issuer_id": "https://issuer.example", "mechanism": "signature", "policy": "trusted issuer key", "verified": True},
+                },
                 "grade_evidence": {"claimed_grade": "operator_independent", "implementation_operator": "one", "adapter_operator": "two", "relationship": "separate control"},
             }
             for name, value in evidence.items():
@@ -283,7 +354,8 @@ class CrossingV2Tests(unittest.TestCase):
             manifest_path = root / "submission.json"
             manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
             verified = submission.verify_submission(manifest_path, confirmed_grade="operator_independent")
-            self.assertEqual(11, len(verified["verified_artifacts"]))
+            self.assertEqual(12, len(verified["verified_artifacts"]))
+            self.assertEqual(runner.corpus_digest(), verified["intake_contract_sha256"])
             self.assertTrue(verified["summary"]["green_eligible"])
             cli = json.loads(subprocess.check_output([
                 sys.executable, RUNNER / "verify_submission.py", manifest_path,
@@ -293,6 +365,37 @@ class CrossingV2Tests(unittest.TestCase):
             (root / "caller_source.json").write_text("changed", encoding="utf-8")
             with self.assertRaisesRegex(ValueError, "digest mismatch"):
                 submission.verify_submission(manifest_path, confirmed_grade="operator_independent")
+
+            (root / "caller_source.json").write_text(json.dumps(evidence["caller_source"]), encoding="utf-8")
+            manifest["artifacts"]["caller_source"]["sha256"] = hashlib.sha256((root / "caller_source.json").read_bytes()).hexdigest()
+            (root / "raw_log.jsonl").write_text("", encoding="utf-8")
+            manifest["artifacts"]["raw_log"]["sha256"] = hashlib.sha256(b"").hexdigest()
+            manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "raw log"):
+                submission.verify_submission(manifest_path, confirmed_grade="operator_independent")
+
+            (root / "raw_log.jsonl").write_text('{"event":"attempt"}\n', encoding="utf-8")
+            manifest["artifacts"]["raw_log"]["sha256"] = hashlib.sha256((root / "raw_log.jsonl").read_bytes()).hexdigest()
+            duplicate_components = copy.deepcopy(evidence["implementation"])
+            duplicate_components["components"][1]["name"] = duplicate_components["components"][0]["name"]
+            (root / "implementation.json").write_text(json.dumps(duplicate_components), encoding="utf-8")
+            manifest["artifacts"]["implementation"]["sha256"] = hashlib.sha256((root / "implementation.json").read_bytes()).hexdigest()
+            manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "component names"):
+                submission.verify_submission(manifest_path, confirmed_grade="operator_independent")
+
+    @unittest.skipUnless(jsonschema, "install the conformance extra")
+    def test_adapter_transformation_contract_rejects_contradictions(self):
+        with self.assertRaises(jsonschema.ValidationError):
+            submission.validate_evidence({
+                "adapter": "test", "version": "1", "corpus_consumption": "exact_bytes",
+                "transformations": ["changed field names"],
+            }, "adapter_config")
+        with self.assertRaises(jsonschema.ValidationError):
+            submission.validate_evidence({
+                "adapter": "test", "version": "1", "corpus_consumption": "identified_transformation",
+                "transformations": [],
+            }, "adapter_config")
 
     def test_status_freshness_and_unresolved_binding_are_enforced(self):
         bundle = copy.deepcopy(self.base)

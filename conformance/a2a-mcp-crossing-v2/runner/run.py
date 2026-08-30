@@ -27,7 +27,7 @@ digest = _reference.digest
 SUCCESS_REASON = "accepted"
 NON_COMPARABLE_REASON = "adapter_non_comparable"
 REJECT_REASONS = frozenset({
-    "profile_mismatch", "authority_digest_mismatch", "authority_id_mismatch",
+    "input_contract_invalid", "profile_mismatch", "authority_digest_mismatch", "authority_id_mismatch",
     "task_binding_unresolved", "stage_evidence_missing", "stage_evidence_unexpected",
     "stage_mode_invalid", "initial_authority_digest_mismatch", "initial_authority_id_mismatch",
     "initial_stage_invalid", "stage_link_mismatch", "stage_message_mismatch",
@@ -235,6 +235,17 @@ def derive_summary(result, *, confirmed_grade=None):
             raise ValueError("intake-confirmed grade cannot exceed the submitted grade")
     corpus = load(ROOT / "cases-v2.json")
     rows = {row["case"]: row for row in result["results"]}
+    complete_bound_external = all(
+        rows[case["id"]]["bound"]["measurement"] == "externally_observed"
+        and bool(rows[case["id"]]["bound"]["attempts"])
+        for case in corpus["cases"]
+    )
+    complete_external_execution = all(
+        rows[case["id"]][lane_name]["measurement"] == "externally_observed"
+        and bool(rows[case["id"]][lane_name]["attempts"])
+        for case in corpus["cases"]
+        for lane_name in ("native", "bound")
+    )
     valid_controls = [case for case in corpus["cases"] if case["kind"] == "valid_control"]
     valid_both = all(
         lane["measurement"] == "externally_observed"
@@ -253,8 +264,13 @@ def derive_summary(result, *, confirmed_grade=None):
         if native["outcome"] == "succeed" and native["effect_delta"] == 1 and bound["outcome"] == "reject" and bound["effect_delta"] == 0:
             discriminating.append(case["id"])
     mismatches = []
+    unmeasured_bound_cases = []
     for case in corpus["cases"]:
-        actual = rows[case["id"]]["bound"]["attempts"][-1]
+        bound = rows[case["id"]]["bound"]
+        if bound["measurement"] != "externally_observed" or not bound["attempts"]:
+            unmeasured_bound_cases.append(case["id"])
+            continue
+        actual = bound["attempts"][-1]
         if (actual["outcome"], actual["reason"]) != (case["expected_bound"], case["expected_reason"]):
             mismatches.append({
                 "case": case["id"],
@@ -263,15 +279,24 @@ def derive_summary(result, *, confirmed_grade=None):
                 "actual_outcome": actual["outcome"],
                 "actual_reason": actual["reason"],
             })
-    expectations_match = not mismatches
-    green = confirmed_grade in INDEPENDENT_GRADES and valid_both and bool(discriminating) and expectations_match
+    expectations_match = complete_bound_external and not mismatches
+    green = (
+        confirmed_grade in INDEPENDENT_GRADES
+        and complete_external_execution
+        and valid_both
+        and bool(discriminating)
+        and expectations_match
+    )
     return {
         "submitted_grade": result["grade"],
         "confirmed_grade": confirmed_grade,
         "valid_both": valid_both,
         "discriminating_cases": discriminating,
         "observed_discrimination": bool(discriminating),
+        "complete_bound_external": complete_bound_external,
+        "complete_external_execution": complete_external_execution,
         "bound_expectations_match": expectations_match,
+        "unmeasured_bound_cases": unmeasured_bound_cases,
         "expectation_mismatches": mismatches,
         "green_eligible": green,
     }

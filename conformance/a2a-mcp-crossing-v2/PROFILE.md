@@ -18,6 +18,15 @@ message and immutable authority fields, and `previous_stage_digest` over the
 initial artifact. Both artifacts have authenticated references. Execution
 requires the resolved stage and the complete verified linkage. Existing-task
 calls use `mode: existing_task` and must not present staged evidence.
+`existing_task` also forbids `previous_stage_digest`; positive and negative
+cases pin both rules.
+
+References, authority artifacts, status inputs, and observations have a
+fail-closed executable input contract in the pinned reference verifier.
+Identity, message, task, context, audience, tool, digest, time, status, and
+nonce fields must have the required type and non-empty value. Paired absence
+never compares equal: dedicated requester, message, task, and context omission
+cases must reject as `input_contract_invalid`.
 
 `mcp_audience` must come from a transport-bound source such as the OAuth
 resource/audience, authenticated endpoint, or pinned deployment configuration.
@@ -39,6 +48,9 @@ JSON uses UTF-16 code-unit key ordering, no insignificant whitespace, and
 unescaped Unicode except JSON-required escapes. The Python and JavaScript
 implementations must reproduce every supplied byte-and-digest vector. This is
 a fully specified fixture profile, not an RFC 8785 claim.
+The JavaScript raw-input path parses before coercion and rejects the same raw
+duplicate-key, decimal, exponent, unsafe-integer, and lone-surrogate vectors as
+Python. Node is a required CI dependency for this profile.
 
 ## Lanes and grades
 
@@ -54,13 +66,19 @@ Grades are `reference_fixture`, `transport_real`,
 claim a grade, but green evaluation uses only an intake-confirmed grade backed
 by the bound implementation and operator evidence. Green eligibility requires
 an independently confirmed grade, valid controls in both external lanes, at
-least one observed discrimination, and exact agreement with every registered
-bound expectation. Observed discrimination and expectation agreement are
+least one observed discrimination, complete externally observed execution of
+both lanes for every registered case, and exact agreement with every registered
+bound expectation. Mixed reference/external evidence is publishable but never
+green. Observed discrimination and expectation agreement are
 reported separately; a mismatch remains publishable refuting evidence but can
 never become green.
 
 `corpus-manifest.json` binds the case descriptors, complete base and status
-inputs, canonicalization vectors, reference verifier, runner, and JavaScript
-cross-check. Its digest is recorded in `corpus-v2.sha256`; `cases-v2.sha256`
+inputs, canonicalization vectors, reference verifier, runner, JavaScript
+cross-check, result/submission schemas, and intake verifier. Its digest is
+recorded in `corpus-v2.sha256`; `cases-v2.sha256`
 identifies only the data-driven case registry and is not the corpus identity.
 Result summaries are derived by verified intake, never submitted as assertions.
+External evidence must separately record successful issuer authentication for
+the initial and resolved authority artifacts. Empty logs, duplicate component
+names, and contradictory corpus-transformation declarations fail intake.

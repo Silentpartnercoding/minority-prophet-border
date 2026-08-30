@@ -12,7 +12,7 @@
       "required":[
         "corpus_manifest","result","raw_log","adapter_config","implementation",
         "effect_recorder","replay_store","caller_source","audience_source",
-        "status_source_policy","grade_evidence"
+        "status_source_policy","authority_authentication","grade_evidence"
       ],
       "properties":{
         "corpus_manifest":{"$ref":"#/$defs/artifact"},
@@ -25,6 +25,7 @@
         "caller_source":{"$ref":"#/$defs/artifact"},
         "audience_source":{"$ref":"#/$defs/artifact"},
         "status_source_policy":{"$ref":"#/$defs/artifact"},
+        "authority_authentication":{"$ref":"#/$defs/artifact"},
         "grade_evidence":{"$ref":"#/$defs/artifact"}
       }
     }

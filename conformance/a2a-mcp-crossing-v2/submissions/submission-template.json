@@ -11,6 +11,7 @@
     "caller_source":{"path":"caller-source.json","sha256":"REPLACE_WITH_SHA256"},
     "audience_source":{"path":"audience-source.json","sha256":"REPLACE_WITH_SHA256"},
     "status_source_policy":{"path":"status-source-policy.json","sha256":"REPLACE_WITH_SHA256"},
+    "authority_authentication":{"path":"authority-authentication.json","sha256":"REPLACE_WITH_SHA256"},
     "grade_evidence":{"path":"grade-evidence.json","sha256":"REPLACE_WITH_SHA256"}
   }
 }
