@@ -1,0 +1,21 @@
+{
+  "profile": "https://minorityprophet.org/conformance/a2a-mcp-crossing/v1",
+  "operator": "REPLACE",
+  "repositories": {
+    "a2a": {"url": "REPLACE", "commit": "REPLACE_40_HEX", "transport": "REPLACE"},
+    "mcp": {"url": "REPLACE", "commit": "REPLACE_40_HEX", "transport": "REPLACE"},
+    "verifier": {"url": "REPLACE", "commit": "REPLACE_40_HEX", "language": "REPLACE"}
+  },
+  "authority_verification": "REPLACE_WITH_ISSUER_AND_SIGNATURE_OR_EQUIVALENT_POLICY",
+  "effect_recorder": "REPLACE_WITH_LOCATION_OUTSIDE_VERIFIER",
+  "replay_store": "REPLACE_WITH_SHARED_DURABLE_STORE",
+  "authority_status_source": "REPLACE_WITH_REAL_STATUS_OR_REVOCATION_SOURCE",
+  "transformations": [],
+  "non_comparable": [],
+  "artifacts": {
+    "result": "result.json",
+    "raw_logs": [],
+    "configuration_sha256": "REPLACE_64_HEX",
+    "cases_sha256": "REPLACE_64_HEX"
+  }
+}

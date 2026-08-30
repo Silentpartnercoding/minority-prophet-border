@@ -1,0 +1,42 @@
+{
+  "profile": "https://minorityprophet.org/conformance/a2a-mcp-crossing/v1",
+  "status": "frozen",
+  "cases": [
+    {
+      "id": "valid_crossing",
+      "mutation": null,
+      "expected_bound": "succeed",
+      "expected_reason": "accepted"
+    },
+    {
+      "id": "caller_swap",
+      "mutation": "authenticated A2A caller differs from the requester bound by the crossing reference",
+      "expected_bound": "reject",
+      "expected_reason": "caller_mismatch"
+    },
+    {
+      "id": "task_context_swap",
+      "mutation": "A2A taskId and contextId are replaced by another live task and context",
+      "expected_bound": "reject",
+      "expected_reason": "task_mismatch"
+    },
+    {
+      "id": "tool_payload_swap",
+      "mutation": "MCP tool arguments differ from the action digest",
+      "expected_bound": "reject",
+      "expected_reason": "action_digest_mismatch"
+    },
+    {
+      "id": "replay",
+      "mutation": "the same valid crossing is presented twice through separate verifier instances sharing one durable replay store",
+      "expected_bound": "reject",
+      "expected_reason": "nonce_replay"
+    },
+    {
+      "id": "revoked_stale",
+      "mutation": "the referenced authority status document says revoked at verification time",
+      "expected_bound": "reject",
+      "expected_reason": "authority_not_current"
+    }
+  ]
+}

@@ -17,6 +17,7 @@ import secrets
 import sqlite3
 import stat
 import threading
+from contextlib import closing
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -290,16 +291,17 @@ class SQLiteEchoRuntime:
         return connection
 
     def _initialize(self) -> None:
-        with self._connect() as connection:
-            connection.execute("""
-                CREATE TABLE IF NOT EXISTS interop_actions (
-                    idempotency_key TEXT PRIMARY KEY,
-                    fingerprint TEXT NOT NULL,
-                    result_json TEXT NOT NULL,
-                    result_digest TEXT NOT NULL,
-                    completed_at TEXT NOT NULL
-                )
-            """)
+        with closing(self._connect()) as connection:
+            with connection:
+                connection.execute("""
+                    CREATE TABLE IF NOT EXISTS interop_actions (
+                        idempotency_key TEXT PRIMARY KEY,
+                        fingerprint TEXT NOT NULL,
+                        result_json TEXT NOT NULL,
+                        result_digest TEXT NOT NULL,
+                        completed_at TEXT NOT NULL
+                    )
+                """)
 
     @staticmethod
     def _fingerprint(action: Any) -> str:
@@ -322,7 +324,7 @@ class SQLiteEchoRuntime:
     def execute_once(self, prepared: Any) -> Any:
         action = prepared
         fingerprint = self._fingerprint(action)
-        with self._lock, self._connect() as connection:
+        with self._lock, closing(self._connect()) as connection:
             connection.execute("BEGIN IMMEDIATE")
             existing = connection.execute(
                 "SELECT fingerprint, result_json, result_digest FROM interop_actions "
@@ -358,7 +360,7 @@ class SQLiteEchoRuntime:
         )
 
     def result_for(self, idempotency_key: str) -> dict[str, Any]:
-        with self._connect() as connection:
+        with closing(self._connect()) as connection:
             row = connection.execute(
                 "SELECT result_json FROM interop_actions WHERE idempotency_key = ?",
                 (idempotency_key,),
@@ -368,7 +370,7 @@ class SQLiteEchoRuntime:
         return json.loads(row[0])
 
     def effect_count(self) -> int:
-        with self._connect() as connection:
+        with closing(self._connect()) as connection:
             return int(connection.execute("SELECT COUNT(*) FROM interop_actions").fetchone()[0])
 
 
