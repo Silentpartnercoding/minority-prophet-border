@@ -58,6 +58,15 @@ from .intent_continuity import (
     stamp_intent_continuity,
     verify_intent_continuity_stamp,
 )
+from .protocol_continuity import (
+    EXTENSION as INTENT_CONTINUITY_EXTENSION,
+    ContinuityTrustProvider,
+    a2a_delegation,
+    final_effect_from_http_x402,
+    mcp_delegation,
+    prove_protocol_continuity,
+    prove_protocol_continuity_with_provider,
+)
 
 __all__ = [
     "AuthorityAdapterError",
@@ -111,4 +120,11 @@ __all__ = [
     "prove_intent_continuity",
     "stamp_intent_continuity",
     "verify_intent_continuity_stamp",
+    "INTENT_CONTINUITY_EXTENSION",
+    "ContinuityTrustProvider",
+    "a2a_delegation",
+    "mcp_delegation",
+    "final_effect_from_http_x402",
+    "prove_protocol_continuity",
+    "prove_protocol_continuity_with_provider",
 ]

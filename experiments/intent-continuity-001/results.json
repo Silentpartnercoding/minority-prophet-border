@@ -1,0 +1,115 @@
+{
+  "schema": "mandate-native-comparison/v0.1",
+  "scope": "Unmodified official SDK parsing/admission surfaces; not full remote servers or settlement.",
+  "sdk_versions": {
+    "@a2a-js/sdk": "1.1.0",
+    "@modelcontextprotocol/sdk": "1.30.0",
+    "@x402/core": "2.25.0"
+  },
+  "cases": [
+    {
+      "id": "valid_exact_effect",
+      "native_observed": "accept",
+      "mandate_observed": "accept",
+      "expected": "accept"
+    },
+    {
+      "id": "a2a_context_substitution",
+      "native_observed": "accept",
+      "mandate_observed": "reject",
+      "expected": "reject",
+      "mandate_reason": "protocol carrier projection substituted"
+    },
+    {
+      "id": "caller_substitution",
+      "native_observed": "accept",
+      "mandate_observed": "reject",
+      "expected": "reject",
+      "mandate_reason": "final caller substituted"
+    },
+    {
+      "id": "task_substitution",
+      "native_observed": "accept",
+      "mandate_observed": "reject",
+      "expected": "reject",
+      "mandate_reason": "final task/context substituted"
+    },
+    {
+      "id": "mcp_argument_mutation",
+      "native_observed": "accept",
+      "mandate_observed": "reject",
+      "expected": "reject",
+      "mandate_reason": "protocol carrier projection substituted"
+    },
+    {
+      "id": "destination_mutation",
+      "native_observed": "accept",
+      "mandate_observed": "reject",
+      "expected": "reject",
+      "mandate_reason": "x402 HTTP resource binding substituted"
+    },
+    {
+      "id": "http_method_mutation",
+      "native_observed": "accept",
+      "mandate_observed": "reject",
+      "expected": "reject",
+      "mandate_reason": "x402 HTTP resource binding substituted"
+    },
+    {
+      "id": "http_body_mutation",
+      "native_observed": "accept",
+      "mandate_observed": "reject",
+      "expected": "reject",
+      "mandate_reason": "x402 HTTP resource binding substituted"
+    },
+    {
+      "id": "payment_amount_mutation",
+      "native_observed": "accept",
+      "mandate_observed": "reject",
+      "expected": "reject",
+      "mandate_reason": "final payment amount exceeds mandate"
+    },
+    {
+      "id": "payment_recipient_mutation",
+      "native_observed": "accept",
+      "mandate_observed": "reject",
+      "expected": "reject",
+      "mandate_reason": "final payment recipient substituted"
+    },
+    {
+      "id": "resource_mutation",
+      "native_observed": "accept",
+      "mandate_observed": "reject",
+      "expected": "reject",
+      "mandate_reason": "x402 HTTP resource binding substituted"
+    },
+    {
+      "id": "relay_parent_substitution",
+      "native_observed": "accept",
+      "mandate_observed": "reject",
+      "expected": "reject",
+      "mandate_reason": "delegation[1] parent substitution"
+    },
+    {
+      "id": "stale_mandate",
+      "native_observed": "accept",
+      "mandate_observed": "reject",
+      "expected": "reject",
+      "mandate_reason": "Mandate is not currently active"
+    },
+    {
+      "id": "revoked_mandate",
+      "native_observed": "accept",
+      "mandate_observed": "reject",
+      "expected": "reject",
+      "mandate_reason": "Mandate is revoked or indeterminate"
+    },
+    {
+      "id": "unverified_payment",
+      "native_observed": "accept",
+      "mandate_observed": "reject",
+      "expected": "reject",
+      "mandate_reason": "x402 payment verification failed"
+    }
+  ]
+}

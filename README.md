@@ -175,11 +175,19 @@ policy for its own decision point.
   durable harmless echo adapter.
 - [`docs/local-bilateral-rehearsal.md`](docs/local-bilateral-rehearsal.md) —
   one-command, local-only OAuth/MCP rehearsal with explicit non-claims.
+- [`border/protocol_continuity.py`](border/protocol_continuity.py) — live-shaped
+  A2A Message, MCP `tools/call`, HTTP, and x402 V2 adapters. Each signed
+  delegation binds the exact carrier projection; metadata alone grants nothing.
+- [`experiments/intent-continuity-001/`](experiments/intent-continuity-001/) —
+  reproducible comparison using pinned, unmodified official A2A, MCP, and x402
+  SDK admission surfaces and the same mutated protocol objects.
 
 ## Deferred work
 
-Production key backends, durable multi-process replay storage, and the verifier
-bridge remain deployment work. The public code provides DSSE packaging,
+Production key backends and the verifier bridge remain deployment work. Gate
+now supplies an atomic SQLite nonce store for durable single-host replay
+protection; multi-host installations must inject a strongly consistent shared
+store. The public code provides DSSE packaging,
 injected signer/verifier interfaces, two neutral authority-provider families,
 and a four-pair Border/Gate/runtime conformance matrix, but never owns
 production keys.

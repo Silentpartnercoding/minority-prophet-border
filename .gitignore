@@ -10,3 +10,4 @@ shadow-state.jsonl
 var/
 secrets/
 .env
+node_modules/
