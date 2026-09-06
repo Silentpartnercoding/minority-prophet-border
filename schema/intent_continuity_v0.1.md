@@ -29,9 +29,11 @@ meant. Neither component may enlarge the Mandate.
 
 `owner → Master Hand → A2A → delegated A2A → MCP → x402 → HTTP effect → receipt`
 
-The frozen corpus at `conformance/intent-continuity-v0.1.json` records native,
-Mandate-stack, and expected outcomes for substitution, amplification, replay,
-staleness, and revocation attacks.
+The frozen corpus at `conformance/intent-continuity-v0.1.json` records native
+predictions, Mandate-stack predictions, and security-oracle outcomes for
+substitution, amplification, replay, staleness, and revocation attacks. A
+prediction is not reported as a measurement: each implementation must write
+its observed outcomes into a separate run artifact.
 
 ## Explicit non-claims
 

@@ -116,13 +116,13 @@ class IntentContinuityTests(unittest.TestCase):
         for case in corpus["cases"]:
             with self.subTest(case=case["id"]):
                 root, hops, effect, current = self.mutate(case["mutation"])
-                if case["mandate_stack"] == "accept":
+                if case["mandate_prediction"] == "accept":
                     receipt = self.prove(root, hops, effect, current)
                     self.assertEqual(document_digest(effect), receipt["final_effect_digest"])
                 else:
                     with self.assertRaises(IntentContinuityError):
                         self.prove(root, hops, effect, current)
-                self.assertEqual(case["expected"], case["mandate_stack"])
+                self.assertEqual(case["expected"], case["mandate_prediction"])
 
     def test_every_hop_is_monotonic_and_linked(self):
         root, hops, effect = artifacts()
