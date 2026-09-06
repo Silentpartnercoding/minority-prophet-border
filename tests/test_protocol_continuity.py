@@ -3,7 +3,11 @@ import unittest
 
 from border.admission import document_digest
 from border.intent_continuity import IntentContinuityError
-from border.protocol_continuity import EXTENSION, prove_protocol_continuity
+from border.protocol_continuity import (
+    EXTENSION,
+    prove_protocol_continuity,
+    prove_protocol_continuity_with_provider,
+)
 from tests.test_intent_continuity import NOW, artifacts
 
 
@@ -50,6 +54,12 @@ def wire_path():
 
 
 class ProtocolContinuityTests(unittest.TestCase):
+    class Trust:
+        def verify_mandate(self, _value): return True
+        def verify_delegation(self, _value): return True
+        def verify_payment(self, _value): return True
+        def mandate_is_current(self, _value): return True
+
     def prove(self, values, **overrides):
         mandate, a2a, mcp, http, payment = values
         kwargs = {"verify_mandate": lambda _v: True, "verify_delegation": lambda _v: True,
@@ -76,6 +86,20 @@ class ProtocolContinuityTests(unittest.TestCase):
     def test_unverified_payment_fails_closed(self):
         with self.assertRaisesRegex(IntentContinuityError, "payment verification"):
             self.prove(wire_path(), verify_payment=lambda _v: False)
+
+    def test_production_trust_provider_seam_composes_all_checks(self):
+        receipt = prove_protocol_continuity_with_provider(
+            *wire_path(), trust=self.Trust(), clock=lambda: NOW)
+        self.assertEqual("verified", receipt["verification"])
+
+    def test_trust_provider_outage_stops_before_a_receipt(self):
+        class Offline(self.Trust):
+            def mandate_is_current(self, _value):
+                raise ConnectionError("revocation service unavailable")
+
+        with self.assertRaisesRegex(ConnectionError, "revocation service unavailable"):
+            prove_protocol_continuity_with_provider(
+                *wire_path(), trust=Offline(), clock=lambda: NOW)
 
 
 if __name__ == "__main__": unittest.main()

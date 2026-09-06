@@ -8,12 +8,26 @@ translate the final MCP/HTTP/x402 values into Border's typed effect.
 from __future__ import annotations
 
 import copy
-from typing import Any, Callable
+from typing import Any, Callable, Protocol
 
 from .admission import document_digest
 from .intent_continuity import IntentContinuityError, prove_intent_continuity
 
 EXTENSION = "https://minority-prophet.dev/extensions/intent-continuity/v0.1"
+
+
+class ContinuityTrustProvider(Protocol):
+    """Deployment-owned trust and revocation boundary.
+
+    A production adapter can delegate these operations to workload identity,
+    KMS-backed signature verification, an x402 facilitator, and a revocation
+    service without teaching Border about any particular vendor.
+    """
+
+    def verify_mandate(self, mandate: dict) -> bool: ...
+    def verify_delegation(self, delegation: dict) -> bool: ...
+    def verify_payment(self, payment_payload: dict) -> bool: ...
+    def mandate_is_current(self, mandate_id: str) -> bool: ...
 
 
 def _object(value: Any, label: str) -> dict:
@@ -112,5 +126,21 @@ def prove_protocol_continuity(mandate: dict, a2a_message: dict, mcp_request: dic
     return prove_intent_continuity(
         mandate, [a2a, mcp], effect, verify_mandate=verify_mandate,
         verify_delegation=lambda _hop: True, mandate_is_current=mandate_is_current,
+        clock=clock,
+    )
+
+
+def prove_protocol_continuity_with_provider(
+    mandate: dict, a2a_message: dict, mcp_request: dict,
+    http_request: dict, payment_payload: dict, *,
+    trust: ContinuityTrustProvider, clock,
+) -> dict:
+    """Provider-oriented entry point for production dependency injection."""
+    return prove_protocol_continuity(
+        mandate, a2a_message, mcp_request, http_request, payment_payload,
+        verify_mandate=trust.verify_mandate,
+        verify_delegation=trust.verify_delegation,
+        verify_payment=trust.verify_payment,
+        mandate_is_current=trust.mandate_is_current,
         clock=clock,
     )
