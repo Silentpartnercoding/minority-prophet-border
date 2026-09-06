@@ -50,6 +50,14 @@ from .mandate_adapter import (
     stamp_mandate_receipt,
     verify_mandate_gate_context,
 )
+from .intent_continuity import (
+    INTENT_CONTINUITY_PREDICATE_TYPE,
+    IntentContinuityError,
+    intent_continuity_statement,
+    prove_intent_continuity,
+    stamp_intent_continuity,
+    verify_intent_continuity_stamp,
+)
 
 __all__ = [
     "AuthorityAdapterError",
@@ -97,4 +105,10 @@ __all__ = [
     "mandate_statement",
     "stamp_mandate_receipt",
     "verify_mandate_gate_context",
+    "IntentContinuityError",
+    "INTENT_CONTINUITY_PREDICATE_TYPE",
+    "intent_continuity_statement",
+    "prove_intent_continuity",
+    "stamp_intent_continuity",
+    "verify_intent_continuity_stamp",
 ]

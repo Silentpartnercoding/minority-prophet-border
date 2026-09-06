@@ -1,0 +1,33 @@
+{
+  "schema": "mandate-intent-continuity-conformance/v0.1",
+  "claim": "Every consequential effect remains a valid narrowing of one current owner Mandate across delegation and protocol translation.",
+  "path": ["owner", "master-hand", "a2a-agent", "delegated-a2a-agent", "mcp-tool", "x402-payment", "external-effect", "receipt"],
+  "baseline": {
+    "task_id": "task:invoice-123",
+    "effect": "POST https://vendor.example/payments for invoice:123; 87.00 USDC to 0xvendor on eip155:8453",
+    "owner_payment_ceiling_minor": 10000,
+    "delegated_payment_ceiling_minor": 9000
+  },
+  "result_fields": {
+    "native_prediction": "A hypothesis to measure against an unmodified native stack; not an observed result.",
+    "mandate_prediction": "The frozen expected behavior of this reference construction.",
+    "expected": "The security oracle for the case. Observations belong in a separate run artifact."
+  },
+  "cases": [
+    {"id": "valid_exact_effect", "mutation": null, "native_prediction": "accept", "mandate_prediction": "accept", "expected": "accept"},
+    {"id": "caller_substitution", "mutation": "final.actor=other", "native_prediction": "accept", "mandate_prediction": "reject", "expected": "reject"},
+    {"id": "task_context_substitution", "mutation": "hop.task=other", "native_prediction": "accept", "mandate_prediction": "reject", "expected": "reject"},
+    {"id": "mcp_argument_mutation", "mutation": "final.resource=invoice:456", "native_prediction": "accept", "mandate_prediction": "reject", "expected": "reject"},
+    {"id": "destination_mutation", "mutation": "final.destination=attacker", "native_prediction": "accept", "mandate_prediction": "reject", "expected": "reject"},
+    {"id": "http_method_mutation", "mutation": "final.method=DELETE", "native_prediction": "accept", "mandate_prediction": "reject", "expected": "reject"},
+    {"id": "body_mutation", "mutation": "final.body_digest=other", "native_prediction": "accept", "mandate_prediction": "reject", "expected": "reject"},
+    {"id": "payment_amount_amplification", "mutation": "hop.max_amount=50000", "native_prediction": "accept", "mandate_prediction": "reject", "expected": "reject"},
+    {"id": "payment_recipient_mutation", "mutation": "final.recipient=attacker", "native_prediction": "accept", "mandate_prediction": "reject", "expected": "reject"},
+    {"id": "resource_mutation", "mutation": "final.resource=invoice:999", "native_prediction": "accept", "mandate_prediction": "reject", "expected": "reject"},
+    {"id": "nonce_replay", "mutation": "hop.nonce=prior", "native_prediction": "accept", "mandate_prediction": "reject", "expected": "reject"},
+    {"id": "other_machine_replay", "mutation": "final.machine=other", "native_prediction": "accept", "mandate_prediction": "reject", "expected": "reject"},
+    {"id": "relay_parent_substitution", "mutation": "hop.parent_digest=other", "native_prediction": "accept", "mandate_prediction": "reject", "expected": "reject"},
+    {"id": "stale_mandate", "mutation": "mandate.expires=past", "native_prediction": "accept", "mandate_prediction": "reject", "expected": "reject"},
+    {"id": "revoked_mandate", "mutation": "mandate.current=false", "native_prediction": "accept", "mandate_prediction": "reject", "expected": "reject"}
+  ]
+}

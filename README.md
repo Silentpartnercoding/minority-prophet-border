@@ -64,6 +64,19 @@ The contract and threat boundary are documented in
 language-neutral cases in
 [`conformance/mandate-v1.json`](conformance/mandate-v1.json).
 
+### Mandate / Border intent continuity v0.1
+
+The multi-hop experiment is frozen separately from the legacy one-hop adapter.
+It tests the narrower claim that owner authority survives A2A delegation, MCP
+translation, x402 construction, and final HTTP execution without amplification
+or substitution. Border verifies linked predecessor digests, actor/key/machine
+bindings, task and audience continuity, decreasing time/payment bounds, and the
+exact final effect projection. Gate remains responsible for signature and
+currency rechecks, atomic replay consumption, and last-moment effect matching.
+
+See [`schema/intent_continuity_v0.1.md`](schema/intent_continuity_v0.1.md) and
+the executable [`conformance/intent-continuity-v0.1.json`](conformance/intent-continuity-v0.1.json).
+
 **Issuers credential the travelers, borders witness the crossings, gates guard
 the consequences — and nothing between a border and a gate can create
 evidence, only carry it.**
