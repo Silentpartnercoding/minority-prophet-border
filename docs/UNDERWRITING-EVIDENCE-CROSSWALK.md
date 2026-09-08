@@ -139,6 +139,44 @@ partial. Two outside scope entirely.
 
 ---
 
+## Run it
+
+The table above is a claim. `border/underwriting.py` is the check.
+
+```bash
+python -m border.underwriting conformance/underwriting-example-bundle.json
+```
+
+It takes an admission bundle — the receipt plus the documents it bound — and
+answers all ten questions mechanically, emitting a digest-bound receipt. A broker
+does not have to take a vendor's word for any row; they run it against a client's
+own traffic and read which come back answered.
+
+**It verifies bindings rather than reading fields.** Every direct answer
+re-derives the digest of the document it depends on and checks it against the
+admission receipt. Edit one field of the policy after admission and the run goes
+from
+
+```text
+answered 8/10  unanswered=[]  out_of_scope=['UW-05', 'UW-08']
+```
+
+to
+
+```text
+answered 5/10  unanswered=['UW-02', 'UW-03', 'UW-06']  out_of_scope=['UW-05', 'UW-08']
+```
+
+with the reason named: `binding_mismatch: policy_digest is sha256:…, supplied
+document digests to sha256:…`. A form-filler would have answered cheerfully from
+the edited content. That difference is the entire value of the artifact.
+
+Two vocabularies are kept apart deliberately. **Coverage** is a property of the
+artifact class — whether Border evidence can answer this kind of question at all,
+fixed at design time. **Answered** is a property of the bundle in hand. A question
+can be `direct` and unanswered, meaning the evidence was incomplete; it can never
+be `not_covered` and answered.
+
 ## What this is not
 
 - Not a certification, an audit opinion, or a compliance claim.
