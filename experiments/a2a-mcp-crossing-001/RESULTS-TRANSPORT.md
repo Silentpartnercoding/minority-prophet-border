@@ -94,18 +94,25 @@ the opposite direction and against us, and one (`expired_or_revoked_authority`) 
 
 ## Reproducing
 
-Requires Docker for Keycloak, and the realm from
-`agent-trust-benchmark/infrastructure/keycloak-opa`, with a public `crossing-caller` client
-(direct access grants), a username protocol mapper, and users `agent-a`, `agent-b`, `agent-c`.
+One command, from this directory, with Docker or Podman, Python 3 and OpenSSL installed:
 
 ```sh
-pip install -r requirements.txt pyjwt[crypto] uvicorn starlette httpx
-openssl req -x509 -newkey rsa:2048 -keyout tls/key.pem -out tls/cert.pem -days 2 -nodes \
-  -subj "/CN=localhost" -addext "subjectAltName=DNS:localhost,IP:127.0.0.1"
-python -m uvicorn transport_server:app --host 127.0.0.1 --port 8443 \
-  --ssl-keyfile tls/key.pem --ssl-certfile tls/cert.pem &
-python run_transport.py
+./reproduce_transport.sh
 ```
 
-Total cost: nothing. Everything runs locally on hardware already owned, against an OAuth
-issuer whose compose file was already in the repository.
+The script starts Keycloak 26.7.0 with `keycloak-realm-transport-local-test.json`, makes a
+throwaway self-signed TLS certificate, starts `transport_server.py` over HTTPS, and runs
+`run_transport.py`. The new output goes to a temporary file, so the committed
+`results-transport.json` is never overwritten. It then compares each case with the committed
+file (outcome, tool invocations, whether the mutation took effect, and the caller the server
+saw; error text is not compared, since the 2026-10-24 rename changed it) and prints
+`RESULT: MATCH` or `RESULT: MISMATCH`. It removes the container and the server when it exits.
+
+The realm file holds everything the run needs: realm `atb`, a public `crossing-caller` client
+with direct access grants, a username to `preferred_username` mapper, and users `agent-a`,
+`agent-b` and `agent-c`. Their passwords are **local test credentials only**, public, and
+protect nothing. The run in this record (2026-08-19) used the larger realm in
+`agent-trust-benchmark/infrastructure/keycloak-opa` with those additions made by hand; this
+file was added on 2026-10-24 so the run does not depend on that manual step.
+
+Total cost: nothing. Everything runs locally against a throwaway Keycloak on 127.0.0.1.
