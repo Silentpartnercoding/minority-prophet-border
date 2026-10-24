@@ -4,7 +4,7 @@ Same cases.json, same digest, same mutations, same Gate-side check. The only
 change is that the caller's identity arrives in a Keycloak-issued RS256 bearer
 token verified against JWKS, rather than being constructed by the runner.
 
-Writes results-transport.json next to cases.json.
+Writes results-transport.json next to cases.json (or to $CROSSING_OUT).
 """
 
 from __future__ import annotations
@@ -22,7 +22,9 @@ from lanes import Crossing
 
 HERE = Path(__file__).parent
 CASES = HERE / "cases.json"
-OUT = HERE / "results-transport.json"
+# CROSSING_OUT lets reproduce_transport.sh write elsewhere so the committed
+# results-transport.json is never overwritten. Default behaviour is unchanged.
+OUT = Path(os.environ.get("CROSSING_OUT", str(HERE / "results-transport.json")))
 
 ISSUER = os.environ.get("CROSSING_ISSUER", "http://127.0.0.1:18080/realms/atb")
 TOKEN_URL = f"{ISSUER}/protocol/openid-connect/token"
