@@ -41,14 +41,14 @@ from .subject_link import (
     evaluate_subject_requirement,
     normalize_subject_link,
 )
-from .mandate_adapter import (
-    MANDATE_PREDICATE_TYPE,
-    MandateAdapterContext,
-    MandateAdapterError,
-    MandateAuthorityAdapter,
-    mandate_statement,
-    stamp_mandate_receipt,
-    verify_mandate_gate_context,
+from .request_adapter import (
+    REQUEST_PREDICATE_TYPE,
+    RequestAdapterContext,
+    RequestAdapterError,
+    RequestRelationAdapter,
+    request_relation_statement,
+    stamp_request_receipt,
+    verify_request_gate_context,
 )
 
 __all__ = [
@@ -90,11 +90,11 @@ __all__ = [
     "SubjectRequirementResult",
     "evaluate_subject_requirement",
     "normalize_subject_link",
-    "MANDATE_PREDICATE_TYPE",
-    "MandateAdapterContext",
-    "MandateAdapterError",
-    "MandateAuthorityAdapter",
-    "mandate_statement",
-    "stamp_mandate_receipt",
-    "verify_mandate_gate_context",
+    "REQUEST_PREDICATE_TYPE",
+    "RequestAdapterContext",
+    "RequestAdapterError",
+    "RequestRelationAdapter",
+    "request_relation_statement",
+    "stamp_request_receipt",
+    "verify_request_gate_context",
 ]

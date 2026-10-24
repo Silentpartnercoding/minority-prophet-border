@@ -41,9 +41,9 @@ from mcp.server import MCPServer
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from border.mandate_adapter import (  # noqa: E402
-    MandateAdapterError,
-    MandateAuthorityAdapter,
+from border.request_adapter import (  # noqa: E402
+    RequestAdapterError,
+    RequestRelationAdapter,
     document_digest,
 )
 
@@ -159,11 +159,11 @@ def _authority_records(authorized: Crossing):
         "key_id": "agent-b-key",
         "signature": "verified-executor-credential",
     }
-    mandate = {
-        "schema": "authorized-invocation/v1",
-        "mandate_id": "mandate-1",
+    iar = {
+        "schema": "independently-authorized-request/v1",
+        "iar_id": "iar-1",
         "request_id": authorized.task_id,
-        "relationship": "MANDATE",
+        "relationship": "REQUEST",
         "requester_id": authorized.caller,
         "requester_key_thumbprint": f"thumbprint-{authorized.caller}",
         "executor_id": authorized.executor,
@@ -176,23 +176,23 @@ def _authority_records(authorized: Crossing):
         "issued_at": "2026-08-18T11:29:00Z",
         "nonce": authorized.nonce,
         "key_id": "agent-a-key",
-        "signature": "verified-mandate",
+        "signature": "verified-request",
     }
-    return mandate, request, executor, credential
+    return iar, request, executor, credential
 
 
 def _context(authorized: Crossing, current: bool):
     """Verification callbacks. Signatures verify; currency is a lane input."""
     from a2a.server.context import ServerCallContext as _unused  # noqa: F401
 
-    from border.mandate_adapter import MandateAdapterContext
+    from border.request_adapter import RequestAdapterContext
 
-    return MandateAdapterContext(
+    return RequestAdapterContext(
         audience=AUDIENCE,
         verify_request_authority=lambda r: r.get("signature") == "verified-request-authority",
         verify_executor_authority=lambda r: r.get("signature") == "verified-executor-authority",
         verify_executor_credential=lambda r: r.get("signature") == "verified-executor-credential",
-        verify_mandate=lambda r: r.get("signature") == "verified-mandate" and current,
+        verify_iar=lambda r: r.get("signature") == "verified-request" and current,
         request_authorizes=lambda r, a: (
             r.get("authorized_execution_action_digest") == document_digest(a)),
         executor_authorizes=lambda r, a: r.get("action_digest") == document_digest(a),
@@ -228,24 +228,24 @@ class CrossingAgent:
 
     def _recheck(self, caller: str, presented: Crossing) -> None:
         """Gate-side recheck: does the receipt bind what is about to run?"""
-        mandate, request, executor, credential = _authority_records(self.authorized)
+        iar, request, executor, credential = _authority_records(self.authorized)
 
         if not presented.authority_is_current:
-            raise MandateAdapterError(
-                "mandate is revoked, stale, or indeterminate at Gate decision")
+            raise RequestAdapterError(
+                "request is revoked, stale, or indeterminate at Gate decision")
         if presented.nonce in self._seen_nonces:
-            raise MandateAdapterError("nonce replay")
-        if caller != mandate["requester_id"]:
-            raise MandateAdapterError(
+            raise RequestAdapterError("nonce replay")
+        if caller != iar["requester_id"]:
+            raise RequestAdapterError(
                 f"requester identity substitution: receipt binds "
-                f"{mandate['requester_id']}, task presented by {caller}")
-        if presented.task_id != mandate["request_id"]:
-            raise MandateAdapterError(
-                f"request_id substitution: receipt binds {mandate['request_id']}, "
+                f"{iar['requester_id']}, task presented by {caller}")
+        if presented.task_id != iar["request_id"]:
+            raise RequestAdapterError(
+                f"request_id substitution: receipt binds {iar['request_id']}, "
                 f"task presented as {presented.task_id}")
 
         # The exact action about to be invoked, not the one that was promised.
-        adapter = MandateAuthorityAdapter(
+        adapter = RequestRelationAdapter(
             _context(self.authorized, presented.authority_is_current))
-        adapter.normalize(mandate, request, executor, credential, presented.action())
+        adapter.normalize(iar, request, executor, credential, presented.action())
         self._seen_nonces.add(presented.nonce)

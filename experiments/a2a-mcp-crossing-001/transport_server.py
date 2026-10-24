@@ -16,8 +16,9 @@ i.e. the test hands itself the caller's name. Here the name arrives instead as
       -> ServerCallContext.user.user_name
 
 `CrossingAgent` and its `_recheck` are imported unchanged from `lanes.py`. The
-Gate-side comparison `caller != mandate["requester_id"]` is byte-identical to
-the one that produced the 18 August result. Any difference in outcome is
+Gate-side comparison `caller != iar["requester_id"]` (named
+`mandate["requester_id"]` before the 2026-10-24 rename, with no logic change)
+is the same check that produced the 18 August result. Any difference in outcome is
 therefore attributable to transport, not to a rewritten check.
 
 Real in this harness:

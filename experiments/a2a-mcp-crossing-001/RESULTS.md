@@ -1,5 +1,10 @@
 # A2A-MCP-CROSSING-001 — results
 
+**Terminology note (2026-10-24):** this run used the name "Mandate" for what Border now
+calls an independently authorized request. Recorded outputs in the results JSON keep the
+original class names and error strings (for example `MandateAdapterError`). Results and
+classifications are unchanged.
+
 Run 18 August 2026 against `cases.json`
 sha256 `eea9a7c5ca0e0d90ca308401c9408f0187721c5edeb4a46bffaf2a0484ca12d1`
 — the digest recorded in `PREREGISTRATION.md` before either lane existed. This
@@ -67,7 +72,8 @@ What is real:
   Dispatch goes through `call_tool`, so schema validation and unknown-tool
   rejection are the SDK's.
 - The action-binding half of the bound lane is Border's real
-  `MandateAuthorityAdapter.normalize`.
+  `RequestRelationAdapter.normalize` (named
+  `MandateAuthorityAdapter` at the time of this run).
 
 What is not:
 

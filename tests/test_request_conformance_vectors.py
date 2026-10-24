@@ -1,7 +1,7 @@
-"""Run `conformance/mandate-v1.json` against the adapter it describes.
+"""Run `conformance/independently-authorized-request-v1.json` against the adapter it describes.
 
 The corpus is published as vectors a conforming implementation "must reproduce
-every listed outcome" of. Nothing executed it: `test_mandate_adapter.py`
+every listed outcome" of. Nothing executed it: `test_request_adapter.py`
 exercises the adapter with hand-built cases and never loads the file, so the
 published outcomes had never been checked as satisfiable by the reference
 implementation itself.
@@ -24,57 +24,57 @@ import sys
 import unittest
 from pathlib import Path
 
-from border.mandate_adapter import (
-    MandateAdapterError,
-    MandateAuthorityAdapter,
+from border.request_adapter import (
+    RequestAdapterError,
+    RequestRelationAdapter,
     document_digest,
-    stamp_mandate_receipt,
-    verify_mandate_gate_context,
+    stamp_request_receipt,
+    verify_request_gate_context,
 )
 
 sys.path.insert(0, str(Path(__file__).parent))
 
-from test_mandate_adapter import (  # noqa: E402
+from test_request_adapter import (  # noqa: E402
     ACTION,
     AUDIENCE,
     NOW,
     context,
     executor_authority,
     executor_credential,
-    mandate,
+    iar,
     request_authority,
     sign_border,
     verify_border,
 )
 
-VECTORS = Path(__file__).parents[1] / "conformance" / "mandate-v1.json"
+VECTORS = Path(__file__).parents[1] / "conformance" / "independently-authorized-request-v1.json"
 
 # Why each negative case must fail. Held here, not in the published corpus.
 REASONS = {
     "requester_not_authorized": "requester lacks",
     "executor_not_authorized": "executor lacks",
-    "delegate_mislabeled_as_mandate": "not an authorized-invocation",
+    "delegate_mislabeled_as_request": "not an independently authorized request",
     "wrong_audience": "audience mismatch",
     "wrong_page": "action substitution",
     "changed_payload": "action substitution",
     "request_authority_substitution": "request authority receipt substitution",
     "executor_subject_substitution": "executor authority subject substitution",
     "executor_key_substitution": "key_thumbprint substitution",
-    "expired_mandate": "not currently active",
-    "mandate_exceeds_authority_window": "exceeds an authority path",
+    "expired_request": "not currently active",
+    "request_exceeds_authority_window": "exceeds an authority path",
     "gate_request_authority_revoked": "request authority is revoked, stale, or indeterminate",
     "gate_executor_authority_revoked": "executor authority is revoked, stale, or indeterminate",
-    "gate_mandate_revoked": "mandate is revoked, stale, or indeterminate",
+    "gate_request_revoked": "request is revoked, stale, or indeterminate",
 }
 
 GATE_CASES = {
     "gate_request_authority_revoked": "request_authority_is_current",
     "gate_executor_authority_revoked": "executor_authority_is_current",
-    "gate_mandate_revoked": "mandate_is_current",
+    "gate_request_revoked": "iar_is_current",
 }
 
 
-class MandateConformanceVectorTests(unittest.TestCase):
+class RequestConformanceVectorTests(unittest.TestCase):
 
     def setUp(self):
         self.corpus = json.loads(VECTORS.read_text())
@@ -103,40 +103,40 @@ class MandateConformanceVectorTests(unittest.TestCase):
         elif mutation == "executor_credential.subject_key_thumbprint=other":
             credential["subject_key_thumbprint"] = "wrong-key"
 
-        instrument = mandate(request)
+        instrument = iar(request)
         if mutation == "relationship=DELEGATE":
             instrument["relationship"] = "DELEGATE"
-        elif mutation == "mandate.audience=other":
+        elif mutation == "request.audience=other":
             instrument["audience"] = "other"
         elif mutation == "request_authority_receipt_digest=other":
             instrument["request_authority_receipt_digest"] = "sha256:" + "0" * 64
-        elif mutation == "mandate.expires_at=past":
+        elif mutation == "request.expires_at=past":
             instrument["expires_at"] = "2026-08-12T09:59:00Z"
-        elif mutation == "mandate.expires_at=after_executor_expiry":
+        elif mutation == "request.expires_at=after_executor_expiry":
             instrument["expires_at"] = "2026-08-12T10:45:00Z"
 
         return instrument, request, executor, credential, action, overrides
 
     def _run_border(self, mutation):
         instrument, request, executor, credential, action, overrides = self._artifacts(mutation)
-        return MandateAuthorityAdapter(context(**overrides)).normalize(
+        return RequestRelationAdapter(context(**overrides)).normalize(
             instrument, request, executor, credential, action)
 
     def _run_gate(self, case_id):
         """The three gate cases recheck currency after a valid border crossing."""
         instrument, request, executor, credential, action, _ = self._artifacts(None)
-        receipt = MandateAuthorityAdapter(context()).normalize(
+        receipt = RequestRelationAdapter(context()).normalize(
             instrument, request, executor, credential, action)
-        envelope = stamp_mandate_receipt(receipt, "border-test-key", sign_border)
+        envelope = stamp_request_receipt(receipt, "border-test-key", sign_border)
         currency = {
             "request_authority_is_current": lambda _r: True,
             "executor_authority_is_current": lambda _r: True,
             "executor_credential_is_current": lambda _r: True,
-            "mandate_is_current": lambda _r: True,
+            "iar_is_current": lambda _r: True,
         }
         if case_id is not None:
             currency[GATE_CASES[case_id]] = lambda _r: False
-        return verify_mandate_gate_context(
+        return verify_request_gate_context(
             receipt, instrument, request, executor, credential, action, envelope,
             expected_audience=AUDIENCE, verify_border=verify_border, now=NOW, **currency)
 
@@ -148,10 +148,10 @@ class MandateConformanceVectorTests(unittest.TestCase):
                 is_gate = case["id"] in GATE_CASES
                 if case["expected"] == "admit":
                     receipt = self._run_border(case["mutation"])
-                    self.assertEqual("MANDATE", receipt["relationship"])
+                    self.assertEqual("REQUEST", receipt["relationship"])
                 elif case["expected"] == "fail_closed":
                     reason = REASONS[case["id"]]
-                    with self.assertRaisesRegex(MandateAdapterError, reason):
+                    with self.assertRaisesRegex(RequestAdapterError, reason):
                         self._run_gate(case["id"]) if is_gate else self._run_border(case["mutation"])
                 else:
                     self.fail(f"unknown expectation: {case['expected']!r}")

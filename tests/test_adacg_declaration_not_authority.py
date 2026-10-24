@@ -26,7 +26,7 @@ import sys
 import unittest
 from pathlib import Path
 
-from border.mandate_adapter import MandateAdapterError, MandateAuthorityAdapter
+from border.request_adapter import RequestAdapterError, RequestRelationAdapter
 
 # `unittest discover -s tests` puts this directory on sys.path, so the sibling
 # module imports bare. Doing it explicitly means the file also runs under
@@ -34,11 +34,11 @@ from border.mandate_adapter import MandateAdapterError, MandateAuthorityAdapter
 # regression test that only runs one of the two ways is half a regression test.
 sys.path.insert(0, str(Path(__file__).parent))
 
-from test_mandate_adapter import (  # noqa: E402
+from test_request_adapter import (  # noqa: E402
     context,
     executor_authority,
     executor_credential,
-    mandate,
+    iar,
     request_authority,
 )
 
@@ -67,14 +67,14 @@ class DeclarationIsNotAuthorityTests(unittest.TestCase):
         elif mutation == "declaration=null":
             declaration = None
         elif mutation == "relationship=DELEGATE":
-            pass  # applied to the mandate below
+            pass  # applied to the iar below
         elif mutation is not None:
             self.fail(f"unhandled mutation: {mutation!r}")
 
         request = request_authority()
         executor = executor_authority()
         credential = executor_credential(executor)
-        instrument = mandate(request)
+        instrument = iar(request)
         if mutation == "relationship=DELEGATE":
             instrument["relationship"] = "DELEGATE"
 
@@ -83,7 +83,7 @@ class DeclarationIsNotAuthorityTests(unittest.TestCase):
         # oversight in this test.
         self.assertIn(declaration, (None, self.corpus["declaration"]))
 
-        adapter = MandateAuthorityAdapter(context(**overrides))
+        adapter = RequestRelationAdapter(context(**overrides))
         return adapter.normalize(instrument, request, executor, credential, action)
 
     def test_vectors(self):
@@ -91,12 +91,12 @@ class DeclarationIsNotAuthorityTests(unittest.TestCase):
             with self.subTest(case=case["id"]):
                 if case["expected"] == "admit":
                     receipt = self._run_case(case)
-                    self.assertEqual("MANDATE", receipt["relationship"])
+                    self.assertEqual("REQUEST", receipt["relationship"])
                 elif case["expected"] == "fail_closed":
                     # The reason is pinned, not just the refusal. A case that
                     # began failing for an unrelated cause would still satisfy a
                     # bare assertRaises while no longer demonstrating anything.
-                    with self.assertRaisesRegex(MandateAdapterError, case["reason"]):
+                    with self.assertRaisesRegex(RequestAdapterError, case["reason"]):
                         self._run_case(case)
                 else:
                     self.fail(f"unknown expectation: {case['expected']!r}")
@@ -113,9 +113,9 @@ class DeclarationIsNotAuthorityTests(unittest.TestCase):
         that some later revision might soften. It cannot grant authority because
         it is not an input: there is no parameter to pass it to.
         """
-        parameters = list(inspect.signature(MandateAuthorityAdapter.normalize).parameters)
+        parameters = list(inspect.signature(RequestRelationAdapter.normalize).parameters)
         self.assertEqual(
-            ["self", "mandate", "request_authority", "executor_authority",
+            ["self", "iar", "request_authority", "executor_authority",
              "executor_credential", "action"],
             parameters,
         )

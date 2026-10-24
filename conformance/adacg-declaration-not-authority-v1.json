@@ -30,7 +30,7 @@
       "target": "notion:page:123",
       "payload_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
     },
-    "relationship": "MANDATE",
+    "relationship": "REQUEST",
     "requester": "agent-a",
     "executor": "agent-b",
     "audience": "notion-gateway.example"
@@ -60,7 +60,7 @@
       "id": "authority_is_for_a_different_page",
       "mutation": "action.target=notion:page:999",
       "expected": "fail_closed",
-      "reason": "mandate action substitution",
+      "reason": "request action substitution",
       "why": "Authority is bound to the exact target. A declaration naming the capability in general does not reach a page the authority does not name."
     },
     {
@@ -73,8 +73,8 @@
       "id": "relationship_mislabelled_as_delegation",
       "mutation": "relationship=DELEGATE",
       "expected": "fail_closed",
-      "reason": "artifact is not an authorized-invocation Mandate",
-      "why": "A mandate is not a delegation. Recording it as one would assert that authority moved from A to B, which it did not."
+      "reason": "artifact is not an independently authorized request",
+      "why": "An independently authorized request is not a delegation. Recording it as one would assert that authority moved from A to B, which it did not."
     }
   ]
 }

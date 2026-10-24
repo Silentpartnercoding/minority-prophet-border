@@ -1,5 +1,10 @@
 # A2A-MCP-CROSSING-001 — transport run
 
+**Terminology note (2026-10-24):** this run used the name "Mandate" for what Border now
+calls an independently authorized request. Recorded outputs in the results JSON keep the
+original class names and error strings (for example `MandateAdapterError`). Results and
+classifications are unchanged.
+
 Run 2026-08-19 against `cases.json`
 sha256 `eea9a7c5ca0e0d90ca308401c9408f0187721c5edeb4a46bffaf2a0484ca12d1`
 — the same digest as the 18 August in-process run. Same cases, same mutations, same
@@ -15,7 +20,8 @@ Gate-side check. **Only the origin of the caller's identity changed.**
 | MCP hop | in-process | in-process (**unchanged**) |
 
 `CrossingAgent` and `_recheck` were imported unchanged. The comparison
-`caller != mandate["requester_id"]` is byte-identical to the one that produced the first
+`caller != mandate["requester_id"]` (now `caller != iar["requester_id"]` after the
+2026-10-24 rename, with no logic change) was byte-identical to the one that produced the first
 result, so any difference in outcome is attributable to transport rather than to a rewritten
 check.
 
@@ -38,7 +44,7 @@ Verdict: **interesting**, unchanged. Machine-readable in `results-transport.json
 
 `substitute_a2a_caller` is the one this run genuinely settles. A real credential check does
 **not** catch it, because `agent-c` holds a perfectly valid credential — it is simply not the
-one the mandate binds. Authentication and authorization separate exactly where the experiment
+one the request binds. Authentication and authorization separate exactly where the experiment
 said they do.
 
 ## A defect this run found in the bound lane
