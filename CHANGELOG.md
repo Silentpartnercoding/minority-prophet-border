@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+- Rename the "Mandate" relation to "independently authorized request" (roles:
+  requester and executor), because "mandate" usually means delegated authority.
+  `border/mandate_adapter.py` is now `border/request_adapter.py`, the
+  relationship value `MANDATE` is now `REQUEST` (`DELEGATE` is unchanged), the
+  request artifact schema is now `independently-authorized-request/v1`, and the
+  relation receipt is now `border-authority-relation/v2` with `iar_digest` in
+  place of `mandate_digest`. Conformance outcomes are unchanged.
+
 ## 0.2.0 — 2026-08-13
 
 - Add an optional provider-neutral Mandate adapter that binds independently

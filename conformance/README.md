@@ -4,13 +4,13 @@
 admission contract. A conforming implementation must reproduce every listed
 outcome or fail-closed error after applying the case mutations to the baseline.
 
-`mandate-v1.json` is the companion corpus for the optional authorized-
-invocation adapter. Its Notion example requires two independently verified
+`independently-authorized-request-v1.json` is the companion corpus for the
+optional independently authorized request adapter. Its Notion example requires two independently verified
 authority paths: A may request archiving one exact page, and B may execute that
 archive. Neither path may substitute for the other, and the relationship must
-remain explicitly `MANDATE` rather than being interpreted as delegation. All
+remain explicitly `REQUEST` rather than being interpreted as delegation. All
 fifteen of its vectors are executed against the adapter by
-`tests/test_mandate_conformance_vectors.py`, so the outcomes published here are
+`tests/test_request_conformance_vectors.py`, so the outcomes published here are
 outcomes the reference implementation actually reproduces rather than outcomes
 it is asserted to.
 

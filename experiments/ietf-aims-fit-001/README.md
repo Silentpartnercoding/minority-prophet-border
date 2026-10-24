@@ -4,6 +4,14 @@
 
 **Frozen:** 2026-08-22
 
+**Terminology note (2026-10-24):** the first case was called `MANDATE` when
+this fit test was frozen and submitted. Border has since renamed the relation
+to "independently authorized request" (`REQUEST`; roles requester and
+executor) because "mandate" usually means delegated authority. Only names
+changed; every classification below is unchanged. `WIMSE-DRAFT.md` is the
+verbatim record of the message as sent and keeps the original term, and
+`SOURCES.sha256` pins the inputs at their original paths and commit.
+
 **Question:** Can `draft-klrc-aiagent-auth-03` faithfully represent two
 pre-existing Border cases without changing their authority semantics?
 
@@ -12,7 +20,7 @@ OAuth, A2A, MCP, or WIMSE is defective. It imports no new Border architecture.
 It tests the AIMS framework against two cases frozen before the WIMSE adoption
 window:
 
-1. **MANDATE is not delegation.** Agent A is authorized to request one exact
+1. **An independently authorized request is not delegation.** Agent A is authorized to request one exact
    action. Agent B is independently authorized to execute it. A's signed
    request transfers no authority to B.
 2. **A2A task to exact MCP action.** The executing side must bind the original
@@ -37,7 +45,7 @@ not a standardized verifier obligation.
 Both cases are **not cleanly representable under the frozen profile**.
 
 - AIMS can represent the two agents and their independent authorization tokens,
-  but it does not define a non-delegating, signed `MANDATE` relation or require
+  but it does not define a non-delegating, signed `REQUEST` relation or require
   a resource-side verifier to join the requester and executor authority paths.
 - AIMS can bind identity, audience, tokens, and HTTP message bytes, and
   Transaction Tokens can carry immutable application context. It does not
@@ -62,7 +70,7 @@ frozen inputs, `verdict.json` for the machine-readable outcome, and
 The Border conformance artifacts referenced by the table can be checked with:
 
 ```sh
-python3 -m unittest tests.test_mandate_conformance_vectors -v
+python3 -m unittest tests.test_request_conformance_vectors -v
 PYTHONPATH=. pytest -q -p no:cacheprovider tests/test_crossing_receipt.py
 ```
 
