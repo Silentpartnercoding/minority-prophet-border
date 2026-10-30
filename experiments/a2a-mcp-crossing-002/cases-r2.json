@@ -1,0 +1,157 @@
+{
+  "experiment": "A2A-MCP-CROSSING-002",
+  "revision": "r2",
+  "status": "frozen-before-build",
+  "defined_by": "AMENDMENT-3.md",
+  "frozen_questions": {
+    "file": "cases.json",
+    "sha256": "8e6e393d7b6701e62ab9ffbc19a14ac271d48e3aca601a6bc7547979eabc4ac4",
+    "note": "The six frozen questions are unchanged and the file is untouched. This revision pins how each question is executed, so a result can be read against a fixed operational meaning."
+  },
+  "action": "interop.echo",
+  "threat_model": {
+    "primary": "honest-but-confused relay. It authenticates its upstream peer correctly and never signs anything it believes false. It can be confused: it picks which held binding to forward by route instead of by caller, it can fire a held binding from a retry queue after the session that supplied it has ended, and it can route to the wrong downstream agent.",
+    "supplementary": "malicious relay. It holds a valid relay key and signs whatever it chooses. Run only as case S1, reported separately, and excluded from the frozen verdict."
+  },
+  "arms": {
+    "direct": "The caller reaches the downstream agent with no intermediary. The downstream check is the A2A-MCP-CROSSING-001 bound check, line for line, plus one addition: the current status of the request-authority record is read from a status registry rather than a single harness flag, so case 6 can say exactly what was revoked.",
+    "brokered_native": "Reference only. The relay authenticates downstream as itself and forwards the task. No binding is checked. Mirrors the 001 native arm.",
+    "brokered_a2": "The design frozen by AMENDMENT-2.md. A bare relay claim in A2A extension metadata names the relay and the requester it says it carries for. The downstream compares the presenting identity with the named relay and the claimed requester with mandate.requester_id, then runs the 001 checks. Nothing verifies the claim. An honest-but-confused relay fills the claimed requester from the binding it forwards, which is the naive build the earlier amendments described.",
+    "brokered_a3": "The design defined by AMENDMENT-3.md. A2A extension metadata carries a digest-bound reference to a separate relay attestation, signed by the relay with a registered key. The attestation binds relay_id, upstream_peer (the identity the relay authenticated), requester_id, task_id, context_id, action_digest, downstream (the agent the relay is calling), validity window, nonce and mandate_digest. The downstream checks the digest, the signature, every bound field, and then runs the 001 checks."
+  },
+  "cases": [
+    {
+      "id": "valid_brokered_crossing",
+      "maps_to": "valid_brokered_crossing",
+      "role": "control",
+      "direct": "agent-a presents its binding to agent-b.",
+      "brokered": "agent-a submits to the relay; the relay calls agent-b as itself with agent-a's binding.",
+      "must": "succeed in every arm",
+      "prediction": "succeed in every arm. If it fails in direct, brokered_a2 or brokered_a3, that design is void."
+    },
+    {
+      "id": "broker_presents_only_own_identity",
+      "maps_to": "broker_substitutes_own_identity",
+      "reading": "The meaning in the 19 August preregistration: the downstream sees the relay's identity and receives no relay claim or attestation naming the original caller.",
+      "role": "mutation",
+      "direct": "The relay identity presents agent-a's binding to agent-b directly.",
+      "brokered": "The relay calls agent-b as itself with agent-a's binding and omits the relay claim or attestation.",
+      "must": "be refused",
+      "prediction_frozen": "unknown",
+      "expectation_at_amendment_3": "refused in direct, brokered_a2 and brokered_a3, because each requires the presenter to match something the binding or relay evidence names; takes effect in brokered_native."
+    },
+    {
+      "id": "relay_asserts_itself_as_requester",
+      "maps_to": "broker_substitutes_own_identity",
+      "reading": "The meaning after AMENDMENT-2.md, where a relay presenting as itself became the valid control: the relay claims itself as the original requester.",
+      "role": "mutation",
+      "direct": "Same as broker_presents_only_own_identity: the relay identity presents directly.",
+      "brokered": "brokered_a2: the relay claim names the relay as requester. brokered_a3: the attestation names the relay as requester_id, with upstream_peer agent-a.",
+      "must": "be refused",
+      "prediction_frozen": "refused (AMENDMENT-2.md prediction 2)",
+      "expectation_at_amendment_3": "refused in direct, brokered_a2 and brokered_a3; takes effect in brokered_native."
+    },
+    {
+      "id": "second_caller_reuses_broker_path",
+      "maps_to": "second_caller_reuses_broker_path",
+      "role": "designed negative control in brokered_a2; open question in brokered_a3",
+      "precondition": "agent-a has submitted to the relay and its binding is held, not yet used downstream, so replay protection plays no part.",
+      "direct": "agent-c presents agent-a's binding to agent-b directly.",
+      "brokered": "agent-c, separately authenticated, submits on the same route. The confused relay forwards the binding it holds for that route, which is agent-a's.",
+      "must": "be refused",
+      "prediction_frozen": "unknown",
+      "expectation_at_amendment_3": "brokered_a2: takes effect, by design, because nothing checks the claimed requester against who called the relay (Takao Sato is right that this was a designed negative control). brokered_a3: refused, if and only if the honest relay's upstream_peer of agent-c reaches the downstream comparison. direct: refused. brokered_native: takes effect."
+    },
+    {
+      "id": "broker_forwards_unreceived_receipt",
+      "maps_to": "broker_forwards_unreceived_receipt",
+      "role": "mutation",
+      "reading": "A genuine, correctly signed, unexpired, unused binding issued by agent-a for this exact action, which reached the relay outside this exchange (a retry queue firing after the session ended). No caller submits anything in this exchange.",
+      "direct": "The relay identity presents that binding to agent-b directly.",
+      "brokered": "The relay calls agent-b as itself. brokered_a2: the claim copies agent-a from the binding. brokered_a3: the honest relay has no authenticated upstream peer, so it signs upstream_peer as itself.",
+      "must": "be refused",
+      "prediction_frozen": "unknown",
+      "expectation_at_amendment_3": "direct refused; brokered_a2 takes effect; brokered_a3 refused; brokered_native takes effect."
+    },
+    {
+      "id": "broker_fabricates_binding",
+      "maps_to": "broker_forwards_unreceived_receipt",
+      "role": "mutation",
+      "reading": "The other plausible reading of case 4: the binding is fabricated at the relay and carries no valid mandate signature.",
+      "direct": "The relay identity presents the fabricated binding directly.",
+      "brokered": "The relay presents the fabricated binding with its claim or attestation.",
+      "must": "be refused",
+      "prediction_frozen": "unknown",
+      "expectation_at_amendment_3": "refused wherever a mandate signature is checked (direct, brokered_a2, brokered_a3). Mandate signatures in the 001 harness are modelled, so this case measures the check order and says nothing new about cryptography."
+    },
+    {
+      "id": "receipt_valid_for_different_downstream",
+      "maps_to": "receipt_valid_for_different_downstream",
+      "role": "mutation",
+      "direct": "agent-a presents its binding, which names executor agent-b, to agent-d.",
+      "brokered": "The relay routes agent-a's request to agent-d. The honest relay names agent-d as downstream in its attestation, because that is where it is calling.",
+      "must": "be refused",
+      "prediction_frozen": "unknown",
+      "expectation_at_amendment_3": "takes effect in every arm. Read before building: the 001 check never compares the receiving agent with mandate.executor_id, and the attestation's downstream field only proves where the relay called. If this holds, the gap belongs to the 001 check and travels into 002 unchanged."
+    },
+    {
+      "id": "revoke_request_authority_record",
+      "maps_to": "broker_calls_after_upstream_revocation",
+      "role": "mutation (primary reading of case 6)",
+      "revoked": "the request-authority record that says agent-a may request this exact action. The mandate, agent-a's transport credential and the relay's credential stay live.",
+      "direct": "Record revoked, then agent-a presents its binding to agent-b.",
+      "brokered": "agent-a submits; the record is revoked; the relay dispatches as itself.",
+      "must": "be refused",
+      "prediction_frozen": "unknown",
+      "expectation_at_amendment_3": "refused in direct, brokered_a2 and brokered_a3, if the downstream reads current record status; takes effect in brokered_native."
+    },
+    {
+      "id": "revoke_mandate",
+      "maps_to": "broker_calls_after_upstream_revocation",
+      "role": "mutation",
+      "revoked": "the mandate itself. The request-authority record, agent-a's transport credential and the relay's credential stay live.",
+      "direct": "Mandate revoked, then agent-a presents it to agent-b.",
+      "brokered": "agent-a submits; the mandate is revoked; the relay dispatches.",
+      "must": "be refused",
+      "prediction_frozen": "unknown",
+      "expectation_at_amendment_3": "refused in direct, brokered_a2 and brokered_a3; takes effect in brokered_native."
+    },
+    {
+      "id": "revoke_caller_transport_credential",
+      "maps_to": "broker_calls_after_upstream_revocation",
+      "role": "mutation",
+      "revoked": "agent-a's transport credential: its Keycloak session is ended and the access token introspects inactive. The request-authority record and mandate stay live.",
+      "direct": "agent-a's session is ended, then agent-a calls agent-b with the same access token.",
+      "brokered": "agent-a submits while its token is live; the session is ended; the relay dispatches as itself.",
+      "must": "be refused, if transport credential revocation is meant to end authority",
+      "prediction_frozen": "unknown",
+      "expectation_at_amendment_3": "takes effect in every arm. Downstream token checks are offline JWKS signature checks, and in brokered arms the downstream never sees agent-a's token. Recorded so the result is read as a statement about which revocation reaches the crossing, rather than as a gap only in brokers."
+    },
+    {
+      "id": "malicious_relay_vouches_for_wrong_caller",
+      "maps_to": null,
+      "supplementary": true,
+      "role": "supplementary mutation under the malicious relay model; excluded from the frozen verdict",
+      "precondition": "as second_caller_reuses_broker_path",
+      "direct": "agent-c presents agent-a's binding to agent-b directly.",
+      "brokered": "agent-c submits; the relay knowingly forwards agent-a's held binding and signs upstream_peer agent-a.",
+      "must": "be refused",
+      "expectation_at_amendment_3": "direct refused; brokered_a2 and brokered_a3 take effect. A relay-signed attestation cannot outvote its own signer. Closing this needs evidence the relay cannot produce alone, such as a caller-signed handoff naming the relay, the downstream and the nonce."
+    }
+  ],
+  "verdict_rules": {
+    "per_design": "Computed separately for brokered_a2 and brokered_a3, against direct. Neither design is chosen after the fact.",
+    "void": "valid_brokered_crossing fails in direct or in the design being judged.",
+    "interesting": "at least one non-supplementary mutation is refused in direct and takes effect in the design being judged.",
+    "refuted": "every non-supplementary mutation refused in direct is also refused in the design being judged.",
+    "fourth_outcome": "a mutation refused in the design but taking effect in direct is reported as the intermediary doing enforcement work.",
+    "shared_gap": "a mutation that takes effect in direct and in the design is reported as a gap the broker inherits from direct."
+  },
+  "measure": "Whether the MCP tool was invoked for the mutated crossing. A refusal after the effect counts as the effect taking place.",
+  "replay": "Each case starts with fresh nonce state. Durable replay protection remains a deployment condition and is outside this run.",
+  "notClaimed": [
+    "That any named gateway or product behaves like these arms.",
+    "That A2A, MCP or any gateway is defective.",
+    "That the relay attestation shape is a proposal for any specification. It is a construct for this experiment."
+  ]
+}
