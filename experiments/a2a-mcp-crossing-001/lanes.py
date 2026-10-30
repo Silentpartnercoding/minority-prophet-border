@@ -209,9 +209,14 @@ class CrossingAgent:
     that is actually about to happen.
     """
 
-    def __init__(self, bound: bool, authorized: Crossing, observed: list[Invocation]):
+    def __init__(self, bound: bool, authorized: Crossing, observed: list[Invocation],
+                 self_id: str = "agent-b"):
         self.bound = bound
         self.authorized = authorized
+        # The identity of this receiving agent. The bound check refuses a receipt
+        # whose mandate names a different executor. The default is the executor
+        # every 001 case was issued to, so the recorded 001 cases run unchanged.
+        self.self_id = self_id
         self.lane = "bound" if bound else "native"
         self.server = build_server(observed, self.lane)
         self._seen_nonces: set[str] = set()
@@ -243,6 +248,10 @@ class CrossingAgent:
             raise MandateAdapterError(
                 f"request_id substitution: receipt binds {mandate['request_id']}, "
                 f"task presented as {presented.task_id}")
+        if self.self_id != mandate["executor_id"]:
+            raise MandateAdapterError(
+                f"executor identity substitution: receipt binds "
+                f"{mandate['executor_id']}, task received by {self.self_id}")
 
         # The exact action about to be invoked, not the one that was promised.
         adapter = MandateAuthorityAdapter(
