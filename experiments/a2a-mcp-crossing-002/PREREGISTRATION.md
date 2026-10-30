@@ -1,7 +1,8 @@
 # A2A-MCP-CROSSING-002 — preregistration
 
-**Status: cases frozen 19 August 2026, amended three times (`AMENDMENT-1.md` to
-`AMENDMENT-3.md`), RUN 29 October 2026. See `RESULTS.md`.**
+**Status: cases frozen 19 August 2026, amended four times (`AMENDMENT-1.md` to
+`AMENDMENT-4.md`), RUN 29 October 2026 (`RESULTS.md`), RUN AGAIN 29 October 2026 after
+Amendment 4 (`RESULTS-R4.md`).**
 
 Everything below this line is unchanged from 19 August, so what was predicted can be read
 against what happened. `cases.json` is byte-identical and still hashes to the digest recorded

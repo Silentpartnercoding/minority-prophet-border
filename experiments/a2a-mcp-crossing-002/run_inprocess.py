@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-"""Run A2A-MCP-CROSSING-002 (cases-r2.json) in-process, all four arms.
+"""Run A2A-MCP-CROSSING-002 (cases-r3.json, Amendment 4) in-process, all four arms.
 
     pip install -r ../a2a-mcp-crossing-001/requirements.txt cryptography
     python3 experiments/a2a-mcp-crossing-002/run_inprocess.py
 
 No sockets, no tokens: identities are handed to the checks by the runner, as in
 001's run_experiment.py. The real-transport run is run_transport.py. Writes
-results-inprocess.json.
+results-r4-inprocess.json. The first run's results-inprocess.json came from
+commit baceca5 and is left as recorded.
 """
 
 from __future__ import annotations
@@ -22,7 +23,7 @@ from crossing002 import (
     generate_relay_key, relay_build, a2a_message, Outbound,
 )
 from lanes import CrossingAgent, NamedUser
-from scenarios import HERE, CASES_R2, RELAY_ID, load_cases, plan
+from scenarios import HERE, CASES_R2, CASES_R3, RELAY_ID, load_cases, plan
 import verdict
 
 
@@ -43,9 +44,11 @@ async def run_direct(p: dict) -> dict:
         outcome, detail = "reject", f"{type(exc).__name__}: {exc}"
     rec = {"outcome": outcome, "detail": detail, "tool_invocations": len(observed)}
     if not p["forged"] and not p["status"]:
-        # Cross-check: 001's own CrossingAgent, imported unchanged, on the same input.
+        # Cross-check: 001's own CrossingAgent (with the 098e97a fix), imported
+        # unchanged, on the same input, receiving as the agent the case sends to.
         obs: list[Invocation] = []
-        agent = CrossingAgent(bound=True, authorized=binding, observed=obs)
+        agent = CrossingAgent(bound=True, authorized=binding, observed=obs,
+                              self_id=p["downstream"])
         try:
             await agent.handle(ServerCallContext(user=NamedUser(p["presenter"])), binding)
             o = "succeed"
@@ -114,10 +117,13 @@ async def main() -> int:
                 r["note"] = ("in-process: no token exists, so transport credential "
                              "revocation cannot be represented; see run_transport.py")
             results.append(r)
-    payload = {"experiment": "A2A-MCP-CROSSING-002", "run": "in-process",
+    payload = {"experiment": "A2A-MCP-CROSSING-002", "run": "in-process, second run (Amendment 4)",
                "cases_sha256": frozen, "cases_r2_sha256": digest,
-               **verdict.compute(load_cases(), results), "results": results}
-    (HERE / "results-inprocess.json").write_text(json.dumps(payload, indent=2) + "\n")
+               "cases_r3_sha256": hashlib.sha256(CASES_R3.read_bytes()).hexdigest(),
+               **verdict.compute(load_cases(), results),
+               "expectations_at_amendment_4": verdict.check_expectations(load_cases(), results),
+               "results": results}
+    (HERE / "results-r4-inprocess.json").write_text(json.dumps(payload, indent=2) + "\n")
     verdict.print_table(payload, load_cases())
     return 0
 

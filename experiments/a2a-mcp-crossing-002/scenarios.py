@@ -1,4 +1,7 @@
-"""How each execution case in cases-r2.json is staged. Shared by both runners.
+"""How each execution case is staged. Shared by both runners.
+
+The second run reads cases-r3.json (Amendment 4). Its staging is identical to
+cases-r2.json; only the checks and the recorded expectations changed.
 
 Every case uses agent-a's one genuine binding (001's `Crossing()`: caller
 agent-a, executor agent-b, task-1, interop.echo). The relay identity is the
@@ -12,6 +15,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 CASES_R2 = HERE / "cases-r2.json"
+CASES_R3 = HERE / "cases-r3.json"
 RELAY_ID = "service-account-relay-r1"
 
 BASE = {
@@ -62,7 +66,7 @@ OVERRIDES = {
 
 
 def load_cases() -> list[dict]:
-    return json.loads(CASES_R2.read_text())["cases"]
+    return json.loads(CASES_R3.read_text())["cases"]
 
 
 def plan(case_id: str) -> dict:

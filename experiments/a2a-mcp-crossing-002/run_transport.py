@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run A2A-MCP-CROSSING-002 (cases-r2.json) over HTTPS with real Keycloak tokens.
+"""Run A2A-MCP-CROSSING-002 (cases-r3.json, Amendment 4) over HTTPS with real Keycloak tokens.
 
 Topology (all on 127.0.0.1):
 
@@ -10,8 +10,9 @@ Topology (all on 127.0.0.1):
 Every A2A hop is TLS with certificate verification on. Every identity on the
 receiving side comes from a Keycloak RS256 token verified against JWKS. The
 relay authenticates downstream with its own client-credentials token. The MCP
-hop is in-process inside the downstream server. Writes results-transport.json.
-See RESULTS.md for setup.
+hop is in-process inside the downstream server. Writes results-r4-transport.json.
+The first run's results-transport.json came from commit baceca5 and is left as
+recorded. See RESULTS.md for setup.
 """
 
 from __future__ import annotations
@@ -28,7 +29,7 @@ import httpx
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 from crossing002 import ARMS, Crossing, crossing_to_dict  # noqa: E402
-from scenarios import CASES_R2, RELAY_ID, load_cases, plan  # noqa: E402
+from scenarios import CASES_R2, CASES_R3, RELAY_ID, load_cases, plan  # noqa: E402
 import verdict  # noqa: E402
 
 KC = os.environ.get("CROSSING_KEYCLOAK", "http://127.0.0.1:18080")
@@ -163,9 +164,10 @@ async def main() -> int:
                 })
     cases = load_cases()
     payload = {
-        "experiment": "A2A-MCP-CROSSING-002", "run": "transport",
+        "experiment": "A2A-MCP-CROSSING-002", "run": "transport, second run (Amendment 4)",
         "cases_sha256": hashlib.sha256((HERE / "cases.json").read_bytes()).hexdigest(),
         "cases_r2_sha256": hashlib.sha256(CASES_R2.read_bytes()).hexdigest(),
+        "cases_r3_sha256": hashlib.sha256(CASES_R3.read_bytes()).hexdigest(),
         "transport": {
             "a2a_hops": "HTTPS, self-signed TLS, client verifies the certificate",
             "identity": "Keycloak RS256 bearer tokens verified against JWKS, issuer and expiry checked",
@@ -175,9 +177,11 @@ async def main() -> int:
             "issuer": ISSUER,
             "mcp_hop": "in-process inside the downstream server",
         },
-        **verdict.compute(cases, results), "results": results,
+        **verdict.compute(cases, results),
+        "expectations_at_amendment_4": verdict.check_expectations(cases, results),
+        "results": results,
     }
-    (HERE / "results-transport.json").write_text(json.dumps(payload, indent=2) + "\n")
+    (HERE / "results-r4-transport.json").write_text(json.dumps(payload, indent=2) + "\n")
     verdict.print_table(payload, cases)
     return 0
 

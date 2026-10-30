@@ -1,4 +1,5 @@
-"""Relay and downstream checks for A2A-MCP-CROSSING-002, as fixed by AMENDMENT-3.md.
+"""Relay and downstream checks for A2A-MCP-CROSSING-002, as fixed by AMENDMENT-3.md
+and AMENDMENT-4.md.
 
 Four arms, all ending in the same real MCPServer from A2A-MCP-CROSSING-001:
 
@@ -14,6 +15,11 @@ Four arms, all ending in the same real MCPServer from A2A-MCP-CROSSING-001:
 Mandate and authority-record signatures stay modelled exactly as in 001
 (`signature == "verified-..."`). The relay attestation signature is real.
 The mandate, MANDATE_FIELDS and everything under border/ are untouched.
+
+Amendment 4 adds one comparison to `direct`, `brokered_a2` and `brokered_a3`: the
+receiving downstream agent must be `mandate.executor_id`, as in the 001 fix
+(commit 098e97a). The first run, made before this comparison existed, is
+recorded in RESULTS.md and reproduces from commit baceca5.
 """
 
 from __future__ import annotations
@@ -100,9 +106,17 @@ def _normalize(binding: Crossing, presented: Crossing, status: Status, records) 
     adapter.normalize(mandate, request, executor, credential, presented.action())
 
 
+def _check_executor(self_id: str, mandate: dict) -> None:
+    """Amendment 4: the receiving agent must be the executor the mandate names."""
+    if self_id != mandate["executor_id"]:
+        raise MandateAdapterError(
+            f"executor identity substitution: receipt binds "
+            f"{mandate['executor_id']}, task received by {self_id}")
+
+
 def check_direct(presenter: str, binding: Crossing, presented: Crossing,
-                 status: Status, seen_nonces: set[str]) -> None:
-    """001 `CrossingAgent._recheck`, line for line, records from the status registry."""
+                 status: Status, seen_nonces: set[str], self_id: str) -> None:
+    """001 `CrossingAgent._recheck` with the 098e97a fix, records from the status registry."""
     records = records_for(binding, status)
     mandate = records[0]
     _common_checks(binding, presented, status, seen_nonces, *records)
@@ -114,6 +128,7 @@ def check_direct(presenter: str, binding: Crossing, presented: Crossing,
         raise MandateAdapterError(
             f"request_id substitution: receipt binds {mandate['request_id']}, "
             f"task presented as {presented.task_id}")
+    _check_executor(self_id, mandate)
     _normalize(binding, presented, status, records)
     seen_nonces.add(presented.nonce)
 
@@ -303,6 +318,7 @@ def check_brokered(design: str, *, presenter: str, self_id: str, out: Outbound,
         raise MandateAdapterError(
             f"request_id substitution: receipt binds {mandate['request_id']}, "
             f"task presented as {presented.task_id}")
+    _check_executor(self_id, mandate)
     _normalize(binding, presented, status, records)
     seen_nonces.add(presented.nonce)
 
@@ -313,7 +329,7 @@ async def downstream_handle(arm: str, *, presenter: str, self_id: str, out: Outb
     """One downstream agent receiving one A2A task. Fresh nonce state per case."""
     seen: set[str] = set()
     if arm == "direct":
-        check_direct(presenter, out.binding, out.presented, status, seen)
+        check_direct(presenter, out.binding, out.presented, status, seen, self_id)
     elif arm in ("brokered_a2", "brokered_a3"):
         check_brokered(arm, presenter=presenter, self_id=self_id, out=out,
                        status=status, seen_nonces=seen, relays=relays)
