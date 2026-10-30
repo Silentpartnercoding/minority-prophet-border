@@ -10,22 +10,24 @@ recorded 001 cases still come out exactly as recorded in results.json.
 from __future__ import annotations
 
 import asyncio
+import importlib.util
 import json
 import sys
+import unittest
 from pathlib import Path
 
-import pytest
-
 EXPERIMENT = Path(__file__).resolve().parents[1] / "experiments" / "a2a-mcp-crossing-001"
-sys.path.insert(0, str(EXPERIMENT))
 
-pytest.importorskip("a2a")
-pytest.importorskip("mcp")
+HAS_EXPERIMENT_DEPENDENCIES = all(
+    importlib.util.find_spec(name) is not None for name in ("a2a", "mcp")
+)
 
-from a2a.server.context import ServerCallContext  # noqa: E402
+if HAS_EXPERIMENT_DEPENDENCIES:
+    sys.path.insert(0, str(EXPERIMENT))
+    from a2a.server.context import ServerCallContext
 
-from lanes import Crossing, CrossingAgent, Invocation, NamedUser  # noqa: E402
-from run_experiment import run_case  # noqa: E402
+    from lanes import Crossing, CrossingAgent, Invocation, NamedUser
+    from run_experiment import run_case
 
 RECORDED = json.loads((EXPERIMENT / "results.json").read_text())
 CASE_IDS = [c["id"] for c in json.loads((EXPERIMENT / "cases.json").read_text())["cases"]]
@@ -44,29 +46,35 @@ def _receive(self_id: str, bound: bool) -> tuple[str, str | None, int]:
         return "reject", f"{type(exc).__name__}: {exc}", len(observed)
 
 
-def test_receipt_for_different_recipient_refused():
-    outcome, detail, invoked = _receive("agent-d", bound=True)
-    assert outcome == "reject"
-    assert invoked == 0
-    assert detail == ("MandateAdapterError: executor identity substitution: "
-                      "receipt binds agent-b, task received by agent-d")
+@unittest.skipUnless(HAS_EXPERIMENT_DEPENDENCIES,
+                     "install experiments/a2a-mcp-crossing-001/requirements.txt")
+class Crossing001ExecutorBindingTests(unittest.TestCase):
+    def test_receipt_for_different_recipient_refused(self):
+        outcome, detail, invoked = _receive("agent-d", bound=True)
+        self.assertEqual(outcome, "reject")
+        self.assertEqual(invoked, 0)
+        self.assertEqual(detail, ("MandateAdapterError: executor identity substitution: "
+                                  "receipt binds agent-b, task received by agent-d"))
+
+    def test_intended_recipient_still_accepted(self):
+        self.assertEqual(_receive("agent-b", bound=True), ("succeed", None, 1))
+
+    def test_native_composition_still_accepts_different_recipient(self):
+        # Nothing in A2A or MCP compares the recipient with the mandate.
+        self.assertEqual(_receive("agent-d", bound=False), ("succeed", None, 1))
+
+    def test_recorded_cases_unchanged(self):
+        for bound in (False, True):
+            for case_id in CASE_IDS:
+                lane = "bound" if bound else "native"
+                with self.subTest(case=case_id, lane=lane):
+                    recorded = next(r for r in RECORDED["results"]
+                                    if r["case"] == case_id and r["lane"] == lane)
+                    now = asyncio.run(run_case(case_id, bound))
+                    for key in ("outcome", "tool_invocations",
+                                "mutated_crossing_took_effect", "detail"):
+                        self.assertEqual(now[key], recorded[key], (case_id, lane, key))
 
 
-def test_intended_recipient_still_accepted():
-    assert _receive("agent-b", bound=True) == ("succeed", None, 1)
-
-
-def test_native_composition_still_accepts_different_recipient():
-    # Nothing in A2A or MCP compares the recipient with the mandate.
-    assert _receive("agent-d", bound=False) == ("succeed", None, 1)
-
-
-@pytest.mark.parametrize("case_id", CASE_IDS)
-@pytest.mark.parametrize("bound", [False, True])
-def test_recorded_cases_unchanged(case_id, bound):
-    lane = "bound" if bound else "native"
-    recorded = next(r for r in RECORDED["results"]
-                    if r["case"] == case_id and r["lane"] == lane)
-    now = asyncio.run(run_case(case_id, bound))
-    for key in ("outcome", "tool_invocations", "mutated_crossing_took_effect", "detail"):
-        assert now[key] == recorded[key], (case_id, lane, key)
+if __name__ == "__main__":
+    unittest.main()
