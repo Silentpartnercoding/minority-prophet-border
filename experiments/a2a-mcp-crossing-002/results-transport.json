@@ -1,0 +1,1551 @@
+{
+  "experiment": "A2A-MCP-CROSSING-002",
+  "run": "transport",
+  "cases_sha256": "8e6e393d7b6701e62ab9ffbc19a14ac271d48e3aca601a6bc7547979eabc4ac4",
+  "cases_r2_sha256": "87ffabc5ebb32c36a37bfdfd95a17ea2eb0d4233ee0d7c8dc174231b52e65334",
+  "transport": {
+    "a2a_hops": "HTTPS, self-signed TLS, client verifies the certificate",
+    "identity": "Keycloak RS256 bearer tokens verified against JWKS, issuer and expiry checked",
+    "relay_downstream_identity": "relay-r1 client-credentials token, preferred_username service-account-relay-r1",
+    "relay_attestation": "Ed25519 DSSE envelope, key generated at relay startup",
+    "issuer": "http://127.0.0.1:18080/realms/crossing002",
+    "mcp_hop": "in-process inside the downstream server"
+  },
+  "verdicts": {
+    "brokered_a2": {
+      "verdict": "interesting",
+      "control_succeeds": true,
+      "refused_direct_took_effect_brokered": [
+        "second_caller_reuses_broker_path",
+        "broker_forwards_unreceived_receipt"
+      ],
+      "took_effect_direct_refused_brokered": [],
+      "shared_gaps": [
+        "receipt_valid_for_different_downstream",
+        "revoke_caller_transport_credential"
+      ]
+    },
+    "brokered_a3": {
+      "verdict": "refuted",
+      "control_succeeds": true,
+      "refused_direct_took_effect_brokered": [],
+      "took_effect_direct_refused_brokered": [],
+      "shared_gaps": [
+        "receipt_valid_for_different_downstream",
+        "revoke_caller_transport_credential"
+      ]
+    }
+  },
+  "results": [
+    {
+      "case": "valid_brokered_crossing",
+      "arm": "direct",
+      "outcome": "succeed",
+      "detail": null,
+      "tool_invocations": 1,
+      "mutated_crossing_took_effect": true,
+      "presenter_seen_by_server": "agent-a",
+      "agent": "agent-b",
+      "relay_upstream_peer": null,
+      "status_at_decision": {
+        "request_record": "active",
+        "mandate_current": true,
+        "mandate_forged": false
+      },
+      "revocation": null,
+      "invocations": [
+        {
+          "tool": "interop.echo",
+          "arguments": {
+            "payload": "hello"
+          },
+          "lane": "direct"
+        }
+      ],
+      "a2a_message": null,
+      "attestation_envelope": null
+    },
+    {
+      "case": "valid_brokered_crossing",
+      "arm": "brokered_native",
+      "outcome": "succeed",
+      "detail": null,
+      "tool_invocations": 1,
+      "mutated_crossing_took_effect": true,
+      "presenter_seen_by_server": "service-account-relay-r1",
+      "agent": "agent-b",
+      "relay_upstream_peer": "agent-a",
+      "status_at_decision": {
+        "request_record": "active",
+        "mandate_current": true,
+        "mandate_forged": false
+      },
+      "revocation": null,
+      "invocations": [
+        {
+          "tool": "interop.echo",
+          "arguments": {
+            "payload": "hello"
+          },
+          "lane": "brokered_native"
+        }
+      ],
+      "a2a_message": {
+        "messageId": "msg-task-1",
+        "contextId": "context-1",
+        "taskId": "task-1"
+      },
+      "attestation_envelope": null
+    },
+    {
+      "case": "valid_brokered_crossing",
+      "arm": "brokered_a2",
+      "outcome": "succeed",
+      "detail": null,
+      "tool_invocations": 1,
+      "mutated_crossing_took_effect": true,
+      "presenter_seen_by_server": "service-account-relay-r1",
+      "agent": "agent-b",
+      "relay_upstream_peer": "agent-a",
+      "status_at_decision": {
+        "request_record": "active",
+        "mandate_current": true,
+        "mandate_forged": false
+      },
+      "revocation": null,
+      "invocations": [
+        {
+          "tool": "interop.echo",
+          "arguments": {
+            "payload": "hello"
+          },
+          "lane": "brokered_a2"
+        }
+      ],
+      "a2a_message": {
+        "messageId": "msg-task-1",
+        "contextId": "context-1",
+        "taskId": "task-1",
+        "metadata": {
+          "crossing_relay": {
+            "relay_id": "service-account-relay-r1",
+            "requester_id": "agent-a"
+          }
+        },
+        "extensions": [
+          "https://minority-prophet.dev/experiments/a2a-mcp-crossing-002/relay/v0"
+        ]
+      },
+      "attestation_envelope": null
+    },
+    {
+      "case": "valid_brokered_crossing",
+      "arm": "brokered_a3",
+      "outcome": "succeed",
+      "detail": null,
+      "tool_invocations": 1,
+      "mutated_crossing_took_effect": true,
+      "presenter_seen_by_server": "service-account-relay-r1",
+      "agent": "agent-b",
+      "relay_upstream_peer": "agent-a",
+      "status_at_decision": {
+        "request_record": "active",
+        "mandate_current": true,
+        "mandate_forged": false
+      },
+      "revocation": null,
+      "invocations": [
+        {
+          "tool": "interop.echo",
+          "arguments": {
+            "payload": "hello"
+          },
+          "lane": "brokered_a3"
+        }
+      ],
+      "a2a_message": {
+        "messageId": "msg-task-1",
+        "contextId": "context-1",
+        "taskId": "task-1",
+        "metadata": {
+          "crossing_relay": {
+            "attestation_ref": {
+              "media_type": "application/vnd.in-toto+json",
+              "digest": "sha256:340f02b799ebc9d0ea35b4bc5b3f68941936600a146ac9f5c5d23abca9434d4a"
+            }
+          }
+        },
+        "extensions": [
+          "https://minority-prophet.dev/experiments/a2a-mcp-crossing-002/relay/v0"
+        ]
+      },
+      "attestation_envelope": {
+        "payloadType": "application/vnd.in-toto+json",
+        "payload": "eyJfdHlwZSI6Imh0dHBzOi8vaW4tdG90by5pby9TdGF0ZW1lbnQvdjEiLCJwcmVkaWNhdGUiOnsiYWN0aW9uX2RpZ2VzdCI6InNoYTI1NjpkMWY2MWI5YTBhNjBmNGI3YmY3MDU4NmYzYTUzZGM3NWRhZTIxMmIyMjVmYWQ4MTgzNDEwZGNjMTA1YTc4MmM2IiwiY29udGV4dF9pZCI6ImNvbnRleHQtMSIsImRvd25zdHJlYW0iOiJhZ2VudC1iIiwiZXhwaXJlc19hdCI6IjIwMjYtMDgtMThUMTI6MTA6MDBaIiwibWFuZGF0ZV9kaWdlc3QiOiJzaGEyNTY6MGIyY2U2YTg1ZGJlYzMwOTczMGZmZjJhYTQ2NTRmMmJhNjhkYTkyZGJmOTI5YjgwZGU3YjgwNTMyYjQyZjYxOSIsIm5vbmNlIjoiY3Jvc3Npbmctbm9uY2UtMDAwMSIsIm5vdF9iZWZvcmUiOiIyMDI2LTA4LTE4VDExOjQ1OjAwWiIsInJlbGF5X2lkIjoic2VydmljZS1hY2NvdW50LXJlbGF5LXIxIiwicmVxdWVzdGVyX2lkIjoiYWdlbnQtYSIsInNjaGVtYSI6ImNyb3NzaW5nLXJlbGF5LWF0dGVzdGF0aW9uL3YwIiwidGFza19pZCI6InRhc2stMSIsInVwc3RyZWFtX3BlZXIiOiJhZ2VudC1hIn0sInByZWRpY2F0ZVR5cGUiOiJodHRwczovL21pbm9yaXR5LXByb3BoZXQuZGV2L2V4cGVyaW1lbnRzL2EyYS1tY3AtY3Jvc3NpbmctMDAyL3JlbGF5LWF0dGVzdGF0aW9uL3YwIiwic3ViamVjdCI6W3siZGlnZXN0Ijp7InNoYTI1NiI6ImU0ZTA3MjExYTY3MmY1YmUxNTFhMGRiMzI1MGJmZjQyOGU2MTBlZjg5NWZlODNiMzRiYTc2NjFlNjQ0YjhiZDgifSwibmFtZSI6InJlbGF5LWF0dGVzdGF0aW9uIn1dfQ==",
+        "signatures": [
+          {
+            "keyid": "service-account-relay-r1",
+            "sig": "NcuHfx02tP3dOXzN5I6DPlfJ1PmCta6oksi1XqMLgyNcRAonMlzI9GkEYGV2zl6rJyABem2as048mHgexTaEBw=="
+          }
+        ]
+      }
+    },
+    {
+      "case": "broker_presents_only_own_identity",
+      "arm": "direct",
+      "outcome": "refuse",
+      "detail": "MandateAdapterError: requester identity substitution: receipt binds agent-a, task presented by service-account-relay-r1",
+      "tool_invocations": 0,
+      "mutated_crossing_took_effect": false,
+      "presenter_seen_by_server": "service-account-relay-r1",
+      "agent": "agent-b",
+      "relay_upstream_peer": null,
+      "status_at_decision": {
+        "request_record": "active",
+        "mandate_current": true,
+        "mandate_forged": false
+      },
+      "revocation": null,
+      "invocations": [],
+      "a2a_message": null,
+      "attestation_envelope": null
+    },
+    {
+      "case": "broker_presents_only_own_identity",
+      "arm": "brokered_native",
+      "outcome": "succeed",
+      "detail": null,
+      "tool_invocations": 1,
+      "mutated_crossing_took_effect": true,
+      "presenter_seen_by_server": "service-account-relay-r1",
+      "agent": "agent-b",
+      "relay_upstream_peer": "agent-a",
+      "status_at_decision": {
+        "request_record": "active",
+        "mandate_current": true,
+        "mandate_forged": false
+      },
+      "revocation": null,
+      "invocations": [
+        {
+          "tool": "interop.echo",
+          "arguments": {
+            "payload": "hello"
+          },
+          "lane": "brokered_native"
+        }
+      ],
+      "a2a_message": {
+        "messageId": "msg-task-1",
+        "contextId": "context-1",
+        "taskId": "task-1"
+      },
+      "attestation_envelope": null
+    },
+    {
+      "case": "broker_presents_only_own_identity",
+      "arm": "brokered_a2",
+      "outcome": "refuse",
+      "detail": "Refused: no relay evidence in A2A extension metadata",
+      "tool_invocations": 0,
+      "mutated_crossing_took_effect": false,
+      "presenter_seen_by_server": "service-account-relay-r1",
+      "agent": "agent-b",
+      "relay_upstream_peer": "agent-a",
+      "status_at_decision": {
+        "request_record": "active",
+        "mandate_current": true,
+        "mandate_forged": false
+      },
+      "revocation": null,
+      "invocations": [],
+      "a2a_message": {
+        "messageId": "msg-task-1",
+        "contextId": "context-1",
+        "taskId": "task-1"
+      },
+      "attestation_envelope": null
+    },
+    {
+      "case": "broker_presents_only_own_identity",
+      "arm": "brokered_a3",
+      "outcome": "refuse",
+      "detail": "Refused: no relay evidence in A2A extension metadata",
+      "tool_invocations": 0,
+      "mutated_crossing_took_effect": false,
+      "presenter_seen_by_server": "service-account-relay-r1",
+      "agent": "agent-b",
+      "relay_upstream_peer": "agent-a",
+      "status_at_decision": {
+        "request_record": "active",
+        "mandate_current": true,
+        "mandate_forged": false
+      },
+      "revocation": null,
+      "invocations": [],
+      "a2a_message": {
+        "messageId": "msg-task-1",
+        "contextId": "context-1",
+        "taskId": "task-1"
+      },
+      "attestation_envelope": null
+    },
+    {
+      "case": "relay_asserts_itself_as_requester",
+      "arm": "direct",
+      "outcome": "refuse",
+      "detail": "MandateAdapterError: requester identity substitution: receipt binds agent-a, task presented by service-account-relay-r1",
+      "tool_invocations": 0,
+      "mutated_crossing_took_effect": false,
+      "presenter_seen_by_server": "service-account-relay-r1",
+      "agent": "agent-b",
+      "relay_upstream_peer": null,
+      "status_at_decision": {
+        "request_record": "active",
+        "mandate_current": true,
+        "mandate_forged": false
+      },
+      "revocation": null,
+      "invocations": [],
+      "a2a_message": null,
+      "attestation_envelope": null
+    },
+    {
+      "case": "relay_asserts_itself_as_requester",
+      "arm": "brokered_native",
+      "outcome": "succeed",
+      "detail": null,
+      "tool_invocations": 1,
+      "mutated_crossing_took_effect": true,
+      "presenter_seen_by_server": "service-account-relay-r1",
+      "agent": "agent-b",
+      "relay_upstream_peer": "agent-a",
+      "status_at_decision": {
+        "request_record": "active",
+        "mandate_current": true,
+        "mandate_forged": false
+      },
+      "revocation": null,
+      "invocations": [
+        {
+          "tool": "interop.echo",
+          "arguments": {
+            "payload": "hello"
+          },
+          "lane": "brokered_native"
+        }
+      ],
+      "a2a_message": {
+        "messageId": "msg-task-1",
+        "contextId": "context-1",
+        "taskId": "task-1"
+      },
+      "attestation_envelope": null
+    },
+    {
+      "case": "relay_asserts_itself_as_requester",
+      "arm": "brokered_a2",
+      "outcome": "refuse",
+      "detail": "Refused: relay claims requester service-account-relay-r1, mandate binds agent-a",
+      "tool_invocations": 0,
+      "mutated_crossing_took_effect": false,
+      "presenter_seen_by_server": "service-account-relay-r1",
+      "agent": "agent-b",
+      "relay_upstream_peer": "agent-a",
+      "status_at_decision": {
+        "request_record": "active",
+        "mandate_current": true,
+        "mandate_forged": false
+      },
+      "revocation": null,
+      "invocations": [],
+      "a2a_message": {
+        "messageId": "msg-task-1",
+        "contextId": "context-1",
+        "taskId": "task-1",
+        "metadata": {
+          "crossing_relay": {
+            "relay_id": "service-account-relay-r1",
+            "requester_id": "service-account-relay-r1"
+          }
+        },
+        "extensions": [
+          "https://minority-prophet.dev/experiments/a2a-mcp-crossing-002/relay/v0"
+        ]
+      },
+      "attestation_envelope": null
+    },
+    {
+      "case": "relay_asserts_itself_as_requester",
+      "arm": "brokered_a3",
+      "outcome": "refuse",
+      "detail": "Refused: attested requester service-account-relay-r1, mandate binds agent-a",
+      "tool_invocations": 0,
+      "mutated_crossing_took_effect": false,
+      "presenter_seen_by_server": "service-account-relay-r1",
+      "agent": "agent-b",
+      "relay_upstream_peer": "agent-a",
+      "status_at_decision": {
+        "request_record": "active",
+        "mandate_current": true,
+        "mandate_forged": false
+      },
+      "revocation": null,
+      "invocations": [],
+      "a2a_message": {
+        "messageId": "msg-task-1",
+        "contextId": "context-1",
+        "taskId": "task-1",
+        "metadata": {
+          "crossing_relay": {
+            "attestation_ref": {
+              "media_type": "application/vnd.in-toto+json",
+              "digest": "sha256:0b6ab374b3cee0c8ceaf00c315f09b149b7d67a6e9dd16cd258e867e4471a95f"
+            }
+          }
+        },
+        "extensions": [
+          "https://minority-prophet.dev/experiments/a2a-mcp-crossing-002/relay/v0"
+        ]
+      },
+      "attestation_envelope": {
+        "payloadType": "application/vnd.in-toto+json",
+        "payload": "eyJfdHlwZSI6Imh0dHBzOi8vaW4tdG90by5pby9TdGF0ZW1lbnQvdjEiLCJwcmVkaWNhdGUiOnsiYWN0aW9uX2RpZ2VzdCI6InNoYTI1NjpkMWY2MWI5YTBhNjBmNGI3YmY3MDU4NmYzYTUzZGM3NWRhZTIxMmIyMjVmYWQ4MTgzNDEwZGNjMTA1YTc4MmM2IiwiY29udGV4dF9pZCI6ImNvbnRleHQtMSIsImRvd25zdHJlYW0iOiJhZ2VudC1iIiwiZXhwaXJlc19hdCI6IjIwMjYtMDgtMThUMTI6MTA6MDBaIiwibWFuZGF0ZV9kaWdlc3QiOiJzaGEyNTY6MGIyY2U2YTg1ZGJlYzMwOTczMGZmZjJhYTQ2NTRmMmJhNjhkYTkyZGJmOTI5YjgwZGU3YjgwNTMyYjQyZjYxOSIsIm5vbmNlIjoiY3Jvc3Npbmctbm9uY2UtMDAwMSIsIm5vdF9iZWZvcmUiOiIyMDI2LTA4LTE4VDExOjQ1OjAwWiIsInJlbGF5X2lkIjoic2VydmljZS1hY2NvdW50LXJlbGF5LXIxIiwicmVxdWVzdGVyX2lkIjoic2VydmljZS1hY2NvdW50LXJlbGF5LXIxIiwic2NoZW1hIjoiY3Jvc3NpbmctcmVsYXktYXR0ZXN0YXRpb24vdjAiLCJ0YXNrX2lkIjoidGFzay0xIiwidXBzdHJlYW1fcGVlciI6ImFnZW50LWEifSwicHJlZGljYXRlVHlwZSI6Imh0dHBzOi8vbWlub3JpdHktcHJvcGhldC5kZXYvZXhwZXJpbWVudHMvYTJhLW1jcC1jcm9zc2luZy0wMDIvcmVsYXktYXR0ZXN0YXRpb24vdjAiLCJzdWJqZWN0IjpbeyJkaWdlc3QiOnsic2hhMjU2IjoiMDRhMTVjMGZkYWZlY2MwNDAzZDYwNWQ1MmJhZmY2M2NkZTliMWJjMjJiZmI5Mjc5NDEyYWIzMWVmZDA3Y2Y4NyJ9LCJuYW1lIjoicmVsYXktYXR0ZXN0YXRpb24ifV19",
+        "signatures": [
+          {
+            "keyid": "service-account-relay-r1",
+            "sig": "PUhSjpILHe39r6XdsFuVq6bpUoffREwbWsIVZvdHuTnqUQF8EbYDLVww/T6E3awNfYp7Tlw8TApVhvLWd5I0Ag=="
+          }
+        ]
+      }
+    },
+    {
+      "case": "second_caller_reuses_broker_path",
+      "arm": "direct",
+      "outcome": "refuse",
+      "detail": "MandateAdapterError: requester identity substitution: receipt binds agent-a, task presented by agent-c",
+      "tool_invocations": 0,
+      "mutated_crossing_took_effect": false,
+      "presenter_seen_by_server": "agent-c",
+      "agent": "agent-b",
+      "relay_upstream_peer": null,
+      "status_at_decision": {
+        "request_record": "active",
+        "mandate_current": true,
+        "mandate_forged": false
+      },
+      "revocation": null,
+      "invocations": [],
+      "a2a_message": null,
+      "attestation_envelope": null
+    },
+    {
+      "case": "second_caller_reuses_broker_path",
+      "arm": "brokered_native",
+      "outcome": "succeed",
+      "detail": null,
+      "tool_invocations": 1,
+      "mutated_crossing_took_effect": true,
+      "presenter_seen_by_server": "service-account-relay-r1",
+      "agent": "agent-b",
+      "relay_upstream_peer": "agent-c",
+      "status_at_decision": {
+        "request_record": "active",
+        "mandate_current": true,
+        "mandate_forged": false
+      },
+      "revocation": null,
+      "invocations": [
+        {
+          "tool": "interop.echo",
+          "arguments": {
+            "payload": "hello"
+          },
+          "lane": "brokered_native"
+        }
+      ],
+      "a2a_message": {
+        "messageId": "msg-task-1",
+        "contextId": "context-1",
+        "taskId": "task-1"
+      },
+      "attestation_envelope": null
+    },
+    {
+      "case": "second_caller_reuses_broker_path",
+      "arm": "brokered_a2",
+      "outcome": "succeed",
+      "detail": null,
+      "tool_invocations": 1,
+      "mutated_crossing_took_effect": true,
+      "presenter_seen_by_server": "service-account-relay-r1",
+      "agent": "agent-b",
+      "relay_upstream_peer": "agent-c",
+      "status_at_decision": {
+        "request_record": "active",
+        "mandate_current": true,
+        "mandate_forged": false
+      },
+      "revocation": null,
+      "invocations": [
+        {
+          "tool": "interop.echo",
+          "arguments": {
+            "payload": "hello"
+          },
+          "lane": "brokered_a2"
+        }
+      ],
+      "a2a_message": {
+        "messageId": "msg-task-1",
+        "contextId": "context-1",
+        "taskId": "task-1",
+        "metadata": {
+          "crossing_relay": {
+            "relay_id": "service-account-relay-r1",
+            "requester_id": "agent-a"
+          }
+        },
+        "extensions": [
+          "https://minority-prophet.dev/experiments/a2a-mcp-crossing-002/relay/v0"
+        ]
+      },
+      "attestation_envelope": null
+    },
+    {
+      "case": "second_caller_reuses_broker_path",
+      "arm": "brokered_a3",
+      "outcome": "refuse",
+      "detail": "Refused: relay authenticated agent-c upstream, mandate binds agent-a",
+      "tool_invocations": 0,
+      "mutated_crossing_took_effect": false,
+      "presenter_seen_by_server": "service-account-relay-r1",
+      "agent": "agent-b",
+      "relay_upstream_peer": "agent-c",
+      "status_at_decision": {
+        "request_record": "active",
+        "mandate_current": true,
+        "mandate_forged": false
+      },
+      "revocation": null,
+      "invocations": [],
+      "a2a_message": {
+        "messageId": "msg-task-1",
+        "contextId": "context-1",
+        "taskId": "task-1",
+        "metadata": {
+          "crossing_relay": {
+            "attestation_ref": {
+              "media_type": "application/vnd.in-toto+json",
+              "digest": "sha256:94ef806f162b96d42e8d468c839117dd27fe4166628878d5ecd06b216c976be3"
+            }
+          }
+        },
+        "extensions": [
+          "https://minority-prophet.dev/experiments/a2a-mcp-crossing-002/relay/v0"
+        ]
+      },
+      "attestation_envelope": {
+        "payloadType": "application/vnd.in-toto+json",
+        "payload": "eyJfdHlwZSI6Imh0dHBzOi8vaW4tdG90by5pby9TdGF0ZW1lbnQvdjEiLCJwcmVkaWNhdGUiOnsiYWN0aW9uX2RpZ2VzdCI6InNoYTI1NjpkMWY2MWI5YTBhNjBmNGI3YmY3MDU4NmYzYTUzZGM3NWRhZTIxMmIyMjVmYWQ4MTgzNDEwZGNjMTA1YTc4MmM2IiwiY29udGV4dF9pZCI6ImNvbnRleHQtMSIsImRvd25zdHJlYW0iOiJhZ2VudC1iIiwiZXhwaXJlc19hdCI6IjIwMjYtMDgtMThUMTI6MTA6MDBaIiwibWFuZGF0ZV9kaWdlc3QiOiJzaGEyNTY6MGIyY2U2YTg1ZGJlYzMwOTczMGZmZjJhYTQ2NTRmMmJhNjhkYTkyZGJmOTI5YjgwZGU3YjgwNTMyYjQyZjYxOSIsIm5vbmNlIjoiY3Jvc3Npbmctbm9uY2UtMDAwMSIsIm5vdF9iZWZvcmUiOiIyMDI2LTA4LTE4VDExOjQ1OjAwWiIsInJlbGF5X2lkIjoic2VydmljZS1hY2NvdW50LXJlbGF5LXIxIiwicmVxdWVzdGVyX2lkIjoiYWdlbnQtYSIsInNjaGVtYSI6ImNyb3NzaW5nLXJlbGF5LWF0dGVzdGF0aW9uL3YwIiwidGFza19pZCI6InRhc2stMSIsInVwc3RyZWFtX3BlZXIiOiJhZ2VudC1jIn0sInByZWRpY2F0ZVR5cGUiOiJodHRwczovL21pbm9yaXR5LXByb3BoZXQuZGV2L2V4cGVyaW1lbnRzL2EyYS1tY3AtY3Jvc3NpbmctMDAyL3JlbGF5LWF0dGVzdGF0aW9uL3YwIiwic3ViamVjdCI6W3siZGlnZXN0Ijp7InNoYTI1NiI6ImUwMzhhOWM1OWQyYjY3OGEyMjhmYWY0NDkwN2IwNDhkMjVhMDgzYzI5MTQ0N2ZkYzYxM2Y5ZDg2ZjNjNWUxZGUifSwibmFtZSI6InJlbGF5LWF0dGVzdGF0aW9uIn1dfQ==",
+        "signatures": [
+          {
+            "keyid": "service-account-relay-r1",
+            "sig": "ytFEZRSTgrOvqgVO+NPFZohHm8kXtfaPDwVwVV6d/piWH9tfy3SImhqd/ooQzwLCVLK0XL9zFORhcRXgdRtNAQ=="
+          }
+        ]
+      }
+    },
+    {
+      "case": "broker_forwards_unreceived_receipt",
+      "arm": "direct",
+      "outcome": "refuse",
+      "detail": "MandateAdapterError: requester identity substitution: receipt binds agent-a, task presented by service-account-relay-r1",
+      "tool_invocations": 0,
+      "mutated_crossing_took_effect": false,
+      "presenter_seen_by_server": "service-account-relay-r1",
+      "agent": "agent-b",
+      "relay_upstream_peer": null,
+      "status_at_decision": {
+        "request_record": "active",
+        "mandate_current": true,
+        "mandate_forged": false
+      },
+      "revocation": null,
+      "invocations": [],
+      "a2a_message": null,
+      "attestation_envelope": null
+    },
+    {
+      "case": "broker_forwards_unreceived_receipt",
+      "arm": "brokered_native",
+      "outcome": "succeed",
+      "detail": null,
+      "tool_invocations": 1,
+      "mutated_crossing_took_effect": true,
+      "presenter_seen_by_server": "service-account-relay-r1",
+      "agent": "agent-b",
+      "relay_upstream_peer": null,
+      "status_at_decision": {
+        "request_record": "active",
+        "mandate_current": true,
+        "mandate_forged": false
+      },
+      "revocation": null,
+      "invocations": [
+        {
+          "tool": "interop.echo",
+          "arguments": {
+            "payload": "hello"
+          },
+          "lane": "brokered_native"
+        }
+      ],
+      "a2a_message": {
+        "messageId": "msg-task-1",
+        "contextId": "context-1",
+        "taskId": "task-1"
+      },
+      "attestation_envelope": null
+    },
+    {
+      "case": "broker_forwards_unreceived_receipt",
+      "arm": "brokered_a2",
+      "outcome": "succeed",
+      "detail": null,
+      "tool_invocations": 1,
+      "mutated_crossing_took_effect": true,
+      "presenter_seen_by_server": "service-account-relay-r1",
+      "agent": "agent-b",
+      "relay_upstream_peer": null,
+      "status_at_decision": {
+        "request_record": "active",
+        "mandate_current": true,
+        "mandate_forged": false
+      },
+      "revocation": null,
+      "invocations": [
+        {
+          "tool": "interop.echo",
+          "arguments": {
+            "payload": "hello"
+          },
+          "lane": "brokered_a2"
+        }
+      ],
+      "a2a_message": {
+        "messageId": "msg-task-1",
+        "contextId": "context-1",
+        "taskId": "task-1",
+        "metadata": {
+          "crossing_relay": {
+            "relay_id": "service-account-relay-r1",
+            "requester_id": "agent-a"
+          }
+        },
+        "extensions": [
+          "https://minority-prophet.dev/experiments/a2a-mcp-crossing-002/relay/v0"
+        ]
+      },
+      "attestation_envelope": null
+    },
+    {
+      "case": "broker_forwards_unreceived_receipt",
+      "arm": "brokered_a3",
+      "outcome": "refuse",
+      "detail": "Refused: relay authenticated service-account-relay-r1 upstream, mandate binds agent-a",
+      "tool_invocations": 0,
+      "mutated_crossing_took_effect": false,
+      "presenter_seen_by_server": "service-account-relay-r1",
+      "agent": "agent-b",
+      "relay_upstream_peer": null,
+      "status_at_decision": {
+        "request_record": "active",
+        "mandate_current": true,
+        "mandate_forged": false
+      },
+      "revocation": null,
+      "invocations": [],
+      "a2a_message": {
+        "messageId": "msg-task-1",
+        "contextId": "context-1",
+        "taskId": "task-1",
+        "metadata": {
+          "crossing_relay": {
+            "attestation_ref": {
+              "media_type": "application/vnd.in-toto+json",
+              "digest": "sha256:36788b9ef1b1105aa1ea50d7de2edec43d351957f1e18b279117299e59020e52"
+            }
+          }
+        },
+        "extensions": [
+          "https://minority-prophet.dev/experiments/a2a-mcp-crossing-002/relay/v0"
+        ]
+      },
+      "attestation_envelope": {
+        "payloadType": "application/vnd.in-toto+json",
+        "payload": "eyJfdHlwZSI6Imh0dHBzOi8vaW4tdG90by5pby9TdGF0ZW1lbnQvdjEiLCJwcmVkaWNhdGUiOnsiYWN0aW9uX2RpZ2VzdCI6InNoYTI1NjpkMWY2MWI5YTBhNjBmNGI3YmY3MDU4NmYzYTUzZGM3NWRhZTIxMmIyMjVmYWQ4MTgzNDEwZGNjMTA1YTc4MmM2IiwiY29udGV4dF9pZCI6ImNvbnRleHQtMSIsImRvd25zdHJlYW0iOiJhZ2VudC1iIiwiZXhwaXJlc19hdCI6IjIwMjYtMDgtMThUMTI6MTA6MDBaIiwibWFuZGF0ZV9kaWdlc3QiOiJzaGEyNTY6MGIyY2U2YTg1ZGJlYzMwOTczMGZmZjJhYTQ2NTRmMmJhNjhkYTkyZGJmOTI5YjgwZGU3YjgwNTMyYjQyZjYxOSIsIm5vbmNlIjoiY3Jvc3Npbmctbm9uY2UtMDAwMSIsIm5vdF9iZWZvcmUiOiIyMDI2LTA4LTE4VDExOjQ1OjAwWiIsInJlbGF5X2lkIjoic2VydmljZS1hY2NvdW50LXJlbGF5LXIxIiwicmVxdWVzdGVyX2lkIjoiYWdlbnQtYSIsInNjaGVtYSI6ImNyb3NzaW5nLXJlbGF5LWF0dGVzdGF0aW9uL3YwIiwidGFza19pZCI6InRhc2stMSIsInVwc3RyZWFtX3BlZXIiOiJzZXJ2aWNlLWFjY291bnQtcmVsYXktcjEifSwicHJlZGljYXRlVHlwZSI6Imh0dHBzOi8vbWlub3JpdHktcHJvcGhldC5kZXYvZXhwZXJpbWVudHMvYTJhLW1jcC1jcm9zc2luZy0wMDIvcmVsYXktYXR0ZXN0YXRpb24vdjAiLCJzdWJqZWN0IjpbeyJkaWdlc3QiOnsic2hhMjU2IjoiMjE5MzU3ODgzZTJmODI4YWQwNjRhNGM0ZjE1MjBjZWYxNGQ0MzA1OWNlMjBlZWQ4ODRmOWM2ZGMzYmU5YjNhMSJ9LCJuYW1lIjoicmVsYXktYXR0ZXN0YXRpb24ifV19",
+        "signatures": [
+          {
+            "keyid": "service-account-relay-r1",
+            "sig": "eG19EJwx/zQTy/P7SBd8yKR6wLvrAfMhkGRykKcMzfl6hwIgJILKgRubyrq9WfQ65zkMuy1Yy+0FIR21Qt7dBQ=="
+          }
+        ]
+      }
+    },
+    {
+      "case": "broker_fabricates_binding",
+      "arm": "direct",
+      "outcome": "refuse",
+      "detail": "MandateAdapterError: requester identity substitution: receipt binds agent-a, task presented by service-account-relay-r1",
+      "tool_invocations": 0,
+      "mutated_crossing_took_effect": false,
+      "presenter_seen_by_server": "service-account-relay-r1",
+      "agent": "agent-b",
+      "relay_upstream_peer": null,
+      "status_at_decision": {
+        "request_record": "active",
+        "mandate_current": true,
+        "mandate_forged": true
+      },
+      "revocation": null,
+      "invocations": [],
+      "a2a_message": null,
+      "attestation_envelope": null
+    },
+    {
+      "case": "broker_fabricates_binding",
+      "arm": "brokered_native",
+      "outcome": "succeed",
+      "detail": null,
+      "tool_invocations": 1,
+      "mutated_crossing_took_effect": true,
+      "presenter_seen_by_server": "service-account-relay-r1",
+      "agent": "agent-b",
+      "relay_upstream_peer": null,
+      "status_at_decision": {
+        "request_record": "active",
+        "mandate_current": true,
+        "mandate_forged": true
+      },
+      "revocation": null,
+      "invocations": [
+        {
+          "tool": "interop.echo",
+          "arguments": {
+            "payload": "hello"
+          },
+          "lane": "brokered_native"
+        }
+      ],
+      "a2a_message": {
+        "messageId": "msg-task-1",
+        "contextId": "context-1",
+        "taskId": "task-1"
+      },
+      "attestation_envelope": null
+    },
+    {
+      "case": "broker_fabricates_binding",
+      "arm": "brokered_a2",
+      "outcome": "refuse",
+      "detail": "MandateAdapterError: mandate signature verification failed",
+      "tool_invocations": 0,
+      "mutated_crossing_took_effect": false,
+      "presenter_seen_by_server": "service-account-relay-r1",
+      "agent": "agent-b",
+      "relay_upstream_peer": null,
+      "status_at_decision": {
+        "request_record": "active",
+        "mandate_current": true,
+        "mandate_forged": true
+      },
+      "revocation": null,
+      "invocations": [],
+      "a2a_message": {
+        "messageId": "msg-task-1",
+        "contextId": "context-1",
+        "taskId": "task-1",
+        "metadata": {
+          "crossing_relay": {
+            "relay_id": "service-account-relay-r1",
+            "requester_id": "agent-a"
+          }
+        },
+        "extensions": [
+          "https://minority-prophet.dev/experiments/a2a-mcp-crossing-002/relay/v0"
+        ]
+      },
+      "attestation_envelope": null
+    },
+    {
+      "case": "broker_fabricates_binding",
+      "arm": "brokered_a3",
+      "outcome": "refuse",
+      "detail": "Refused: relay authenticated service-account-relay-r1 upstream, mandate binds agent-a",
+      "tool_invocations": 0,
+      "mutated_crossing_took_effect": false,
+      "presenter_seen_by_server": "service-account-relay-r1",
+      "agent": "agent-b",
+      "relay_upstream_peer": null,
+      "status_at_decision": {
+        "request_record": "active",
+        "mandate_current": true,
+        "mandate_forged": true
+      },
+      "revocation": null,
+      "invocations": [],
+      "a2a_message": {
+        "messageId": "msg-task-1",
+        "contextId": "context-1",
+        "taskId": "task-1",
+        "metadata": {
+          "crossing_relay": {
+            "attestation_ref": {
+              "media_type": "application/vnd.in-toto+json",
+              "digest": "sha256:fa859546e6318b618c6fa6a3da1631677e532610792e450e448cdbf5ad78d05a"
+            }
+          }
+        },
+        "extensions": [
+          "https://minority-prophet.dev/experiments/a2a-mcp-crossing-002/relay/v0"
+        ]
+      },
+      "attestation_envelope": {
+        "payloadType": "application/vnd.in-toto+json",
+        "payload": "eyJfdHlwZSI6Imh0dHBzOi8vaW4tdG90by5pby9TdGF0ZW1lbnQvdjEiLCJwcmVkaWNhdGUiOnsiYWN0aW9uX2RpZ2VzdCI6InNoYTI1NjpkMWY2MWI5YTBhNjBmNGI3YmY3MDU4NmYzYTUzZGM3NWRhZTIxMmIyMjVmYWQ4MTgzNDEwZGNjMTA1YTc4MmM2IiwiY29udGV4dF9pZCI6ImNvbnRleHQtMSIsImRvd25zdHJlYW0iOiJhZ2VudC1iIiwiZXhwaXJlc19hdCI6IjIwMjYtMDgtMThUMTI6MTA6MDBaIiwibWFuZGF0ZV9kaWdlc3QiOiJzaGEyNTY6NDg2ZjgzNzgyM2ZjZmY4MWU5YjAzMWJlMThhMmJhNjUyMGE4ZDZiZjBlZWY0YTYxZmUxN2E2MWUzMDI1NTIzYyIsIm5vbmNlIjoiY3Jvc3Npbmctbm9uY2UtMDAwMSIsIm5vdF9iZWZvcmUiOiIyMDI2LTA4LTE4VDExOjQ1OjAwWiIsInJlbGF5X2lkIjoic2VydmljZS1hY2NvdW50LXJlbGF5LXIxIiwicmVxdWVzdGVyX2lkIjoiYWdlbnQtYSIsInNjaGVtYSI6ImNyb3NzaW5nLXJlbGF5LWF0dGVzdGF0aW9uL3YwIiwidGFza19pZCI6InRhc2stMSIsInVwc3RyZWFtX3BlZXIiOiJzZXJ2aWNlLWFjY291bnQtcmVsYXktcjEifSwicHJlZGljYXRlVHlwZSI6Imh0dHBzOi8vbWlub3JpdHktcHJvcGhldC5kZXYvZXhwZXJpbWVudHMvYTJhLW1jcC1jcm9zc2luZy0wMDIvcmVsYXktYXR0ZXN0YXRpb24vdjAiLCJzdWJqZWN0IjpbeyJkaWdlc3QiOnsic2hhMjU2IjoiYjNmYjU5ZWI4ZjAxZDE0YzJiNmE2Yzc5OTc5NDkyMmIyMTkzYWQ3ODM0ODU3ZjY1MTFjYTdmNTg1NTBiMzVmNCJ9LCJuYW1lIjoicmVsYXktYXR0ZXN0YXRpb24ifV19",
+        "signatures": [
+          {
+            "keyid": "service-account-relay-r1",
+            "sig": "hfBNbzC9NeizbF5waBFGNnkRg7h/5wA6X6/AzEDCVQ6rxh8ThgSOzXGDwYSh0L4mww9Knna27j1ChFtr/v7WBQ=="
+          }
+        ]
+      }
+    },
+    {
+      "case": "receipt_valid_for_different_downstream",
+      "arm": "direct",
+      "outcome": "succeed",
+      "detail": null,
+      "tool_invocations": 1,
+      "mutated_crossing_took_effect": true,
+      "presenter_seen_by_server": "agent-a",
+      "agent": "agent-d",
+      "relay_upstream_peer": null,
+      "status_at_decision": {
+        "request_record": "active",
+        "mandate_current": true,
+        "mandate_forged": false
+      },
+      "revocation": null,
+      "invocations": [
+        {
+          "tool": "interop.echo",
+          "arguments": {
+            "payload": "hello"
+          },
+          "lane": "direct"
+        }
+      ],
+      "a2a_message": null,
+      "attestation_envelope": null
+    },
+    {
+      "case": "receipt_valid_for_different_downstream",
+      "arm": "brokered_native",
+      "outcome": "succeed",
+      "detail": null,
+      "tool_invocations": 1,
+      "mutated_crossing_took_effect": true,
+      "presenter_seen_by_server": "service-account-relay-r1",
+      "agent": "agent-d",
+      "relay_upstream_peer": "agent-a",
+      "status_at_decision": {
+        "request_record": "active",
+        "mandate_current": true,
+        "mandate_forged": false
+      },
+      "revocation": null,
+      "invocations": [
+        {
+          "tool": "interop.echo",
+          "arguments": {
+            "payload": "hello"
+          },
+          "lane": "brokered_native"
+        }
+      ],
+      "a2a_message": {
+        "messageId": "msg-task-1",
+        "contextId": "context-1",
+        "taskId": "task-1"
+      },
+      "attestation_envelope": null
+    },
+    {
+      "case": "receipt_valid_for_different_downstream",
+      "arm": "brokered_a2",
+      "outcome": "succeed",
+      "detail": null,
+      "tool_invocations": 1,
+      "mutated_crossing_took_effect": true,
+      "presenter_seen_by_server": "service-account-relay-r1",
+      "agent": "agent-d",
+      "relay_upstream_peer": "agent-a",
+      "status_at_decision": {
+        "request_record": "active",
+        "mandate_current": true,
+        "mandate_forged": false
+      },
+      "revocation": null,
+      "invocations": [
+        {
+          "tool": "interop.echo",
+          "arguments": {
+            "payload": "hello"
+          },
+          "lane": "brokered_a2"
+        }
+      ],
+      "a2a_message": {
+        "messageId": "msg-task-1",
+        "contextId": "context-1",
+        "taskId": "task-1",
+        "metadata": {
+          "crossing_relay": {
+            "relay_id": "service-account-relay-r1",
+            "requester_id": "agent-a"
+          }
+        },
+        "extensions": [
+          "https://minority-prophet.dev/experiments/a2a-mcp-crossing-002/relay/v0"
+        ]
+      },
+      "attestation_envelope": null
+    },
+    {
+      "case": "receipt_valid_for_different_downstream",
+      "arm": "brokered_a3",
+      "outcome": "succeed",
+      "detail": null,
+      "tool_invocations": 1,
+      "mutated_crossing_took_effect": true,
+      "presenter_seen_by_server": "service-account-relay-r1",
+      "agent": "agent-d",
+      "relay_upstream_peer": "agent-a",
+      "status_at_decision": {
+        "request_record": "active",
+        "mandate_current": true,
+        "mandate_forged": false
+      },
+      "revocation": null,
+      "invocations": [
+        {
+          "tool": "interop.echo",
+          "arguments": {
+            "payload": "hello"
+          },
+          "lane": "brokered_a3"
+        }
+      ],
+      "a2a_message": {
+        "messageId": "msg-task-1",
+        "contextId": "context-1",
+        "taskId": "task-1",
+        "metadata": {
+          "crossing_relay": {
+            "attestation_ref": {
+              "media_type": "application/vnd.in-toto+json",
+              "digest": "sha256:4a767ae86605142b8b14718c42e807990820dea981ae75a1d73c8395c9192be7"
+            }
+          }
+        },
+        "extensions": [
+          "https://minority-prophet.dev/experiments/a2a-mcp-crossing-002/relay/v0"
+        ]
+      },
+      "attestation_envelope": {
+        "payloadType": "application/vnd.in-toto+json",
+        "payload": "eyJfdHlwZSI6Imh0dHBzOi8vaW4tdG90by5pby9TdGF0ZW1lbnQvdjEiLCJwcmVkaWNhdGUiOnsiYWN0aW9uX2RpZ2VzdCI6InNoYTI1NjpkMWY2MWI5YTBhNjBmNGI3YmY3MDU4NmYzYTUzZGM3NWRhZTIxMmIyMjVmYWQ4MTgzNDEwZGNjMTA1YTc4MmM2IiwiY29udGV4dF9pZCI6ImNvbnRleHQtMSIsImRvd25zdHJlYW0iOiJhZ2VudC1kIiwiZXhwaXJlc19hdCI6IjIwMjYtMDgtMThUMTI6MTA6MDBaIiwibWFuZGF0ZV9kaWdlc3QiOiJzaGEyNTY6MGIyY2U2YTg1ZGJlYzMwOTczMGZmZjJhYTQ2NTRmMmJhNjhkYTkyZGJmOTI5YjgwZGU3YjgwNTMyYjQyZjYxOSIsIm5vbmNlIjoiY3Jvc3Npbmctbm9uY2UtMDAwMSIsIm5vdF9iZWZvcmUiOiIyMDI2LTA4LTE4VDExOjQ1OjAwWiIsInJlbGF5X2lkIjoic2VydmljZS1hY2NvdW50LXJlbGF5LXIxIiwicmVxdWVzdGVyX2lkIjoiYWdlbnQtYSIsInNjaGVtYSI6ImNyb3NzaW5nLXJlbGF5LWF0dGVzdGF0aW9uL3YwIiwidGFza19pZCI6InRhc2stMSIsInVwc3RyZWFtX3BlZXIiOiJhZ2VudC1hIn0sInByZWRpY2F0ZVR5cGUiOiJodHRwczovL21pbm9yaXR5LXByb3BoZXQuZGV2L2V4cGVyaW1lbnRzL2EyYS1tY3AtY3Jvc3NpbmctMDAyL3JlbGF5LWF0dGVzdGF0aW9uL3YwIiwic3ViamVjdCI6W3siZGlnZXN0Ijp7InNoYTI1NiI6IjA0ZTFjZGE2MmQ5ZmU5NjNmMThjZGM5ZDBjZmZiMTMzZWFlNTc2ZWFmNzBhMDNlYmM2MjE1Y2VhMzBmZjY1YjMifSwibmFtZSI6InJlbGF5LWF0dGVzdGF0aW9uIn1dfQ==",
+        "signatures": [
+          {
+            "keyid": "service-account-relay-r1",
+            "sig": "56KjoYhLRgbPVY/ga/djayUZL09fwJuSCZT5RX3WcbTtyIbjRUhe1d8fhNKaT0qX1wSEj2u6oleeWntcLSzHAg=="
+          }
+        ]
+      }
+    },
+    {
+      "case": "revoke_request_authority_record",
+      "arm": "direct",
+      "outcome": "refuse",
+      "detail": "MandateAdapterError: request authority is inactive, denied, expired, or revoked",
+      "tool_invocations": 0,
+      "mutated_crossing_took_effect": false,
+      "presenter_seen_by_server": "agent-a",
+      "agent": "agent-b",
+      "relay_upstream_peer": null,
+      "status_at_decision": {
+        "request_record": "revoked",
+        "mandate_current": true,
+        "mandate_forged": false
+      },
+      "revocation": null,
+      "invocations": [],
+      "a2a_message": null,
+      "attestation_envelope": null
+    },
+    {
+      "case": "revoke_request_authority_record",
+      "arm": "brokered_native",
+      "outcome": "succeed",
+      "detail": null,
+      "tool_invocations": 1,
+      "mutated_crossing_took_effect": true,
+      "presenter_seen_by_server": "service-account-relay-r1",
+      "agent": "agent-b",
+      "relay_upstream_peer": "agent-a",
+      "status_at_decision": {
+        "request_record": "revoked",
+        "mandate_current": true,
+        "mandate_forged": false
+      },
+      "revocation": null,
+      "invocations": [
+        {
+          "tool": "interop.echo",
+          "arguments": {
+            "payload": "hello"
+          },
+          "lane": "brokered_native"
+        }
+      ],
+      "a2a_message": {
+        "messageId": "msg-task-1",
+        "contextId": "context-1",
+        "taskId": "task-1"
+      },
+      "attestation_envelope": null
+    },
+    {
+      "case": "revoke_request_authority_record",
+      "arm": "brokered_a2",
+      "outcome": "refuse",
+      "detail": "MandateAdapterError: request authority is inactive, denied, expired, or revoked",
+      "tool_invocations": 0,
+      "mutated_crossing_took_effect": false,
+      "presenter_seen_by_server": "service-account-relay-r1",
+      "agent": "agent-b",
+      "relay_upstream_peer": "agent-a",
+      "status_at_decision": {
+        "request_record": "revoked",
+        "mandate_current": true,
+        "mandate_forged": false
+      },
+      "revocation": null,
+      "invocations": [],
+      "a2a_message": {
+        "messageId": "msg-task-1",
+        "contextId": "context-1",
+        "taskId": "task-1",
+        "metadata": {
+          "crossing_relay": {
+            "relay_id": "service-account-relay-r1",
+            "requester_id": "agent-a"
+          }
+        },
+        "extensions": [
+          "https://minority-prophet.dev/experiments/a2a-mcp-crossing-002/relay/v0"
+        ]
+      },
+      "attestation_envelope": null
+    },
+    {
+      "case": "revoke_request_authority_record",
+      "arm": "brokered_a3",
+      "outcome": "refuse",
+      "detail": "MandateAdapterError: request authority is inactive, denied, expired, or revoked",
+      "tool_invocations": 0,
+      "mutated_crossing_took_effect": false,
+      "presenter_seen_by_server": "service-account-relay-r1",
+      "agent": "agent-b",
+      "relay_upstream_peer": "agent-a",
+      "status_at_decision": {
+        "request_record": "revoked",
+        "mandate_current": true,
+        "mandate_forged": false
+      },
+      "revocation": null,
+      "invocations": [],
+      "a2a_message": {
+        "messageId": "msg-task-1",
+        "contextId": "context-1",
+        "taskId": "task-1",
+        "metadata": {
+          "crossing_relay": {
+            "attestation_ref": {
+              "media_type": "application/vnd.in-toto+json",
+              "digest": "sha256:340f02b799ebc9d0ea35b4bc5b3f68941936600a146ac9f5c5d23abca9434d4a"
+            }
+          }
+        },
+        "extensions": [
+          "https://minority-prophet.dev/experiments/a2a-mcp-crossing-002/relay/v0"
+        ]
+      },
+      "attestation_envelope": {
+        "payloadType": "application/vnd.in-toto+json",
+        "payload": "eyJfdHlwZSI6Imh0dHBzOi8vaW4tdG90by5pby9TdGF0ZW1lbnQvdjEiLCJwcmVkaWNhdGUiOnsiYWN0aW9uX2RpZ2VzdCI6InNoYTI1NjpkMWY2MWI5YTBhNjBmNGI3YmY3MDU4NmYzYTUzZGM3NWRhZTIxMmIyMjVmYWQ4MTgzNDEwZGNjMTA1YTc4MmM2IiwiY29udGV4dF9pZCI6ImNvbnRleHQtMSIsImRvd25zdHJlYW0iOiJhZ2VudC1iIiwiZXhwaXJlc19hdCI6IjIwMjYtMDgtMThUMTI6MTA6MDBaIiwibWFuZGF0ZV9kaWdlc3QiOiJzaGEyNTY6MGIyY2U2YTg1ZGJlYzMwOTczMGZmZjJhYTQ2NTRmMmJhNjhkYTkyZGJmOTI5YjgwZGU3YjgwNTMyYjQyZjYxOSIsIm5vbmNlIjoiY3Jvc3Npbmctbm9uY2UtMDAwMSIsIm5vdF9iZWZvcmUiOiIyMDI2LTA4LTE4VDExOjQ1OjAwWiIsInJlbGF5X2lkIjoic2VydmljZS1hY2NvdW50LXJlbGF5LXIxIiwicmVxdWVzdGVyX2lkIjoiYWdlbnQtYSIsInNjaGVtYSI6ImNyb3NzaW5nLXJlbGF5LWF0dGVzdGF0aW9uL3YwIiwidGFza19pZCI6InRhc2stMSIsInVwc3RyZWFtX3BlZXIiOiJhZ2VudC1hIn0sInByZWRpY2F0ZVR5cGUiOiJodHRwczovL21pbm9yaXR5LXByb3BoZXQuZGV2L2V4cGVyaW1lbnRzL2EyYS1tY3AtY3Jvc3NpbmctMDAyL3JlbGF5LWF0dGVzdGF0aW9uL3YwIiwic3ViamVjdCI6W3siZGlnZXN0Ijp7InNoYTI1NiI6ImU0ZTA3MjExYTY3MmY1YmUxNTFhMGRiMzI1MGJmZjQyOGU2MTBlZjg5NWZlODNiMzRiYTc2NjFlNjQ0YjhiZDgifSwibmFtZSI6InJlbGF5LWF0dGVzdGF0aW9uIn1dfQ==",
+        "signatures": [
+          {
+            "keyid": "service-account-relay-r1",
+            "sig": "NcuHfx02tP3dOXzN5I6DPlfJ1PmCta6oksi1XqMLgyNcRAonMlzI9GkEYGV2zl6rJyABem2as048mHgexTaEBw=="
+          }
+        ]
+      }
+    },
+    {
+      "case": "revoke_mandate",
+      "arm": "direct",
+      "outcome": "refuse",
+      "detail": "MandateAdapterError: mandate is revoked, stale, or indeterminate at Gate decision",
+      "tool_invocations": 0,
+      "mutated_crossing_took_effect": false,
+      "presenter_seen_by_server": "agent-a",
+      "agent": "agent-b",
+      "relay_upstream_peer": null,
+      "status_at_decision": {
+        "request_record": "active",
+        "mandate_current": false,
+        "mandate_forged": false
+      },
+      "revocation": null,
+      "invocations": [],
+      "a2a_message": null,
+      "attestation_envelope": null
+    },
+    {
+      "case": "revoke_mandate",
+      "arm": "brokered_native",
+      "outcome": "succeed",
+      "detail": null,
+      "tool_invocations": 1,
+      "mutated_crossing_took_effect": true,
+      "presenter_seen_by_server": "service-account-relay-r1",
+      "agent": "agent-b",
+      "relay_upstream_peer": "agent-a",
+      "status_at_decision": {
+        "request_record": "active",
+        "mandate_current": false,
+        "mandate_forged": false
+      },
+      "revocation": null,
+      "invocations": [
+        {
+          "tool": "interop.echo",
+          "arguments": {
+            "payload": "hello"
+          },
+          "lane": "brokered_native"
+        }
+      ],
+      "a2a_message": {
+        "messageId": "msg-task-1",
+        "contextId": "context-1",
+        "taskId": "task-1"
+      },
+      "attestation_envelope": null
+    },
+    {
+      "case": "revoke_mandate",
+      "arm": "brokered_a2",
+      "outcome": "refuse",
+      "detail": "MandateAdapterError: mandate is revoked, stale, or indeterminate at Gate decision",
+      "tool_invocations": 0,
+      "mutated_crossing_took_effect": false,
+      "presenter_seen_by_server": "service-account-relay-r1",
+      "agent": "agent-b",
+      "relay_upstream_peer": "agent-a",
+      "status_at_decision": {
+        "request_record": "active",
+        "mandate_current": false,
+        "mandate_forged": false
+      },
+      "revocation": null,
+      "invocations": [],
+      "a2a_message": {
+        "messageId": "msg-task-1",
+        "contextId": "context-1",
+        "taskId": "task-1",
+        "metadata": {
+          "crossing_relay": {
+            "relay_id": "service-account-relay-r1",
+            "requester_id": "agent-a"
+          }
+        },
+        "extensions": [
+          "https://minority-prophet.dev/experiments/a2a-mcp-crossing-002/relay/v0"
+        ]
+      },
+      "attestation_envelope": null
+    },
+    {
+      "case": "revoke_mandate",
+      "arm": "brokered_a3",
+      "outcome": "refuse",
+      "detail": "MandateAdapterError: mandate is revoked, stale, or indeterminate at Gate decision",
+      "tool_invocations": 0,
+      "mutated_crossing_took_effect": false,
+      "presenter_seen_by_server": "service-account-relay-r1",
+      "agent": "agent-b",
+      "relay_upstream_peer": "agent-a",
+      "status_at_decision": {
+        "request_record": "active",
+        "mandate_current": false,
+        "mandate_forged": false
+      },
+      "revocation": null,
+      "invocations": [],
+      "a2a_message": {
+        "messageId": "msg-task-1",
+        "contextId": "context-1",
+        "taskId": "task-1",
+        "metadata": {
+          "crossing_relay": {
+            "attestation_ref": {
+              "media_type": "application/vnd.in-toto+json",
+              "digest": "sha256:340f02b799ebc9d0ea35b4bc5b3f68941936600a146ac9f5c5d23abca9434d4a"
+            }
+          }
+        },
+        "extensions": [
+          "https://minority-prophet.dev/experiments/a2a-mcp-crossing-002/relay/v0"
+        ]
+      },
+      "attestation_envelope": {
+        "payloadType": "application/vnd.in-toto+json",
+        "payload": "eyJfdHlwZSI6Imh0dHBzOi8vaW4tdG90by5pby9TdGF0ZW1lbnQvdjEiLCJwcmVkaWNhdGUiOnsiYWN0aW9uX2RpZ2VzdCI6InNoYTI1NjpkMWY2MWI5YTBhNjBmNGI3YmY3MDU4NmYzYTUzZGM3NWRhZTIxMmIyMjVmYWQ4MTgzNDEwZGNjMTA1YTc4MmM2IiwiY29udGV4dF9pZCI6ImNvbnRleHQtMSIsImRvd25zdHJlYW0iOiJhZ2VudC1iIiwiZXhwaXJlc19hdCI6IjIwMjYtMDgtMThUMTI6MTA6MDBaIiwibWFuZGF0ZV9kaWdlc3QiOiJzaGEyNTY6MGIyY2U2YTg1ZGJlYzMwOTczMGZmZjJhYTQ2NTRmMmJhNjhkYTkyZGJmOTI5YjgwZGU3YjgwNTMyYjQyZjYxOSIsIm5vbmNlIjoiY3Jvc3Npbmctbm9uY2UtMDAwMSIsIm5vdF9iZWZvcmUiOiIyMDI2LTA4LTE4VDExOjQ1OjAwWiIsInJlbGF5X2lkIjoic2VydmljZS1hY2NvdW50LXJlbGF5LXIxIiwicmVxdWVzdGVyX2lkIjoiYWdlbnQtYSIsInNjaGVtYSI6ImNyb3NzaW5nLXJlbGF5LWF0dGVzdGF0aW9uL3YwIiwidGFza19pZCI6InRhc2stMSIsInVwc3RyZWFtX3BlZXIiOiJhZ2VudC1hIn0sInByZWRpY2F0ZVR5cGUiOiJodHRwczovL21pbm9yaXR5LXByb3BoZXQuZGV2L2V4cGVyaW1lbnRzL2EyYS1tY3AtY3Jvc3NpbmctMDAyL3JlbGF5LWF0dGVzdGF0aW9uL3YwIiwic3ViamVjdCI6W3siZGlnZXN0Ijp7InNoYTI1NiI6ImU0ZTA3MjExYTY3MmY1YmUxNTFhMGRiMzI1MGJmZjQyOGU2MTBlZjg5NWZlODNiMzRiYTc2NjFlNjQ0YjhiZDgifSwibmFtZSI6InJlbGF5LWF0dGVzdGF0aW9uIn1dfQ==",
+        "signatures": [
+          {
+            "keyid": "service-account-relay-r1",
+            "sig": "NcuHfx02tP3dOXzN5I6DPlfJ1PmCta6oksi1XqMLgyNcRAonMlzI9GkEYGV2zl6rJyABem2as048mHgexTaEBw=="
+          }
+        ]
+      }
+    },
+    {
+      "case": "revoke_caller_transport_credential",
+      "arm": "direct",
+      "outcome": "succeed",
+      "detail": null,
+      "tool_invocations": 1,
+      "mutated_crossing_took_effect": true,
+      "presenter_seen_by_server": "agent-a",
+      "agent": "agent-b",
+      "relay_upstream_peer": null,
+      "status_at_decision": {
+        "request_record": "active",
+        "mandate_current": true,
+        "mandate_forged": false
+      },
+      "revocation": {
+        "introspection_active_before": true,
+        "introspection_active_after": false,
+        "method": "POST /admin/realms/crossing002/users/{id}/logout"
+      },
+      "invocations": [
+        {
+          "tool": "interop.echo",
+          "arguments": {
+            "payload": "hello"
+          },
+          "lane": "direct"
+        }
+      ],
+      "a2a_message": null,
+      "attestation_envelope": null
+    },
+    {
+      "case": "revoke_caller_transport_credential",
+      "arm": "brokered_native",
+      "outcome": "succeed",
+      "detail": null,
+      "tool_invocations": 1,
+      "mutated_crossing_took_effect": true,
+      "presenter_seen_by_server": "service-account-relay-r1",
+      "agent": "agent-b",
+      "relay_upstream_peer": "agent-a",
+      "status_at_decision": {
+        "request_record": "active",
+        "mandate_current": true,
+        "mandate_forged": false
+      },
+      "revocation": {
+        "introspection_active_before": true,
+        "introspection_active_after": false,
+        "method": "POST /admin/realms/crossing002/users/{id}/logout"
+      },
+      "invocations": [
+        {
+          "tool": "interop.echo",
+          "arguments": {
+            "payload": "hello"
+          },
+          "lane": "brokered_native"
+        }
+      ],
+      "a2a_message": {
+        "messageId": "msg-task-1",
+        "contextId": "context-1",
+        "taskId": "task-1"
+      },
+      "attestation_envelope": null
+    },
+    {
+      "case": "revoke_caller_transport_credential",
+      "arm": "brokered_a2",
+      "outcome": "succeed",
+      "detail": null,
+      "tool_invocations": 1,
+      "mutated_crossing_took_effect": true,
+      "presenter_seen_by_server": "service-account-relay-r1",
+      "agent": "agent-b",
+      "relay_upstream_peer": "agent-a",
+      "status_at_decision": {
+        "request_record": "active",
+        "mandate_current": true,
+        "mandate_forged": false
+      },
+      "revocation": {
+        "introspection_active_before": true,
+        "introspection_active_after": false,
+        "method": "POST /admin/realms/crossing002/users/{id}/logout"
+      },
+      "invocations": [
+        {
+          "tool": "interop.echo",
+          "arguments": {
+            "payload": "hello"
+          },
+          "lane": "brokered_a2"
+        }
+      ],
+      "a2a_message": {
+        "messageId": "msg-task-1",
+        "contextId": "context-1",
+        "taskId": "task-1",
+        "metadata": {
+          "crossing_relay": {
+            "relay_id": "service-account-relay-r1",
+            "requester_id": "agent-a"
+          }
+        },
+        "extensions": [
+          "https://minority-prophet.dev/experiments/a2a-mcp-crossing-002/relay/v0"
+        ]
+      },
+      "attestation_envelope": null
+    },
+    {
+      "case": "revoke_caller_transport_credential",
+      "arm": "brokered_a3",
+      "outcome": "succeed",
+      "detail": null,
+      "tool_invocations": 1,
+      "mutated_crossing_took_effect": true,
+      "presenter_seen_by_server": "service-account-relay-r1",
+      "agent": "agent-b",
+      "relay_upstream_peer": "agent-a",
+      "status_at_decision": {
+        "request_record": "active",
+        "mandate_current": true,
+        "mandate_forged": false
+      },
+      "revocation": {
+        "introspection_active_before": true,
+        "introspection_active_after": false,
+        "method": "POST /admin/realms/crossing002/users/{id}/logout"
+      },
+      "invocations": [
+        {
+          "tool": "interop.echo",
+          "arguments": {
+            "payload": "hello"
+          },
+          "lane": "brokered_a3"
+        }
+      ],
+      "a2a_message": {
+        "messageId": "msg-task-1",
+        "contextId": "context-1",
+        "taskId": "task-1",
+        "metadata": {
+          "crossing_relay": {
+            "attestation_ref": {
+              "media_type": "application/vnd.in-toto+json",
+              "digest": "sha256:340f02b799ebc9d0ea35b4bc5b3f68941936600a146ac9f5c5d23abca9434d4a"
+            }
+          }
+        },
+        "extensions": [
+          "https://minority-prophet.dev/experiments/a2a-mcp-crossing-002/relay/v0"
+        ]
+      },
+      "attestation_envelope": {
+        "payloadType": "application/vnd.in-toto+json",
+        "payload": "eyJfdHlwZSI6Imh0dHBzOi8vaW4tdG90by5pby9TdGF0ZW1lbnQvdjEiLCJwcmVkaWNhdGUiOnsiYWN0aW9uX2RpZ2VzdCI6InNoYTI1NjpkMWY2MWI5YTBhNjBmNGI3YmY3MDU4NmYzYTUzZGM3NWRhZTIxMmIyMjVmYWQ4MTgzNDEwZGNjMTA1YTc4MmM2IiwiY29udGV4dF9pZCI6ImNvbnRleHQtMSIsImRvd25zdHJlYW0iOiJhZ2VudC1iIiwiZXhwaXJlc19hdCI6IjIwMjYtMDgtMThUMTI6MTA6MDBaIiwibWFuZGF0ZV9kaWdlc3QiOiJzaGEyNTY6MGIyY2U2YTg1ZGJlYzMwOTczMGZmZjJhYTQ2NTRmMmJhNjhkYTkyZGJmOTI5YjgwZGU3YjgwNTMyYjQyZjYxOSIsIm5vbmNlIjoiY3Jvc3Npbmctbm9uY2UtMDAwMSIsIm5vdF9iZWZvcmUiOiIyMDI2LTA4LTE4VDExOjQ1OjAwWiIsInJlbGF5X2lkIjoic2VydmljZS1hY2NvdW50LXJlbGF5LXIxIiwicmVxdWVzdGVyX2lkIjoiYWdlbnQtYSIsInNjaGVtYSI6ImNyb3NzaW5nLXJlbGF5LWF0dGVzdGF0aW9uL3YwIiwidGFza19pZCI6InRhc2stMSIsInVwc3RyZWFtX3BlZXIiOiJhZ2VudC1hIn0sInByZWRpY2F0ZVR5cGUiOiJodHRwczovL21pbm9yaXR5LXByb3BoZXQuZGV2L2V4cGVyaW1lbnRzL2EyYS1tY3AtY3Jvc3NpbmctMDAyL3JlbGF5LWF0dGVzdGF0aW9uL3YwIiwic3ViamVjdCI6W3siZGlnZXN0Ijp7InNoYTI1NiI6ImU0ZTA3MjExYTY3MmY1YmUxNTFhMGRiMzI1MGJmZjQyOGU2MTBlZjg5NWZlODNiMzRiYTc2NjFlNjQ0YjhiZDgifSwibmFtZSI6InJlbGF5LWF0dGVzdGF0aW9uIn1dfQ==",
+        "signatures": [
+          {
+            "keyid": "service-account-relay-r1",
+            "sig": "NcuHfx02tP3dOXzN5I6DPlfJ1PmCta6oksi1XqMLgyNcRAonMlzI9GkEYGV2zl6rJyABem2as048mHgexTaEBw=="
+          }
+        ]
+      }
+    },
+    {
+      "case": "malicious_relay_vouches_for_wrong_caller",
+      "arm": "direct",
+      "outcome": "refuse",
+      "detail": "MandateAdapterError: requester identity substitution: receipt binds agent-a, task presented by agent-c",
+      "tool_invocations": 0,
+      "mutated_crossing_took_effect": false,
+      "presenter_seen_by_server": "agent-c",
+      "agent": "agent-b",
+      "relay_upstream_peer": null,
+      "status_at_decision": {
+        "request_record": "active",
+        "mandate_current": true,
+        "mandate_forged": false
+      },
+      "revocation": null,
+      "invocations": [],
+      "a2a_message": null,
+      "attestation_envelope": null
+    },
+    {
+      "case": "malicious_relay_vouches_for_wrong_caller",
+      "arm": "brokered_native",
+      "outcome": "succeed",
+      "detail": null,
+      "tool_invocations": 1,
+      "mutated_crossing_took_effect": true,
+      "presenter_seen_by_server": "service-account-relay-r1",
+      "agent": "agent-b",
+      "relay_upstream_peer": "agent-c",
+      "status_at_decision": {
+        "request_record": "active",
+        "mandate_current": true,
+        "mandate_forged": false
+      },
+      "revocation": null,
+      "invocations": [
+        {
+          "tool": "interop.echo",
+          "arguments": {
+            "payload": "hello"
+          },
+          "lane": "brokered_native"
+        }
+      ],
+      "a2a_message": {
+        "messageId": "msg-task-1",
+        "contextId": "context-1",
+        "taskId": "task-1"
+      },
+      "attestation_envelope": null
+    },
+    {
+      "case": "malicious_relay_vouches_for_wrong_caller",
+      "arm": "brokered_a2",
+      "outcome": "succeed",
+      "detail": null,
+      "tool_invocations": 1,
+      "mutated_crossing_took_effect": true,
+      "presenter_seen_by_server": "service-account-relay-r1",
+      "agent": "agent-b",
+      "relay_upstream_peer": "agent-c",
+      "status_at_decision": {
+        "request_record": "active",
+        "mandate_current": true,
+        "mandate_forged": false
+      },
+      "revocation": null,
+      "invocations": [
+        {
+          "tool": "interop.echo",
+          "arguments": {
+            "payload": "hello"
+          },
+          "lane": "brokered_a2"
+        }
+      ],
+      "a2a_message": {
+        "messageId": "msg-task-1",
+        "contextId": "context-1",
+        "taskId": "task-1",
+        "metadata": {
+          "crossing_relay": {
+            "relay_id": "service-account-relay-r1",
+            "requester_id": "agent-a"
+          }
+        },
+        "extensions": [
+          "https://minority-prophet.dev/experiments/a2a-mcp-crossing-002/relay/v0"
+        ]
+      },
+      "attestation_envelope": null
+    },
+    {
+      "case": "malicious_relay_vouches_for_wrong_caller",
+      "arm": "brokered_a3",
+      "outcome": "succeed",
+      "detail": null,
+      "tool_invocations": 1,
+      "mutated_crossing_took_effect": true,
+      "presenter_seen_by_server": "service-account-relay-r1",
+      "agent": "agent-b",
+      "relay_upstream_peer": "agent-c",
+      "status_at_decision": {
+        "request_record": "active",
+        "mandate_current": true,
+        "mandate_forged": false
+      },
+      "revocation": null,
+      "invocations": [
+        {
+          "tool": "interop.echo",
+          "arguments": {
+            "payload": "hello"
+          },
+          "lane": "brokered_a3"
+        }
+      ],
+      "a2a_message": {
+        "messageId": "msg-task-1",
+        "contextId": "context-1",
+        "taskId": "task-1",
+        "metadata": {
+          "crossing_relay": {
+            "attestation_ref": {
+              "media_type": "application/vnd.in-toto+json",
+              "digest": "sha256:340f02b799ebc9d0ea35b4bc5b3f68941936600a146ac9f5c5d23abca9434d4a"
+            }
+          }
+        },
+        "extensions": [
+          "https://minority-prophet.dev/experiments/a2a-mcp-crossing-002/relay/v0"
+        ]
+      },
+      "attestation_envelope": {
+        "payloadType": "application/vnd.in-toto+json",
+        "payload": "eyJfdHlwZSI6Imh0dHBzOi8vaW4tdG90by5pby9TdGF0ZW1lbnQvdjEiLCJwcmVkaWNhdGUiOnsiYWN0aW9uX2RpZ2VzdCI6InNoYTI1NjpkMWY2MWI5YTBhNjBmNGI3YmY3MDU4NmYzYTUzZGM3NWRhZTIxMmIyMjVmYWQ4MTgzNDEwZGNjMTA1YTc4MmM2IiwiY29udGV4dF9pZCI6ImNvbnRleHQtMSIsImRvd25zdHJlYW0iOiJhZ2VudC1iIiwiZXhwaXJlc19hdCI6IjIwMjYtMDgtMThUMTI6MTA6MDBaIiwibWFuZGF0ZV9kaWdlc3QiOiJzaGEyNTY6MGIyY2U2YTg1ZGJlYzMwOTczMGZmZjJhYTQ2NTRmMmJhNjhkYTkyZGJmOTI5YjgwZGU3YjgwNTMyYjQyZjYxOSIsIm5vbmNlIjoiY3Jvc3Npbmctbm9uY2UtMDAwMSIsIm5vdF9iZWZvcmUiOiIyMDI2LTA4LTE4VDExOjQ1OjAwWiIsInJlbGF5X2lkIjoic2VydmljZS1hY2NvdW50LXJlbGF5LXIxIiwicmVxdWVzdGVyX2lkIjoiYWdlbnQtYSIsInNjaGVtYSI6ImNyb3NzaW5nLXJlbGF5LWF0dGVzdGF0aW9uL3YwIiwidGFza19pZCI6InRhc2stMSIsInVwc3RyZWFtX3BlZXIiOiJhZ2VudC1hIn0sInByZWRpY2F0ZVR5cGUiOiJodHRwczovL21pbm9yaXR5LXByb3BoZXQuZGV2L2V4cGVyaW1lbnRzL2EyYS1tY3AtY3Jvc3NpbmctMDAyL3JlbGF5LWF0dGVzdGF0aW9uL3YwIiwic3ViamVjdCI6W3siZGlnZXN0Ijp7InNoYTI1NiI6ImU0ZTA3MjExYTY3MmY1YmUxNTFhMGRiMzI1MGJmZjQyOGU2MTBlZjg5NWZlODNiMzRiYTc2NjFlNjQ0YjhiZDgifSwibmFtZSI6InJlbGF5LWF0dGVzdGF0aW9uIn1dfQ==",
+        "signatures": [
+          {
+            "keyid": "service-account-relay-r1",
+            "sig": "NcuHfx02tP3dOXzN5I6DPlfJ1PmCta6oksi1XqMLgyNcRAonMlzI9GkEYGV2zl6rJyABem2as048mHgexTaEBw=="
+          }
+        ]
+      }
+    }
+  ]
+}

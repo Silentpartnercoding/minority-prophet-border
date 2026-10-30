@@ -1,8 +1,11 @@
 # A2A-MCP-CROSSING-002 — preregistration
 
-**Status: cases frozen 19 August 2026. NOT YET RUN.** Neither lane exists. No result is
-claimed by this document, and if one is later reported against a different `cases.json` it is
-a result about a different experiment.
+**Status: cases frozen 19 August 2026, amended three times (`AMENDMENT-1.md` to
+`AMENDMENT-3.md`), RUN 29 October 2026. See `RESULTS.md`.**
+
+Everything below this line is unchanged from 19 August, so what was predicted can be read
+against what happened. `cases.json` is byte-identical and still hashes to the digest recorded
+here.
 
 `cases.json`
 sha256 `8e6e393d7b6701e62ab9ffbc19a14ac271d48e3aca601a6bc7547979eabc4ac4`

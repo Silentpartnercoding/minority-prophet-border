@@ -1,0 +1,463 @@
+{
+  "experiment": "A2A-MCP-CROSSING-002",
+  "run": "in-process",
+  "cases_sha256": "8e6e393d7b6701e62ab9ffbc19a14ac271d48e3aca601a6bc7547979eabc4ac4",
+  "cases_r2_sha256": "87ffabc5ebb32c36a37bfdfd95a17ea2eb0d4233ee0d7c8dc174231b52e65334",
+  "verdicts": {
+    "brokered_a2": {
+      "verdict": "interesting",
+      "control_succeeds": true,
+      "refused_direct_took_effect_brokered": [
+        "second_caller_reuses_broker_path",
+        "broker_forwards_unreceived_receipt"
+      ],
+      "took_effect_direct_refused_brokered": [],
+      "shared_gaps": [
+        "receipt_valid_for_different_downstream",
+        "revoke_caller_transport_credential"
+      ]
+    },
+    "brokered_a3": {
+      "verdict": "refuted",
+      "control_succeeds": true,
+      "refused_direct_took_effect_brokered": [],
+      "took_effect_direct_refused_brokered": [],
+      "shared_gaps": [
+        "receipt_valid_for_different_downstream",
+        "revoke_caller_transport_credential"
+      ]
+    }
+  },
+  "results": [
+    {
+      "outcome": "succeed",
+      "detail": null,
+      "tool_invocations": 1,
+      "agrees_with_001_CrossingAgent": true,
+      "case": "valid_brokered_crossing",
+      "arm": "direct",
+      "mutated_crossing_took_effect": true
+    },
+    {
+      "outcome": "succeed",
+      "detail": null,
+      "tool_invocations": 1,
+      "relay_upstream_peer": "agent-a",
+      "routed_to": "agent-b",
+      "case": "valid_brokered_crossing",
+      "arm": "brokered_native",
+      "mutated_crossing_took_effect": true
+    },
+    {
+      "outcome": "succeed",
+      "detail": null,
+      "tool_invocations": 1,
+      "relay_upstream_peer": "agent-a",
+      "routed_to": "agent-b",
+      "case": "valid_brokered_crossing",
+      "arm": "brokered_a2",
+      "mutated_crossing_took_effect": true
+    },
+    {
+      "outcome": "succeed",
+      "detail": null,
+      "tool_invocations": 1,
+      "relay_upstream_peer": "agent-a",
+      "routed_to": "agent-b",
+      "case": "valid_brokered_crossing",
+      "arm": "brokered_a3",
+      "mutated_crossing_took_effect": true
+    },
+    {
+      "outcome": "reject",
+      "detail": "MandateAdapterError: requester identity substitution: receipt binds agent-a, task presented by service-account-relay-r1",
+      "tool_invocations": 0,
+      "agrees_with_001_CrossingAgent": true,
+      "case": "broker_presents_only_own_identity",
+      "arm": "direct",
+      "mutated_crossing_took_effect": false
+    },
+    {
+      "outcome": "succeed",
+      "detail": null,
+      "tool_invocations": 1,
+      "relay_upstream_peer": "agent-a",
+      "routed_to": "agent-b",
+      "case": "broker_presents_only_own_identity",
+      "arm": "brokered_native",
+      "mutated_crossing_took_effect": true
+    },
+    {
+      "outcome": "reject",
+      "detail": "Refused: no relay evidence in A2A extension metadata",
+      "tool_invocations": 0,
+      "relay_upstream_peer": "agent-a",
+      "routed_to": "agent-b",
+      "case": "broker_presents_only_own_identity",
+      "arm": "brokered_a2",
+      "mutated_crossing_took_effect": false
+    },
+    {
+      "outcome": "reject",
+      "detail": "Refused: no relay evidence in A2A extension metadata",
+      "tool_invocations": 0,
+      "relay_upstream_peer": "agent-a",
+      "routed_to": "agent-b",
+      "case": "broker_presents_only_own_identity",
+      "arm": "brokered_a3",
+      "mutated_crossing_took_effect": false
+    },
+    {
+      "outcome": "reject",
+      "detail": "MandateAdapterError: requester identity substitution: receipt binds agent-a, task presented by service-account-relay-r1",
+      "tool_invocations": 0,
+      "agrees_with_001_CrossingAgent": true,
+      "case": "relay_asserts_itself_as_requester",
+      "arm": "direct",
+      "mutated_crossing_took_effect": false
+    },
+    {
+      "outcome": "succeed",
+      "detail": null,
+      "tool_invocations": 1,
+      "relay_upstream_peer": "agent-a",
+      "routed_to": "agent-b",
+      "case": "relay_asserts_itself_as_requester",
+      "arm": "brokered_native",
+      "mutated_crossing_took_effect": true
+    },
+    {
+      "outcome": "reject",
+      "detail": "Refused: relay claims requester service-account-relay-r1, mandate binds agent-a",
+      "tool_invocations": 0,
+      "relay_upstream_peer": "agent-a",
+      "routed_to": "agent-b",
+      "case": "relay_asserts_itself_as_requester",
+      "arm": "brokered_a2",
+      "mutated_crossing_took_effect": false
+    },
+    {
+      "outcome": "reject",
+      "detail": "Refused: attested requester service-account-relay-r1, mandate binds agent-a",
+      "tool_invocations": 0,
+      "relay_upstream_peer": "agent-a",
+      "routed_to": "agent-b",
+      "case": "relay_asserts_itself_as_requester",
+      "arm": "brokered_a3",
+      "mutated_crossing_took_effect": false
+    },
+    {
+      "outcome": "reject",
+      "detail": "MandateAdapterError: requester identity substitution: receipt binds agent-a, task presented by agent-c",
+      "tool_invocations": 0,
+      "agrees_with_001_CrossingAgent": true,
+      "case": "second_caller_reuses_broker_path",
+      "arm": "direct",
+      "mutated_crossing_took_effect": false
+    },
+    {
+      "outcome": "succeed",
+      "detail": null,
+      "tool_invocations": 1,
+      "relay_upstream_peer": "agent-c",
+      "routed_to": "agent-b",
+      "case": "second_caller_reuses_broker_path",
+      "arm": "brokered_native",
+      "mutated_crossing_took_effect": true
+    },
+    {
+      "outcome": "succeed",
+      "detail": null,
+      "tool_invocations": 1,
+      "relay_upstream_peer": "agent-c",
+      "routed_to": "agent-b",
+      "case": "second_caller_reuses_broker_path",
+      "arm": "brokered_a2",
+      "mutated_crossing_took_effect": true
+    },
+    {
+      "outcome": "reject",
+      "detail": "Refused: relay authenticated agent-c upstream, mandate binds agent-a",
+      "tool_invocations": 0,
+      "relay_upstream_peer": "agent-c",
+      "routed_to": "agent-b",
+      "case": "second_caller_reuses_broker_path",
+      "arm": "brokered_a3",
+      "mutated_crossing_took_effect": false
+    },
+    {
+      "outcome": "reject",
+      "detail": "MandateAdapterError: requester identity substitution: receipt binds agent-a, task presented by service-account-relay-r1",
+      "tool_invocations": 0,
+      "agrees_with_001_CrossingAgent": true,
+      "case": "broker_forwards_unreceived_receipt",
+      "arm": "direct",
+      "mutated_crossing_took_effect": false
+    },
+    {
+      "outcome": "succeed",
+      "detail": null,
+      "tool_invocations": 1,
+      "relay_upstream_peer": null,
+      "routed_to": "agent-b",
+      "case": "broker_forwards_unreceived_receipt",
+      "arm": "brokered_native",
+      "mutated_crossing_took_effect": true
+    },
+    {
+      "outcome": "succeed",
+      "detail": null,
+      "tool_invocations": 1,
+      "relay_upstream_peer": null,
+      "routed_to": "agent-b",
+      "case": "broker_forwards_unreceived_receipt",
+      "arm": "brokered_a2",
+      "mutated_crossing_took_effect": true
+    },
+    {
+      "outcome": "reject",
+      "detail": "Refused: relay authenticated service-account-relay-r1 upstream, mandate binds agent-a",
+      "tool_invocations": 0,
+      "relay_upstream_peer": null,
+      "routed_to": "agent-b",
+      "case": "broker_forwards_unreceived_receipt",
+      "arm": "brokered_a3",
+      "mutated_crossing_took_effect": false
+    },
+    {
+      "outcome": "reject",
+      "detail": "MandateAdapterError: requester identity substitution: receipt binds agent-a, task presented by service-account-relay-r1",
+      "tool_invocations": 0,
+      "case": "broker_fabricates_binding",
+      "arm": "direct",
+      "mutated_crossing_took_effect": false
+    },
+    {
+      "outcome": "succeed",
+      "detail": null,
+      "tool_invocations": 1,
+      "relay_upstream_peer": null,
+      "routed_to": "agent-b",
+      "case": "broker_fabricates_binding",
+      "arm": "brokered_native",
+      "mutated_crossing_took_effect": true
+    },
+    {
+      "outcome": "reject",
+      "detail": "MandateAdapterError: mandate signature verification failed",
+      "tool_invocations": 0,
+      "relay_upstream_peer": null,
+      "routed_to": "agent-b",
+      "case": "broker_fabricates_binding",
+      "arm": "brokered_a2",
+      "mutated_crossing_took_effect": false
+    },
+    {
+      "outcome": "reject",
+      "detail": "Refused: relay authenticated service-account-relay-r1 upstream, mandate binds agent-a",
+      "tool_invocations": 0,
+      "relay_upstream_peer": null,
+      "routed_to": "agent-b",
+      "case": "broker_fabricates_binding",
+      "arm": "brokered_a3",
+      "mutated_crossing_took_effect": false
+    },
+    {
+      "outcome": "succeed",
+      "detail": null,
+      "tool_invocations": 1,
+      "agrees_with_001_CrossingAgent": true,
+      "case": "receipt_valid_for_different_downstream",
+      "arm": "direct",
+      "mutated_crossing_took_effect": true
+    },
+    {
+      "outcome": "succeed",
+      "detail": null,
+      "tool_invocations": 1,
+      "relay_upstream_peer": "agent-a",
+      "routed_to": "agent-d",
+      "case": "receipt_valid_for_different_downstream",
+      "arm": "brokered_native",
+      "mutated_crossing_took_effect": true
+    },
+    {
+      "outcome": "succeed",
+      "detail": null,
+      "tool_invocations": 1,
+      "relay_upstream_peer": "agent-a",
+      "routed_to": "agent-d",
+      "case": "receipt_valid_for_different_downstream",
+      "arm": "brokered_a2",
+      "mutated_crossing_took_effect": true
+    },
+    {
+      "outcome": "succeed",
+      "detail": null,
+      "tool_invocations": 1,
+      "relay_upstream_peer": "agent-a",
+      "routed_to": "agent-d",
+      "case": "receipt_valid_for_different_downstream",
+      "arm": "brokered_a3",
+      "mutated_crossing_took_effect": true
+    },
+    {
+      "outcome": "reject",
+      "detail": "MandateAdapterError: request authority is inactive, denied, expired, or revoked",
+      "tool_invocations": 0,
+      "case": "revoke_request_authority_record",
+      "arm": "direct",
+      "mutated_crossing_took_effect": false
+    },
+    {
+      "outcome": "succeed",
+      "detail": null,
+      "tool_invocations": 1,
+      "relay_upstream_peer": "agent-a",
+      "routed_to": "agent-b",
+      "case": "revoke_request_authority_record",
+      "arm": "brokered_native",
+      "mutated_crossing_took_effect": true
+    },
+    {
+      "outcome": "reject",
+      "detail": "MandateAdapterError: request authority is inactive, denied, expired, or revoked",
+      "tool_invocations": 0,
+      "relay_upstream_peer": "agent-a",
+      "routed_to": "agent-b",
+      "case": "revoke_request_authority_record",
+      "arm": "brokered_a2",
+      "mutated_crossing_took_effect": false
+    },
+    {
+      "outcome": "reject",
+      "detail": "MandateAdapterError: request authority is inactive, denied, expired, or revoked",
+      "tool_invocations": 0,
+      "relay_upstream_peer": "agent-a",
+      "routed_to": "agent-b",
+      "case": "revoke_request_authority_record",
+      "arm": "brokered_a3",
+      "mutated_crossing_took_effect": false
+    },
+    {
+      "outcome": "reject",
+      "detail": "MandateAdapterError: mandate is revoked, stale, or indeterminate at Gate decision",
+      "tool_invocations": 0,
+      "case": "revoke_mandate",
+      "arm": "direct",
+      "mutated_crossing_took_effect": false
+    },
+    {
+      "outcome": "succeed",
+      "detail": null,
+      "tool_invocations": 1,
+      "relay_upstream_peer": "agent-a",
+      "routed_to": "agent-b",
+      "case": "revoke_mandate",
+      "arm": "brokered_native",
+      "mutated_crossing_took_effect": true
+    },
+    {
+      "outcome": "reject",
+      "detail": "MandateAdapterError: mandate is revoked, stale, or indeterminate at Gate decision",
+      "tool_invocations": 0,
+      "relay_upstream_peer": "agent-a",
+      "routed_to": "agent-b",
+      "case": "revoke_mandate",
+      "arm": "brokered_a2",
+      "mutated_crossing_took_effect": false
+    },
+    {
+      "outcome": "reject",
+      "detail": "MandateAdapterError: mandate is revoked, stale, or indeterminate at Gate decision",
+      "tool_invocations": 0,
+      "relay_upstream_peer": "agent-a",
+      "routed_to": "agent-b",
+      "case": "revoke_mandate",
+      "arm": "brokered_a3",
+      "mutated_crossing_took_effect": false
+    },
+    {
+      "outcome": "succeed",
+      "detail": null,
+      "tool_invocations": 1,
+      "agrees_with_001_CrossingAgent": true,
+      "case": "revoke_caller_transport_credential",
+      "arm": "direct",
+      "mutated_crossing_took_effect": true,
+      "note": "in-process: no token exists, so transport credential revocation cannot be represented; see run_transport.py"
+    },
+    {
+      "outcome": "succeed",
+      "detail": null,
+      "tool_invocations": 1,
+      "relay_upstream_peer": "agent-a",
+      "routed_to": "agent-b",
+      "case": "revoke_caller_transport_credential",
+      "arm": "brokered_native",
+      "mutated_crossing_took_effect": true,
+      "note": "in-process: no token exists, so transport credential revocation cannot be represented; see run_transport.py"
+    },
+    {
+      "outcome": "succeed",
+      "detail": null,
+      "tool_invocations": 1,
+      "relay_upstream_peer": "agent-a",
+      "routed_to": "agent-b",
+      "case": "revoke_caller_transport_credential",
+      "arm": "brokered_a2",
+      "mutated_crossing_took_effect": true,
+      "note": "in-process: no token exists, so transport credential revocation cannot be represented; see run_transport.py"
+    },
+    {
+      "outcome": "succeed",
+      "detail": null,
+      "tool_invocations": 1,
+      "relay_upstream_peer": "agent-a",
+      "routed_to": "agent-b",
+      "case": "revoke_caller_transport_credential",
+      "arm": "brokered_a3",
+      "mutated_crossing_took_effect": true,
+      "note": "in-process: no token exists, so transport credential revocation cannot be represented; see run_transport.py"
+    },
+    {
+      "outcome": "reject",
+      "detail": "MandateAdapterError: requester identity substitution: receipt binds agent-a, task presented by agent-c",
+      "tool_invocations": 0,
+      "agrees_with_001_CrossingAgent": true,
+      "case": "malicious_relay_vouches_for_wrong_caller",
+      "arm": "direct",
+      "mutated_crossing_took_effect": false
+    },
+    {
+      "outcome": "succeed",
+      "detail": null,
+      "tool_invocations": 1,
+      "relay_upstream_peer": "agent-c",
+      "routed_to": "agent-b",
+      "case": "malicious_relay_vouches_for_wrong_caller",
+      "arm": "brokered_native",
+      "mutated_crossing_took_effect": true
+    },
+    {
+      "outcome": "succeed",
+      "detail": null,
+      "tool_invocations": 1,
+      "relay_upstream_peer": "agent-c",
+      "routed_to": "agent-b",
+      "case": "malicious_relay_vouches_for_wrong_caller",
+      "arm": "brokered_a2",
+      "mutated_crossing_took_effect": true
+    },
+    {
+      "outcome": "succeed",
+      "detail": null,
+      "tool_invocations": 1,
+      "relay_upstream_peer": "agent-c",
+      "routed_to": "agent-b",
+      "case": "malicious_relay_vouches_for_wrong_caller",
+      "arm": "brokered_a3",
+      "mutated_crossing_took_effect": true
+    }
+  ]
+}

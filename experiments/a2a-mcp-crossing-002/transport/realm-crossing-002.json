@@ -1,0 +1,75 @@
+{
+  "realm": "crossing002",
+  "enabled": true,
+  "accessTokenLifespan": 900,
+  "clients": [
+    {
+      "clientId": "crossing-caller",
+      "enabled": true,
+      "publicClient": true,
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": false,
+      "protocolMappers": [
+        {
+          "name": "relay-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.client.audience": "relay-r1",
+            "access.token.claim": "true",
+            "id.token.claim": "false",
+            "introspection.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "clientId": "relay-r1",
+      "enabled": true,
+      "publicClient": false,
+      "secret": "crossing-relay-r1-local-secret",
+      "serviceAccountsEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "standardFlowEnabled": false
+    }
+  ],
+  "users": [
+    {
+      "username": "agent-a",
+      "enabled": true,
+      "email": "agent-a@crossing.invalid",
+      "emailVerified": true,
+      "firstName": "Agent",
+      "lastName": "A",
+      "requiredActions": [],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "crossing-agent-a",
+          "temporary": false
+        }
+      ]
+    },
+    {
+      "username": "agent-c",
+      "enabled": true,
+      "email": "agent-c@crossing.invalid",
+      "emailVerified": true,
+      "firstName": "Agent",
+      "lastName": "C",
+      "requiredActions": [],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "crossing-agent-c",
+          "temporary": false
+        }
+      ]
+    },
+    {
+      "username": "service-account-relay-r1",
+      "enabled": true,
+      "serviceAccountClientId": "relay-r1"
+    }
+  ]
+}
