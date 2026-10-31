@@ -74,6 +74,7 @@ class SandboxSettings:
     client_private_key_path: str | None = None
     downstream_resource: str | None = None
     operator_token_sha256: str | None = None
+    single_use_grants: bool = False
 
     @classmethod
     def from_env(cls, environ: Mapping[str, str] | None = None) -> "SandboxSettings":
@@ -125,6 +126,9 @@ class SandboxSettings:
             raise AdmissionError("MP_OPERATOR_TOKEN_SHA256 must be a SHA-256 hex digest")
         if downstream is not None and operator_hash is None:
             raise AdmissionError("MP_OPERATOR_TOKEN_SHA256 is required for outbound testing")
+        single_use = values.get("MP_SINGLE_USE_GRANTS", "false").strip().lower()
+        if single_use not in {"true", "false", "1", "0"}:
+            raise AdmissionError("MP_SINGLE_USE_GRANTS must be true or false")
         return cls(
             base_url=base_url,
             issuer=issuer,
@@ -138,6 +142,7 @@ class SandboxSettings:
             client_private_key_path=private_key_path,
             downstream_resource=downstream,
             operator_token_sha256=operator_hash.lower() if operator_hash else None,
+            single_use_grants=single_use in {"true", "1"},
         )
 
 
@@ -302,6 +307,13 @@ class SQLiteEchoRuntime:
                         completed_at TEXT NOT NULL
                     )
                 """)
+                connection.execute("""
+                    CREATE TABLE IF NOT EXISTS interop_grants (
+                        grant_key TEXT PRIMARY KEY,
+                        idempotency_key TEXT NOT NULL,
+                        bound_at TEXT NOT NULL
+                    )
+                """)
 
     @staticmethod
     def _fingerprint(action: Any) -> str:
@@ -311,6 +323,31 @@ class SQLiteEchoRuntime:
             "target": action.target,
             "payload_digest": action.payload_digest,
         })
+
+    def bind_grant(self, grant_key: str, idempotency_key: str) -> None:
+        """Bind one access-token grant to one request namespace, atomically.
+
+        A retry of the same request keeps working. Presenting the same grant
+        for any other request fails before the runtime is reached.
+        """
+
+        with self._lock, closing(self._connect()) as connection:
+            connection.execute("BEGIN IMMEDIATE")
+            existing = connection.execute(
+                "SELECT idempotency_key FROM interop_grants WHERE grant_key = ?",
+                (grant_key,),
+            ).fetchone()
+            if existing is None:
+                connection.execute(
+                    "INSERT INTO interop_grants VALUES (?, ?, ?)",
+                    (grant_key, idempotency_key,
+                     datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")),
+                )
+                connection.commit()
+                return
+            connection.commit()
+            if existing[0] != idempotency_key:
+                raise AdmissionError("access-token grant was already used for another request")
 
     def prepare(self, action: Any) -> Any:
         from minority_prophet.runtime_integrations import payload_digest
@@ -541,9 +578,12 @@ class InteropCheckpoint:
             # field that must not be substituted within that namespace.
             "idempotency_key": "openid-aiim:" + request_namespace.removeprefix("sha256:"),
             "runtime_action_id": authority_binding,
+            "grant_key": document_digest({"issuer": claims["iss"], "grant_id": claims["jti"]}),
         }
 
     def execute(self, request: Mapping[str, Any], context: Mapping[str, Any]) -> dict[str, Any]:
+        if self.settings.single_use_grants:
+            self.runtime.bind_grant(context["grant_key"], context["idempotency_key"])
         action = self.RuntimeAction(
             context["runtime_action_id"],
             context["action"]["type"],

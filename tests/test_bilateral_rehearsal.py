@@ -23,9 +23,12 @@ class BilateralRehearsalTests(unittest.TestCase):
             serialized = output.read_text()
 
         self.assertEqual(report["status"], "passed")
-        self.assertEqual(len(report["cases"]), 16)
+        self.assertEqual(len(report["cases"]), 17)
         self.assertTrue(all(case["outcome"] == "pass" for case in report["cases"]))
         self.assertEqual(report["effects_total"], 4)
+        replay = next(case for case in report["cases"] if case["id"] == "DENY-TOKEN-REPLAY")
+        self.assertEqual(replay["http_status"], 403)
+        self.assertEqual(replay["effects_before"], replay["effects_after"])
         self.assertIn("not independent partner confirmation", report["boundary"])
         for prohibited in (
             "access_token", "client_assertion", "code_verifier", "PRIVATE KEY", "Bearer "
