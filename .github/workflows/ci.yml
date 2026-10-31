@@ -31,4 +31,7 @@ jobs:
       - if: matrix.python-version == '3.12'
         run: PYTHONPATH=border:gate python -m conformance.bilateral_rehearsal --output /tmp/bilateral-rehearsal-result.json
       - if: matrix.python-version == '3.12'
+        working-directory: border
+        run: python -m conformance.verify_rehearsal_receipt --report /tmp/bilateral-rehearsal-result.json
+      - if: matrix.python-version == '3.12'
         run: docker build -t minority-prophet-border-sandbox:ci border

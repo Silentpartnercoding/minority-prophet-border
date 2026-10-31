@@ -25,6 +25,7 @@ from cryptography.hazmat.primitives.asymmetric import ec
 from border import AdmissionError, HttpResponse, InteropEvidenceLog, OAuthMcpClient
 from border.admission import document_digest
 from border.live_sandbox import PrivateKeyJWTSigner, SandboxSettings, create_app
+from conformance.rehearsal_receipt import load_signing_key, receipt_paths, sign_report
 
 
 GATEWAY = "https://gateway.rehearsal.invalid"
@@ -243,7 +244,8 @@ class RehearsalTransport:
         return response
 
 
-def run_rehearsal(output: Path | None = None) -> dict[str, Any]:
+def run_rehearsal(output: Path | None = None,
+                  signing_key: Path | None = None) -> dict[str, Any]:
     cases: list[dict[str, Any]] = []
 
     def record(case_id: str, passed: bool, **observed: Any) -> None:
@@ -416,7 +418,14 @@ def run_rehearsal(output: Path | None = None) -> dict[str, Any]:
             raise AssertionError("rehearsal report retained a prohibited secret")
         if output is not None:
             output.parent.mkdir(parents=True, exist_ok=True)
-            output.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")
+            report_bytes = (json.dumps(report, indent=2, sort_keys=True) + "\n").encode()
+            output.write_bytes(report_bytes)
+            envelope, jwks = sign_report(
+                report, report_bytes, output.name,
+                load_signing_key(signing_key) if signing_key else None)
+            envelope_path, jwks_path = receipt_paths(output)
+            envelope_path.write_text(json.dumps(envelope, indent=2, sort_keys=True) + "\n")
+            jwks_path.write_text(json.dumps(jwks, indent=2, sort_keys=True) + "\n")
         return report
 
 
@@ -428,13 +437,21 @@ def main() -> None:
         default=Path("var/bilateral-rehearsal-result.json"),
         help="write the redacted local-only report to this path",
     )
+    parser.add_argument(
+        "--signing-key",
+        type=Path,
+        help="PEM Ed25519 private key for the receipt; a fresh key is used if omitted",
+    )
     arguments = parser.parse_args()
-    report = run_rehearsal(arguments.output)
+    report = run_rehearsal(arguments.output, arguments.signing_key)
+    envelope_path, jwks_path = receipt_paths(arguments.output)
     print(json.dumps({
         "status": report["status"],
         "cases": len(report["cases"]),
         "effects_total": report["effects_total"],
         "output": str(arguments.output),
+        "receipt": str(envelope_path),
+        "public_key": str(jwks_path),
         "boundary": report["boundary"],
     }, sort_keys=True))
 
