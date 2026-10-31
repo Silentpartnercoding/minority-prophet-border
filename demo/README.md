@@ -1,7 +1,7 @@
 # Offline demo fallback
 
-Use this when the venue network, the hosted test server or the identity
-provider is unavailable. Everything here runs on one laptop with no network.
+Use this when the network, the hosted test server or the identity provider
+is unavailable. Everything here runs on one laptop with no network.
 
 ## What it shows
 
@@ -15,7 +15,7 @@ and the token, action, identity and delegation failures, each refused with
 Say this plainly when presenting it: the peers are disposable and local, so the
 run is preparation and evidence of behaviour, with no partner observing it.
 
-## Before the event
+## Before a demo
 
 1. Install once, while you still have a network:
 
@@ -45,7 +45,7 @@ run is preparation and evidence of behaviour, with no partner observing it.
    - otherwise on macOS: a `script -r` recording, replayed with `script -p <file>`;
    - always: a plain `rehearsal-<time>.log`.
 
-## At the event
+## During a demo
 
 - Live but offline: `sh demo/offline-rehearsal.sh`. It prints each case with its
   HTTP status and the effect count before and after. When the signed receipt
