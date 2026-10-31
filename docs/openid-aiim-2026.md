@@ -1,7 +1,19 @@
 # OpenID AIIM 2026 interoperability package
 
-Status: executable bilateral test package; no event commitment or partner
-result is claimed by this repository.
+Status as of October 31, 2026:
+
+- Gateway (CIMD): the OpenID AIIM interop matrix shows this implementation
+  checked for the gateway CIMD category, recorded on September 30, 2026.
+- Bilateral run: on October 26, 2026 an independent MCP gateway implementer
+  ran a bilateral test against the hosted test server. The other participant
+  confirmed on October 27, 2026 that its observations matched ours.
+- Gartner IAM Summit: an application to demonstrate the gateway in the
+  interop room has been filed. This document makes no claim about whether
+  it will be accepted.
+- EMA / ID-JAG: still not implemented.
+
+Partner names and run transcripts are kept out of this repository unless the
+other participant agrees to publish them.
 
 The repository also includes a passing, local-only bilateral rehearsal. It
 uses disposable peers to exercise OPRM, PKCE, `private_key_jwt`, token checks,
@@ -11,7 +23,7 @@ bilateral run, not partner confirmation. See
 
 ## Minimal role and use case
 
-The implementation participates as an **MCP gateway**: an MCP server toward an
+The implementation participates as an MCP gateway: an MCP server toward an
 enterprise client and an MCP client toward a downstream server. The first test
 target is OAuth token-based access with OAuth Protected Resource Metadata
 (OPRM). Both gateway halves are implemented. CIMD metadata and the
@@ -38,7 +50,7 @@ The outbound client half:
 7. retries the downstream MCP request with the resource-specific token; and
 8. discards a rejected token instead of silently changing authority.
 
-The gateway binding does **not** imply that the partner authorization server
+The gateway binding does not imply that the partner authorization server
 signed the payload digest. That distinction must remain visible in every demo.
 
 ## Partner matrix template
@@ -54,7 +66,10 @@ signed the payload digest. That distinction must remain visible in every demo.
 | CIMD | Authorization code + PKCE S256 | MCP Gateway/Client | OAuth AS | executable with injected authentication | pending |
 | EMA | Valid ID-JAG | MCP Gateway/Client | OpenID Provider + Resource AS | not implemented | pending |
 
-No box is checked until the complementary participant confirms the same result.
+The table tracks feature-level confirmation recorded in a partner result file.
+The event-level checkmark and the October 26 run are listed under Status above;
+a feature row moves to confirmed only when the other participant's own result
+file records it.
 The partner copies `conformance/openid-aiim-result.template.json`, replaces all
 placeholders and zero digests, and records only what they directly observed.
 The corresponding JSON schema prevents ambiguous roles and outcomes.
