@@ -64,6 +64,7 @@ The rehearsal requires all of the following:
 | Authorization code + PKCE S256 + `private_key_jwt` | completes |
 | Exact authorized action | `200`; one effect |
 | Identical retry | `200`; still one effect |
+| Same token presented for a new request (replay) | `403`; zero new effects |
 | Wrong scope, audience, issuer or signature | `403`; zero new effects |
 | Expired or not-yet-valid token | `403`; zero new effects |
 | Changed action under the same request | `403`; zero new effects |
@@ -75,11 +76,19 @@ Within that namespace, the runtime fingerprint also binds the grant, agent,
 human principal, delegation, audience, scope and exact action. A retry may
 return the prior result only when all of those bindings remain unchanged.
 
+The rehearsal runs with single-use grants enabled. Each access-token grant,
+identified by issuer and `jti`, is bound to the first request it authorizes.
+Presenting that token for any other request is refused before the runtime is
+reached. The live sandbox keeps this off by default because many OAuth clients
+reuse one access token for several tool calls; set `MP_SINGLE_USE_GRANTS=true`
+to turn it on.
+
 ## What it proves
 
 - the gateway's two OAuth/MCP halves agree on the protocol contract;
 - valid authority reaches the harmless runtime exactly once;
 - specified token failures create no effect;
+- a token replayed for a new request creates no effect;
 - action, identity and delegation substitution fail closed; and
 - the report is redacted and reproducible as a local test procedure.
 

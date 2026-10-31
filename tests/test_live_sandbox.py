@@ -125,6 +125,36 @@ class LiveSandboxTests(unittest.TestCase):
         self.assertEqual(substituted.status, 403)
         self.assertEqual(valid.checkpoint.runtime.effect_count(), 1)
 
+    def test_single_use_grant_refuses_token_replay_with_zero_effects(self):
+        multi_use = create_app(self.settings, verify_token=lambda _: claims(), clock=lambda: NOW)
+        self.assertEqual(self.call(multi_use, self.request("first")).status, 200)
+        self.assertEqual(self.call(multi_use, self.request("second")).status, 200)
+        self.assertEqual(multi_use.checkpoint.runtime.effect_count(), 2)
+
+        settings = replace(self.settings, single_use_grants=True,
+                           sqlite_path=str(Path(self.temporary.name) / "single.sqlite3"))
+        app = create_app(settings, verify_token=lambda _: claims(), clock=lambda: NOW)
+        self.assertEqual(self.call(app, self.request("first")).status, 200)
+        self.assertEqual(self.call(app, self.request("first")).status, 200)
+        self.assertEqual(app.checkpoint.runtime.effect_count(), 1)
+        replayed = self.call(app, self.request("second"))
+        self.assertEqual(replayed.status, 403)
+        self.assertIn("already used", replayed.json_body()["error"]["message"])
+        self.assertEqual(app.checkpoint.runtime.effect_count(), 1)
+
+    def test_single_use_grant_setting_is_parsed_strictly(self):
+        environ = {
+            "MP_BASE_URL": BASE,
+            "MP_AUTHORIZATION_SERVER_ISSUER": ISSUER,
+            "MP_CLIENT_JWKS_JSON": json.dumps(self.settings.public_jwks),
+            "MP_BORDER_STAMP_KEY_B64": base64.b64encode(b"k" * 32).decode(),
+        }
+        self.assertFalse(SandboxSettings.from_env(environ).single_use_grants)
+        self.assertTrue(SandboxSettings.from_env(
+            {**environ, "MP_SINGLE_USE_GRANTS": "true"}).single_use_grants)
+        with self.assertRaises(AdmissionError):
+            SandboxSettings.from_env({**environ, "MP_SINGLE_USE_GRANTS": "sometimes"})
+
     def test_identity_and_delegation_cannot_be_substituted_on_retry(self):
         tokens = {
             "original": claims(jti="shared-grant"),
