@@ -25,6 +25,7 @@ from cryptography.hazmat.primitives.asymmetric import ec
 from border import AdmissionError, HttpResponse, InteropEvidenceLog, OAuthMcpClient
 from border.admission import document_digest
 from border.live_sandbox import PrivateKeyJWTSigner, SandboxSettings, create_app
+from conformance.rehearsal_receipt import load_signing_key, receipt_paths, sign_report
 
 
 GATEWAY = "https://gateway.rehearsal.invalid"
@@ -243,7 +244,8 @@ class RehearsalTransport:
         return response
 
 
-def run_rehearsal(output: Path | None = None) -> dict[str, Any]:
+def run_rehearsal(output: Path | None = None,
+                  signing_key: Path | None = None) -> dict[str, Any]:
     cases: list[dict[str, Any]] = []
 
     def record(case_id: str, passed: bool, **observed: Any) -> None:
@@ -272,6 +274,7 @@ def run_rehearsal(output: Path | None = None) -> dict[str, Any]:
             sqlite_path=str(directory / "rehearsal.sqlite3"),
             public_jwks={"keys": [client_jwk]},
             border_stamp_key=secrets.token_bytes(32),
+            single_use_grants=True,
         )
         application = create_app(settings, verify_token=issuer.verify)
         evidence = InteropEvidenceLog(correlation_salt=secrets.token_bytes(32))
@@ -342,13 +345,18 @@ def run_rehearsal(output: Path | None = None) -> dict[str, Any]:
         rogue_key = ec.generate_private_key(ec.SECP256R1())
         denied("DENY-FORGED-SIGNATURE", issuer.mint(key=rogue_key), _request("forged"))
 
-        valid_token = client.tokens[RESOURCE]
+        # The grant used for allow-once is bound to that request. Presenting
+        # the same token again for a new request is a replay.
+        denied("DENY-TOKEN-REPLAY", client.tokens[RESOURCE],
+               _request("token-replay", {"message": "bilateral rehearsal"}))
+
+        action_token = issuer.mint(jti="action-binding-grant")
         action_request = _request("action-binding", {"value": 1})
         action_first = transport.request("POST", RESOURCE,
-            headers={"Authorization": "Bearer " + valid_token}, json_body=action_request)
+            headers={"Authorization": "Bearer " + action_token}, json_body=action_request)
         record("ACTION-BINDING-BASELINE", action_first.status == 200,
                http_status=action_first.status, effects=application.checkpoint.runtime.effect_count())
-        denied("DENY-ACTION-SUBSTITUTION", valid_token,
+        denied("DENY-ACTION-SUBSTITUTION", action_token,
                _request("action-binding", {"value": 2}))
 
         identity_request = _request("identity-binding", {"value": "same-action"})
@@ -416,7 +424,14 @@ def run_rehearsal(output: Path | None = None) -> dict[str, Any]:
             raise AssertionError("rehearsal report retained a prohibited secret")
         if output is not None:
             output.parent.mkdir(parents=True, exist_ok=True)
-            output.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")
+            report_bytes = (json.dumps(report, indent=2, sort_keys=True) + "\n").encode()
+            output.write_bytes(report_bytes)
+            envelope, jwks = sign_report(
+                report, report_bytes, output.name,
+                load_signing_key(signing_key) if signing_key else None)
+            envelope_path, jwks_path = receipt_paths(output)
+            envelope_path.write_text(json.dumps(envelope, indent=2, sort_keys=True) + "\n")
+            jwks_path.write_text(json.dumps(jwks, indent=2, sort_keys=True) + "\n")
         return report
 
 
@@ -428,13 +443,21 @@ def main() -> None:
         default=Path("var/bilateral-rehearsal-result.json"),
         help="write the redacted local-only report to this path",
     )
+    parser.add_argument(
+        "--signing-key",
+        type=Path,
+        help="PEM Ed25519 private key for the receipt; a fresh key is used if omitted",
+    )
     arguments = parser.parse_args()
-    report = run_rehearsal(arguments.output)
+    report = run_rehearsal(arguments.output, arguments.signing_key)
+    envelope_path, jwks_path = receipt_paths(arguments.output)
     print(json.dumps({
         "status": report["status"],
         "cases": len(report["cases"]),
         "effects_total": report["effects_total"],
         "output": str(arguments.output),
+        "receipt": str(envelope_path),
+        "public_key": str(jwks_path),
         "boundary": report["boundary"],
     }, sort_keys=True))
 

@@ -123,3 +123,37 @@ def hmac_sha256_verifier(keys: dict[str, bytes]) -> Callable[[str, bytes, bytes]
         return hmac.compare_digest(expected, signature)
 
     return verify
+
+
+def ed25519_signer(private_key: Any) -> Callable[[bytes], bytes]:
+    """Return a DSSE signer for a ``cryptography`` Ed25519 private key."""
+
+    try:
+        from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+    except ImportError as exc:  # pragma: no cover - depends on optional extras
+        raise AdmissionError("install cryptography to sign with Ed25519") from exc
+    if not isinstance(private_key, Ed25519PrivateKey):
+        raise AdmissionError("Ed25519 signer requires an Ed25519 private key")
+    return private_key.sign
+
+
+def ed25519_verifier(keys: dict[str, bytes]) -> Callable[[str, bytes, bytes], bool]:
+    """Return a DSSE verifier for raw 32-byte Ed25519 public keys by key id."""
+
+    try:
+        from cryptography.exceptions import InvalidSignature
+        from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
+    except ImportError as exc:  # pragma: no cover - depends on optional extras
+        raise AdmissionError("install cryptography to verify Ed25519 signatures") from exc
+
+    def verify(key_id: str, payload: bytes, signature: bytes) -> bool:
+        raw = keys.get(key_id)
+        if raw is None or len(raw) != 32:
+            return False
+        try:
+            Ed25519PublicKey.from_public_bytes(raw).verify(signature, payload)
+        except (InvalidSignature, ValueError):
+            return False
+        return True
+
+    return verify
