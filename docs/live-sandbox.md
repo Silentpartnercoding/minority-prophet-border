@@ -97,6 +97,8 @@ and call `interop.echo`.
   exact observed echo arguments.
 - The HMAC Border stamp authenticates the colocated private deployment domain;
   it is not a public identity mechanism.
+- With `MP_SINGLE_USE_GRANTS=true`, one access-token grant authorizes one
+  MCP request; a replay for another request returns `403` with no effect.
 - SQLite provides durable exactly-once behavior for this local harmless echo.
   External effects require a target-side idempotency contract.
 - Stateless JWT verification cannot observe out-of-band revocation unless the

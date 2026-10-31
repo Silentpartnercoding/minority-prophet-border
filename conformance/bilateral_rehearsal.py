@@ -272,6 +272,7 @@ def run_rehearsal(output: Path | None = None) -> dict[str, Any]:
             sqlite_path=str(directory / "rehearsal.sqlite3"),
             public_jwks={"keys": [client_jwk]},
             border_stamp_key=secrets.token_bytes(32),
+            single_use_grants=True,
         )
         application = create_app(settings, verify_token=issuer.verify)
         evidence = InteropEvidenceLog(correlation_salt=secrets.token_bytes(32))
@@ -342,13 +343,18 @@ def run_rehearsal(output: Path | None = None) -> dict[str, Any]:
         rogue_key = ec.generate_private_key(ec.SECP256R1())
         denied("DENY-FORGED-SIGNATURE", issuer.mint(key=rogue_key), _request("forged"))
 
-        valid_token = client.tokens[RESOURCE]
+        # The grant used for allow-once is bound to that request. Presenting
+        # the same token again for a new request is a replay.
+        denied("DENY-TOKEN-REPLAY", client.tokens[RESOURCE],
+               _request("token-replay", {"message": "bilateral rehearsal"}))
+
+        action_token = issuer.mint(jti="action-binding-grant")
         action_request = _request("action-binding", {"value": 1})
         action_first = transport.request("POST", RESOURCE,
-            headers={"Authorization": "Bearer " + valid_token}, json_body=action_request)
+            headers={"Authorization": "Bearer " + action_token}, json_body=action_request)
         record("ACTION-BINDING-BASELINE", action_first.status == 200,
                http_status=action_first.status, effects=application.checkpoint.runtime.effect_count())
-        denied("DENY-ACTION-SUBSTITUTION", valid_token,
+        denied("DENY-ACTION-SUBSTITUTION", action_token,
                _request("action-binding", {"value": 2}))
 
         identity_request = _request("identity-binding", {"value": "same-action"})
